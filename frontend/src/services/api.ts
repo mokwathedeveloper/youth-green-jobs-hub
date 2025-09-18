@@ -46,6 +46,23 @@ import type {
   ProductRecommendations,
   DashboardStats as ProductDashboardStats
 } from '../types/products';
+import type {
+  PlatformMetrics,
+  UserEngagementMetrics,
+  EnvironmentalImpactMetrics,
+  CountyMetrics,
+  SystemPerformanceMetrics,
+  DashboardAlert,
+  DashboardSummary,
+  TimeSeriesData,
+  CountyRanking,
+  WasteCategoryBreakdown,
+  TopPerformers,
+  SystemHealth,
+  EnvironmentalImpactSummary,
+  AnalyticsListResponse,
+  AnalyticsFilters
+} from '../types/analytics';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -670,6 +687,131 @@ export const productsApi = {
   // Dashboard Stats
   getProductDashboardStats: async (): Promise<ProductDashboardStats> => {
     const response = await apiClient.get('/products/dashboard/stats/');
+    return response.data;
+  },
+};
+
+// Analytics API Service
+export const analyticsApi = {
+  // Platform Metrics
+  getPlatformMetrics: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<PlatformMetrics>> => {
+    const response = await apiClient.get('/analytics/platform-metrics/', { params: filters });
+    return response.data;
+  },
+
+  getPlatformMetricsDetail: async (date: string): Promise<PlatformMetrics> => {
+    const response = await apiClient.get(`/analytics/platform-metrics/${date}/`);
+    return response.data;
+  },
+
+  // User Engagement Metrics
+  getUserEngagementMetrics: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<UserEngagementMetrics>> => {
+    const response = await apiClient.get('/analytics/user-engagement/', { params: filters });
+    return response.data;
+  },
+
+  // Environmental Impact Metrics
+  getEnvironmentalImpactMetrics: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<EnvironmentalImpactMetrics>> => {
+    const response = await apiClient.get('/analytics/environmental-impact/', { params: filters });
+    return response.data;
+  },
+
+  // County Metrics
+  getCountyMetrics: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<CountyMetrics>> => {
+    const response = await apiClient.get('/analytics/county-metrics/', { params: filters });
+    return response.data;
+  },
+
+  // System Performance Metrics
+  getSystemPerformanceMetrics: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<SystemPerformanceMetrics>> => {
+    const response = await apiClient.get('/analytics/system-performance/', { params: filters });
+    return response.data;
+  },
+
+  // Dashboard Alerts
+  getDashboardAlerts: async (filters?: AnalyticsFilters): Promise<AnalyticsListResponse<DashboardAlert>> => {
+    const response = await apiClient.get('/analytics/alerts/', { params: filters });
+    return response.data;
+  },
+
+  createDashboardAlert: async (data: Partial<DashboardAlert>): Promise<DashboardAlert> => {
+    const response = await apiClient.post('/analytics/alerts/', data);
+    return response.data;
+  },
+
+  getDashboardAlert: async (alertId: string): Promise<DashboardAlert> => {
+    const response = await apiClient.get(`/analytics/alerts/${alertId}/`);
+    return response.data;
+  },
+
+  updateDashboardAlert: async (alertId: string, data: Partial<DashboardAlert>): Promise<DashboardAlert> => {
+    const response = await apiClient.patch(`/analytics/alerts/${alertId}/`, data);
+    return response.data;
+  },
+
+  deleteDashboardAlert: async (alertId: string): Promise<void> => {
+    await apiClient.delete(`/analytics/alerts/${alertId}/`);
+  },
+
+  acknowledgeDashboardAlert: async (alertId: string): Promise<DashboardAlert> => {
+    const response = await apiClient.post(`/analytics/alerts/${alertId}/acknowledge/`);
+    return response.data;
+  },
+
+  // Dashboard Summary and Analytics
+  getDashboardSummary: async (): Promise<DashboardSummary> => {
+    const response = await apiClient.get('/analytics/dashboard/summary/');
+    return response.data;
+  },
+
+  getSystemHealth: async (): Promise<SystemHealth> => {
+    const response = await apiClient.get('/analytics/dashboard/system-health/');
+    return response.data;
+  },
+
+  getEnvironmentalImpactSummary: async (days?: number): Promise<EnvironmentalImpactSummary> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/dashboard/environmental-impact/', { params });
+    return response.data;
+  },
+
+  // Chart Data Endpoints
+  getWasteCollectionTrends: async (days?: number): Promise<TimeSeriesData> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/charts/waste-trends/', { params });
+    return response.data;
+  },
+
+  getUserGrowthTrends: async (days?: number): Promise<TimeSeriesData> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/charts/user-growth/', { params });
+    return response.data;
+  },
+
+  getMarketplaceTrends: async (days?: number): Promise<TimeSeriesData> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/charts/marketplace-trends/', { params });
+    return response.data;
+  },
+
+  // Rankings and Breakdowns
+  getCountyRankings: async (metric?: string, days?: number): Promise<CountyRanking[]> => {
+    const params: any = {};
+    if (metric) params.metric = metric;
+    if (days) params.days = days;
+    const response = await apiClient.get('/analytics/rankings/counties/', { params });
+    return response.data;
+  },
+
+  getWasteCategoryBreakdown: async (days?: number): Promise<WasteCategoryBreakdown[]> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/breakdown/waste-categories/', { params });
+    return response.data;
+  },
+
+  getTopPerformers: async (days?: number): Promise<TopPerformers> => {
+    const params = days ? { days } : {};
+    const response = await apiClient.get('/analytics/top-performers/', { params });
     return response.data;
   },
 };
