@@ -1,8 +1,9 @@
 # 🌱 Frontend Setup: React + TypeScript + Tailwind CSS
 
-**Branch:** `setup-frontend-react-ts`  
-**Status:** ✅ **COMPLETED** - Ready for merge to `main`  
+**Branch:** `setup-frontend-react-ts`
+**Status:** ✅ **COMPLETED** - Merged to `main`
 **Date:** 2025-09-18
+**Note:** ⚠️ Requires Node.js 20.19+ for Vite 7.1.6 (current system: Node.js 18.19.1)
 
 ---
 
@@ -98,6 +99,8 @@ frontend/
 
 ## 🚀 Development Commands
 
+⚠️ **Node.js Version Requirement:** Vite 7.1.6 requires Node.js 20.19+ or 22.12+. Current system has Node.js 18.19.1.
+
 ```bash
 # Navigate to frontend directory
 cd frontend
@@ -105,7 +108,7 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (requires Node.js 20.19+)
 npm run dev
 
 # Build for production
@@ -116,6 +119,21 @@ npm run preview
 
 # Run linting
 npm run lint
+```
+
+### **Node.js Upgrade Options:**
+```bash
+# Option 1: Using Node Version Manager (nvm)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 20
+nvm use 20
+
+# Option 2: Using NodeSource repository (Ubuntu/Debian)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify installation
+node --version  # Should show v20.x.x or higher
 ```
 
 ---
