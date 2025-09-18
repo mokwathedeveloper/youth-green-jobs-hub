@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Users, Recycle, ShoppingBag, TrendingUp, ArrowRight } from 'lucide-react';
+import { Users, Recycle, ShoppingBag, TrendingUp, ArrowRight } from 'lucide-react';
 import Button from '../components/ui/Button';
 
 const HomePage: React.FC = () => {

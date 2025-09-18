@@ -19,7 +19,7 @@ const RegisterForm: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {

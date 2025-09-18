@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/routing/ProtectedRoute';
@@ -19,7 +19,7 @@ import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-function App() {
+const App: FC = () => {
   return (
     <AuthProvider>
       <Router>
@@ -69,6 +69,6 @@ function App() {
       </Router>
     </AuthProvider>
   );
-}
+};
 
 export default App;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User, Save, Camera, Shield, Bell } from 'lucide-react';
+import { User, Save, Camera, Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { profileUpdateSchema } from '../../schemas/auth';
 import type { ProfileUpdateFormData } from '../../schemas/auth';
@@ -19,7 +19,7 @@ const ProfileForm: React.FC = () => {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-    setValue,
+
   } = useForm<ProfileUpdateFormData>({
     resolver: zodResolver(profileUpdateSchema),
   });
