@@ -81,7 +81,7 @@ const DashboardPage: React.FC = () => {
     {
       name: 'Report Waste',
       description: 'Report waste in your area',
-      href: '/dashboard/waste/report',
+      href: '/dashboard/waste/reports',
       icon: Recycle,
       color: 'green',
     },
