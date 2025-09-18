@@ -151,5 +151,6 @@ python manage.py runserver 0.0.0.0:8000
 
 ---
 
-**Status**: ✅ Backend foundation successfully set up
+**Status**: ✅ Backend foundation successfully set up and merged to `main`
+**Branch**: `setup-backend-django` (merged, kept for history)
 **Next Branch**: `setup-frontend-react-ts`
