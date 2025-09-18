@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     # Local apps
     'authentication',
     'waste_collection',
+    'products',
     'waste_management',
     'eco_products',
     'analytics',
