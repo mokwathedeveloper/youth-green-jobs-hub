@@ -175,8 +175,8 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Custom User Model (if needed)
-# AUTH_USER_MODEL = 'authentication.User'
+# Custom User Model
+AUTH_USER_MODEL = 'authentication.User'
 
 # Time Zone for Kisumu, Kenya
 TIME_ZONE = 'Africa/Nairobi'
