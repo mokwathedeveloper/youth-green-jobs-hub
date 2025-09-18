@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { DashboardCardProps } from '../../types/analytics';
+import type { DashboardCardProps } from '../../types/analytics';
 
 interface KPICardProps extends Omit<DashboardCardProps, 'icon'> {
   icon?: React.ReactNode;

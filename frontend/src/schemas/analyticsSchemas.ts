@@ -194,7 +194,7 @@ export const dashboardAlertSchema = z.object({
   acknowledged_by: uuidSchema.optional(),
   acknowledged_by_username: z.string().optional(),
   acknowledged_at: datetimeSchema.optional(),
-  alert_data: z.record(z.any()),
+  alert_data: z.record(z.string(), z.any()),
   auto_resolve_at: datetimeSchema.optional(),
   created_at: datetimeSchema,
   updated_at: datetimeSchema,
@@ -387,7 +387,7 @@ export const createAlertSchema = z.object({
   message: z.string().min(1, 'Message is required'),
   alert_type: alertTypeSchema,
   category: alertCategorySchema,
-  alert_data: z.record(z.any()).optional(),
+  alert_data: z.record(z.string(), z.any()).optional(),
   auto_resolve_at: datetimeSchema.optional(),
 });
 

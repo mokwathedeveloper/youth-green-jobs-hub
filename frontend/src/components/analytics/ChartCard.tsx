@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { ChartCardProps, TimeSeriesData } from '../../types/analytics';
+import type { ChartCardProps, TimeSeriesData } from '../../types/analytics';
 
 interface ExtendedChartCardProps extends ChartCardProps {
   loading?: boolean;
@@ -41,7 +41,7 @@ const ChartCard: React.FC<ExtendedChartCardProps> = ({
     return labels.map((label, index) => {
       const dataPoint: any = { name: label };
       
-      datasets.forEach((dataset, datasetIndex) => {
+      datasets.forEach((dataset) => {
         dataPoint[dataset.label] = dataset.data[index] || 0;
       });
       

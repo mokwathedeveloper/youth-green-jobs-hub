@@ -8,7 +8,7 @@ import {
   Check,
   Clock
 } from 'lucide-react';
-import { AlertCardProps, DashboardAlert, AlertType } from '../../types/analytics';
+import type { AlertCardProps, AlertType } from '../../types/analytics';
 
 interface ExtendedAlertCardProps extends AlertCardProps {
   className?: string;

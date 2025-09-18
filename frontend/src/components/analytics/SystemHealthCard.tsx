@@ -10,7 +10,7 @@ import {
   CheckCircle,
   AlertTriangle
 } from 'lucide-react';
-import { SystemHealth, SystemHealthStatus } from '../../types/analytics';
+import type { SystemHealth, SystemHealthStatus } from '../../types/analytics';
 
 interface SystemHealthCardProps {
   systemHealth: SystemHealth;
