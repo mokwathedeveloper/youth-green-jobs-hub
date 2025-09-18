@@ -48,10 +48,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_filters',
 
     # Local apps
     'authentication',
     'waste_collection',
+    'products',
     'waste_management',
     'eco_products',
     'analytics',

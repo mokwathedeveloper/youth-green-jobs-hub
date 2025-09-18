@@ -26,6 +26,26 @@ import type {
   CreditTransactionFilters,
   MapLocation
 } from '../types/waste';
+import type {
+  Product,
+  ProductListItem,
+  ProductListResponse,
+  SMEVendor,
+  VendorListResponse,
+  ProductCategory,
+  Order,
+  OrderListResponse,
+  OrderCreateData,
+  ProductReview,
+  ReviewListResponse,
+  ReviewCreateData,
+  ShoppingCart,
+  CartItem,
+  AddToCartData,
+  ProductSearchParams,
+  ProductRecommendations,
+  DashboardStats as ProductDashboardStats
+} from '../types/products';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -531,6 +551,125 @@ export const wasteApi = {
       },
     });
 
+    return response.data;
+  },
+};
+
+// ===== ECO PRODUCTS API =====
+export const productsApi = {
+
+  // Product Catalog
+  getProducts: async (params?: ProductSearchParams): Promise<ProductListResponse> => {
+    const response = await apiClient.get('/products/products/', { params });
+    return response.data;
+  },
+
+  getProduct: async (id: string): Promise<Product> => {
+    const response = await apiClient.get(`/products/products/${id}/`);
+    return response.data;
+  },
+
+  getFeaturedProducts: async (): Promise<ProductListItem[]> => {
+    const response = await apiClient.get('/products/products/featured/');
+    return response.data.results;
+  },
+
+  getProductsByVendor: async (vendorId: string, params?: ProductSearchParams): Promise<ProductListResponse> => {
+    const response = await apiClient.get(`/products/products/vendor/${vendorId}/`, { params });
+    return response.data;
+  },
+
+  getProductsByCategory: async (categoryId: string, params?: ProductSearchParams): Promise<ProductListResponse> => {
+    const response = await apiClient.get(`/products/products/category/${categoryId}/`, { params });
+    return response.data;
+  },
+
+  searchProducts: async (params: ProductSearchParams): Promise<ProductListResponse> => {
+    const response = await apiClient.get('/products/search/', { params });
+    return response.data;
+  },
+
+  getProductRecommendations: async (productId: string): Promise<ProductRecommendations> => {
+    const response = await apiClient.get(`/products/products/${productId}/recommendations/`);
+    return response.data;
+  },
+
+  // Vendor Management
+  getVendors: async (params?: any): Promise<VendorListResponse> => {
+    const response = await apiClient.get('/products/vendors/', { params });
+    return response.data;
+  },
+
+  getVendor: async (id: string): Promise<SMEVendor> => {
+    const response = await apiClient.get(`/products/vendors/${id}/`);
+    return response.data;
+  },
+
+  // Product Categories
+  getProductCategories: async (): Promise<ProductCategory[]> => {
+    const response = await apiClient.get('/products/categories/');
+    return response.data.results;
+  },
+
+  // Shopping Cart
+  getCart: async (): Promise<ShoppingCart> => {
+    const response = await apiClient.get('/products/cart/');
+    return response.data;
+  },
+
+  addToCart: async (data: AddToCartData): Promise<CartItem> => {
+    const response = await apiClient.post('/products/cart/add/', data);
+    return response.data;
+  },
+
+  updateCartItem: async (itemId: string, quantity: number): Promise<CartItem> => {
+    const response = await apiClient.put(`/products/cart/items/${itemId}/update/`, { quantity });
+    return response.data;
+  },
+
+  removeFromCart: async (itemId: string): Promise<void> => {
+    await apiClient.delete(`/products/cart/items/${itemId}/remove/`);
+  },
+
+  clearCart: async (): Promise<void> => {
+    await apiClient.delete('/products/cart/clear/');
+  },
+
+  // Orders
+  getOrders: async (params?: any): Promise<OrderListResponse> => {
+    const response = await apiClient.get('/products/orders/', { params });
+    return response.data;
+  },
+
+  getOrder: async (id: string): Promise<Order> => {
+    const response = await apiClient.get(`/products/orders/${id}/`);
+    return response.data;
+  },
+
+  createOrder: async (data: OrderCreateData): Promise<Order> => {
+    const response = await apiClient.post('/products/orders/create/', data);
+    return response.data;
+  },
+
+  // Reviews
+  getProductReviews: async (productId: string, params?: any): Promise<ReviewListResponse> => {
+    const response = await apiClient.get(`/products/products/${productId}/reviews/`, { params });
+    return response.data;
+  },
+
+  createReview: async (data: ReviewCreateData): Promise<ProductReview> => {
+    const response = await apiClient.post('/products/reviews/create/', data);
+    return response.data;
+  },
+
+  markReviewHelpful: async (reviewId: string): Promise<{ helpful_count: number }> => {
+    const response = await apiClient.post(`/products/reviews/${reviewId}/helpful/`);
+    return response.data;
+  },
+
+  // Dashboard Stats
+  getProductDashboardStats: async (): Promise<ProductDashboardStats> => {
+    const response = await apiClient.get('/products/dashboard/stats/');
     return response.data;
   },
 };

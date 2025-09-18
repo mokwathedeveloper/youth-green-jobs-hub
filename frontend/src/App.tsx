@@ -26,6 +26,9 @@ import { CollectionPointsPage } from './pages/CollectionPointsPage';
 import { CollectionEventsPage } from './pages/CollectionEventsPage';
 import { CreditTransactionsPage } from './pages/CreditTransactionsPage';
 
+// Product Pages
+import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products';
+
 const App: FC = () => {
   return (
     <AuthProvider>
@@ -64,6 +67,11 @@ const App: FC = () => {
               <Route path="waste/collection-points" element={<CollectionPointsPage />} />
               <Route path="waste/events" element={<CollectionEventsPage />} />
               <Route path="waste/credits" element={<CreditTransactionsPage />} />
+
+              {/* Eco Products Routes */}
+              <Route path="products" element={<ProductsPage />} />
+              <Route path="products/:id" element={<ProductDetailPage />} />
+              <Route path="checkout" element={<CheckoutPage />} />
             </Route>
 
             {/* Youth-specific Routes (age 18-35) */}
