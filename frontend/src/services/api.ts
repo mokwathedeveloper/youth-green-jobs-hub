@@ -1,11 +1,11 @@
 import axios, { AxiosInstance } from 'axios';
 import type { AxiosResponse } from 'axios';
-import { 
-  LoginCredentials, 
-  RegisterData, 
-  AuthResponse, 
-  User, 
-  AuthTokens 
+import type {
+  LoginCredentials,
+  RegisterData,
+  AuthResponse,
+  User,
+  AuthTokens
 } from '../types/auth';
 
 // API Configuration
