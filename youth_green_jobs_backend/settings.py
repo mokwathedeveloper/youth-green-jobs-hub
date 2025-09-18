@@ -229,8 +229,6 @@ LOGGING = {
 }
 
 # JWT Configuration
-from rest_framework_simplejwt.settings import api_settings
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
