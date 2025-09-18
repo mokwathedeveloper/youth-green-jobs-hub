@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthState, AuthContextType, User, AuthTokens, LoginCredentials, RegisterData } from '../types/auth';
+import type { AuthState, AuthContextType, User, AuthTokens, LoginCredentials, RegisterData } from '../types/auth';
 import { authApi } from '../services/api';
 
 // Initial state
