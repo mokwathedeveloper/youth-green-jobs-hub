@@ -65,8 +65,8 @@ urlpatterns = [
     # Eco Products endpoints
     path('api/v1/products/', include('products.urls')),
 
-    # Future app endpoints (placeholders)
-    # path('api/v1/analytics/', include('analytics.urls')),
+    # Analytics endpoints
+    path('api/v1/analytics/', include('analytics.urls')),
 ]
 
 # Serve media files in development
