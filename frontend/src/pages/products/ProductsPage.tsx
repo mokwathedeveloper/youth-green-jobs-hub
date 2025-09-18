@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ShoppingBag, Leaf, Award, TrendingUp } from 'lucide-react';
 import { ProductList } from '../../components/products';
-import apiClient from '../../services/api';
+import { productsApi } from '../../services/api';
 import type { ProductListItem, ProductSearchParams, ProductCategory } from '../../types/products';
 
 export const ProductsPage: React.FC = () => {
@@ -65,8 +65,8 @@ export const ProductsPage: React.FC = () => {
         page_size: '12'
       };
       
-      const response = await apiClient.getProducts(params);
-      
+      const response = await productsApi.getProducts(params);
+
       setProducts(response.results);
       setTotalCount(response.count);
       setTotalPages(Math.ceil(response.count / 12));
@@ -82,7 +82,7 @@ export const ProductsPage: React.FC = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await apiClient.getProductCategories();
+      const response = await productsApi.getProductCategories();
       setCategories(response);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -114,7 +114,7 @@ export const ProductsPage: React.FC = () => {
   // Handle add to cart
   const handleAddToCart = async (productId: string) => {
     try {
-      await apiClient.addToCart({ product_id: productId, quantity: 1 });
+      await productsApi.addToCart({ product_id: productId, quantity: 1 });
       // You might want to show a success message here
       console.log('Product added to cart successfully');
     } catch (err) {

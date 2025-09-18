@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { ProductDetail, ProductList } from '../../components/products';
-import apiClient from '../../services/api';
-import type { Product, ProductListItem, ProductRecommendations } from '../../types/products';
+import { productsApi } from '../../services/api';
+import type { Product, ProductRecommendations } from '../../types/products';
 
 export const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,8 +24,8 @@ export const ProductDetailPage: React.FC = () => {
       setError(null);
       
       const [productResponse, recommendationsResponse] = await Promise.all([
-        apiClient.getProduct(productId),
-        apiClient.getProductRecommendations(productId).catch(() => null) // Don't fail if recommendations fail
+        productsApi.getProduct(productId),
+        productsApi.getProductRecommendations(productId).catch(() => null) // Don't fail if recommendations fail
       ]);
       
       setProduct(productResponse);
@@ -56,7 +56,7 @@ export const ProductDetailPage: React.FC = () => {
   const handleAddToCart = async (productId: string, quantity: number) => {
     try {
       setIsAddingToCart(true);
-      await apiClient.addToCart({ product_id: productId, quantity });
+      await productsApi.addToCart({ product_id: productId, quantity });
       
       // Show success message (you might want to use a toast notification)
       console.log(`Added ${quantity} item(s) to cart successfully`);
@@ -83,7 +83,7 @@ export const ProductDetailPage: React.FC = () => {
   // Handle recommendation add to cart
   const handleRecommendationAddToCart = async (productId: string) => {
     try {
-      await apiClient.addToCart({ product_id: productId, quantity: 1 });
+      await productsApi.addToCart({ product_id: productId, quantity: 1 });
       console.log('Recommended product added to cart successfully');
     } catch (err) {
       console.error('Error adding recommended product to cart:', err);

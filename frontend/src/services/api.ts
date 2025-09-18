@@ -553,8 +553,10 @@ export const wasteApi = {
 
     return response.data;
   },
+};
 
-  // ===== ECO PRODUCTS API =====
+// ===== ECO PRODUCTS API =====
+export const productsApi = {
 
   // Product Catalog
   getProducts: async (params?: ProductSearchParams): Promise<ProductListResponse> => {

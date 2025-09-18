@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Filter, Leaf, Recycle, MapPin, DollarSign } from 'lucide-react';
+import { X, Filter, Leaf, MapPin, DollarSign } from 'lucide-react';
 import type { ProductSearchParams, ProductCategory } from '../../types/products';
 import { kenyaCounties } from '../../schemas/productSchemas';
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Grid, List, Filter, SortAsc, Search, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Grid, List, Filter, Search, Loader2 } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import type { ProductListItem, ProductSearchParams } from '../../types/products';

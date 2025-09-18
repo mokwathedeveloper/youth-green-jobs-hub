@@ -5,8 +5,8 @@ import { ArrowLeft, CreditCard, Coins, MapPin, Phone, User, ShoppingBag } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { orderCreateSchema, type OrderCreateData } from '../../schemas/productSchemas';
-import apiClient from '../../services/api';
-import type { ShoppingCart, Order } from '../../types/products';
+import { productsApi } from '../../services/api';
+import type { ShoppingCart } from '../../types/products';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export const CheckoutPage: React.FC = () => {
   const fetchCart = async () => {
     try {
       setIsLoading(true);
-      const cartData = await apiClient.getCart();
+      const cartData = await productsApi.getCart();
       setCart(cartData);
       
       if (!cartData || cartData.items.length === 0) {
@@ -75,10 +75,10 @@ export const CheckoutPage: React.FC = () => {
         }))
       };
 
-      const order = await apiClient.createOrder(orderData);
-      
+      const order = await productsApi.createOrder(orderData);
+
       // Clear cart after successful order
-      await apiClient.clearCart();
+      await productsApi.clearCart();
       
       // Redirect to order confirmation
       navigate(`/dashboard/orders/${order.id}`, {

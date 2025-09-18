@@ -299,6 +299,7 @@ export interface ProductSearchParams {
   max_price?: string;
   county?: string;
   eco_friendly?: string;
+  in_stock?: boolean;
   page?: string;
   page_size?: string;
   ordering?: string;
