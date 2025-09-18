@@ -8,6 +8,24 @@ import type {
   User,
   AuthTokens
 } from '../types/auth';
+import type {
+  WasteCategory,
+  CollectionPoint,
+  WasteReport,
+  WasteReportListResponse,
+  CreditTransactionListResponse,
+  CollectionEvent,
+  CollectionEventDetailType,
+  CollectionEventListResponse,
+  DashboardStats,
+  NearbyCollectionPointsResponse,
+  WasteReportFormData,
+  CollectionEventFormData,
+  WasteReportFilters,
+  CollectionEventFilters,
+  CreditTransactionFilters,
+  MapLocation
+} from '../types/waste';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -289,6 +307,232 @@ export const handleApiError = (error: any): string => {
   }
   
   return 'An unexpected error occurred. Please try again.';
+};
+
+// Waste Collection API
+export const wasteApi = {
+  // Waste Categories
+  getCategories: async (): Promise<WasteCategory[]> => {
+    const response = await apiClient.get('/waste/categories/');
+    return response.data;
+  },
+
+  getCategoryById: async (id: string): Promise<WasteCategory> => {
+    const response = await apiClient.get(`/waste/categories/${id}/`);
+    return response.data;
+  },
+
+  // Collection Points
+  getCollectionPoints: async (params?: {
+    county?: string;
+    point_type?: string;
+    is_active?: boolean;
+    page?: number;
+    page_size?: number;
+  }): Promise<{
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: CollectionPoint[];
+  }> => {
+    const response = await apiClient.get('/waste/collection-points/', { params });
+    return response.data;
+  },
+
+  getCollectionPointById: async (id: string): Promise<CollectionPoint> => {
+    const response = await apiClient.get(`/waste/collection-points/${id}/`);
+    return response.data;
+  },
+
+  getNearbyCollectionPoints: async (
+    latitude: number,
+    longitude: number,
+    radius: number = 10
+  ): Promise<NearbyCollectionPointsResponse> => {
+    const response = await apiClient.get('/waste/collection-points/nearby/', {
+      params: { latitude, longitude, radius }
+    });
+    return response.data;
+  },
+
+  // Waste Reports
+  getWasteReports: async (params?: WasteReportFilters & {
+    page?: number;
+    page_size?: number;
+    ordering?: string;
+  }): Promise<WasteReportListResponse> => {
+    const response = await apiClient.get('/waste/reports/', { params });
+    return response.data;
+  },
+
+  getWasteReportById: async (id: string): Promise<WasteReport> => {
+    const response = await apiClient.get(`/waste/reports/${id}/`);
+    return response.data;
+  },
+
+  createWasteReport: async (data: WasteReportFormData): Promise<WasteReport> => {
+    const formData = new FormData();
+
+    // Add text fields
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    formData.append('category_id', data.category_id);
+    formData.append('estimated_weight_kg', data.estimated_weight_kg.toString());
+    formData.append('location_description', data.location_description);
+    formData.append('county', data.county);
+    formData.append('priority', data.priority);
+
+    // Add optional fields
+    if (data.sub_county) formData.append('sub_county', data.sub_county);
+    if (data.latitude) formData.append('latitude', data.latitude.toString());
+    if (data.longitude) formData.append('longitude', data.longitude.toString());
+    if (data.collection_point_id) formData.append('collection_point_id', data.collection_point_id);
+    if (data.photo) formData.append('photo', data.photo);
+
+    const response = await apiClient.post('/waste/reports/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  updateWasteReport: async (id: string, data: Partial<WasteReportFormData>): Promise<WasteReport> => {
+    const response = await apiClient.put(`/waste/reports/${id}/`, data);
+    return response.data;
+  },
+
+  deleteWasteReport: async (id: string): Promise<void> => {
+    await apiClient.delete(`/waste/reports/${id}/`);
+  },
+
+  // Staff actions for waste reports
+  verifyWasteReport: async (id: string, data: {
+    actual_weight_kg?: number;
+    notes?: string;
+  }): Promise<WasteReport> => {
+    const response = await apiClient.post(`/waste/reports/${id}/verify/`, data);
+    return response.data;
+  },
+
+  collectWasteReport: async (id: string, data: {
+    actual_weight_kg: number;
+    collection_point_id?: string;
+    notes?: string;
+  }): Promise<WasteReport> => {
+    const response = await apiClient.post(`/waste/reports/${id}/collect/`, data);
+    return response.data;
+  },
+
+  // Credit Transactions
+  getCreditTransactions: async (params?: CreditTransactionFilters & {
+    page?: number;
+    page_size?: number;
+    ordering?: string;
+  }): Promise<CreditTransactionListResponse> => {
+    const response = await apiClient.get('/waste/credits/', { params });
+    return response.data;
+  },
+
+  getCreditBalance: async (): Promise<{ balance: number }> => {
+    const response = await apiClient.get('/waste/credits/balance/');
+    return response.data;
+  },
+
+  // Collection Events
+  getCollectionEvents: async (params?: CollectionEventFilters & {
+    page?: number;
+    page_size?: number;
+    ordering?: string;
+  }): Promise<CollectionEventListResponse> => {
+    const response = await apiClient.get('/waste/events/', { params });
+    return response.data;
+  },
+
+  getCollectionEventById: async (id: string): Promise<CollectionEventDetailType> => {
+    const response = await apiClient.get(`/waste/events/${id}/`);
+    return response.data;
+  },
+
+  createCollectionEvent: async (data: CollectionEventFormData): Promise<CollectionEvent> => {
+    const response = await apiClient.post('/waste/events/', data);
+    return response.data;
+  },
+
+  updateCollectionEvent: async (id: string, data: Partial<CollectionEventFormData>): Promise<CollectionEvent> => {
+    const response = await apiClient.put(`/waste/events/${id}/`, data);
+    return response.data;
+  },
+
+  deleteCollectionEvent: async (id: string): Promise<void> => {
+    await apiClient.delete(`/waste/events/${id}/`);
+  },
+
+  joinCollectionEvent: async (id: string): Promise<{ message: string }> => {
+    const response = await apiClient.post(`/waste/events/${id}/join/`);
+    return response.data;
+  },
+
+  leaveCollectionEvent: async (id: string): Promise<{ message: string }> => {
+    const response = await apiClient.post(`/waste/events/${id}/leave/`);
+    return response.data;
+  },
+
+  // Dashboard and Statistics
+  getDashboardStats: async (): Promise<DashboardStats> => {
+    const response = await apiClient.get('/waste/dashboard/stats/');
+    return response.data;
+  },
+
+  // Location and Map utilities
+  getCurrentLocation: (): Promise<MapLocation> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          reject(new Error(`Geolocation error: ${error.message}`));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutes
+        }
+      );
+    });
+  },
+
+  // File upload with progress
+  uploadWastePhoto: async (
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<{ url: string; id: string }> => {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const response = await apiClient.post('/waste/upload-photo/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(progress);
+        }
+      },
+    });
+
+    return response.data;
+  },
 };
 
 export default apiClient;
