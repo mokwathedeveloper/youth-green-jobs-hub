@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Leaf, 
-  Menu, 
-  X, 
-  Home, 
-  User, 
-  Recycle, 
-  ShoppingBag, 
-  BarChart3, 
+import {
+  Leaf,
+  Menu,
+  X,
+  Home,
+  User,
+  Recycle,
+  ShoppingBag,
+  BarChart3,
   LogOut,
   Bell,
-  Settings
+  Settings,
+  Package,
+  MapPin,
+  Calendar,
+  Coins,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../ui/Button';
@@ -22,6 +28,12 @@ const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const isWastePathActive = () => {
+    return location.pathname.startsWith('/dashboard/waste');
+  };
+
+  const [wasteMenuOpen, setWasteMenuOpen] = useState(isWastePathActive());
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
@@ -30,9 +42,16 @@ const DashboardLayout: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Profile', href: '/dashboard/profile', icon: User },
-    { name: 'Waste Collection', href: '/dashboard/waste', icon: Recycle },
     { name: 'Eco Products', href: '/dashboard/products', icon: ShoppingBag },
     { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  ];
+
+  const wasteNavigation = [
+    { name: 'Overview', href: '/dashboard/waste', icon: BarChart3 },
+    { name: 'My Reports', href: '/dashboard/waste/reports', icon: Package },
+    { name: 'Collection Points', href: '/dashboard/waste/collection-points', icon: MapPin },
+    { name: 'Events', href: '/dashboard/waste/events', icon: Calendar },
+    { name: 'Credits', href: '/dashboard/waste/credits', icon: Coins },
   ];
 
   const isActivePath = (path: string) => {
@@ -94,7 +113,7 @@ const DashboardLayout: React.FC = () => {
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = isActivePath(item.href);
-            
+
             return (
               <Link
                 key={item.name}
@@ -113,6 +132,55 @@ const DashboardLayout: React.FC = () => {
               </Link>
             );
           })}
+
+          {/* Waste Collection Menu */}
+          <div className="space-y-1">
+            <button
+              onClick={() => setWasteMenuOpen(!wasteMenuOpen)}
+              className={`group flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isWastePathActive()
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              }`}
+            >
+              <Recycle className={`mr-3 h-5 w-5 ${
+                isWastePathActive() ? 'text-green-500' : 'text-gray-400 group-hover:text-gray-500'
+              }`} />
+              Waste Collection
+              {wasteMenuOpen ? (
+                <ChevronDown className="ml-auto h-4 w-4" />
+              ) : (
+                <ChevronRight className="ml-auto h-4 w-4" />
+              )}
+            </button>
+
+            {wasteMenuOpen && (
+              <div className="ml-6 space-y-1">
+                {wasteNavigation.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = isActivePath(item.href);
+
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-green-100 text-green-700'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      }`}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <Icon className={`mr-3 h-4 w-4 ${
+                        isActive ? 'text-green-500' : 'text-gray-400 group-hover:text-gray-500'
+                      }`} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Bottom actions */}

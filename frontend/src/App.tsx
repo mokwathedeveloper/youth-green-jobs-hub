@@ -14,10 +14,17 @@ import ProfileForm from './components/auth/ProfileForm';
 import DashboardLayout from './components/layout/DashboardLayout';
 import PublicLayout from './components/layout/PublicLayout';
 
-// Page Components (placeholders for now)
+// Page Components
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
+
+// Waste Collection Pages
+import { WasteDashboardPage } from './pages/WasteDashboardPage';
+import { WasteReportsPage } from './pages/WasteReportsPage';
+import { CollectionPointsPage } from './pages/CollectionPointsPage';
+import { CollectionEventsPage } from './pages/CollectionEventsPage';
+import { CreditTransactionsPage } from './pages/CreditTransactionsPage';
 
 const App: FC = () => {
   return (
@@ -50,6 +57,13 @@ const App: FC = () => {
             }>
               <Route index element={<DashboardPage />} />
               <Route path="profile" element={<ProfileForm />} />
+
+              {/* Waste Collection Routes */}
+              <Route path="waste" element={<WasteDashboardPage />} />
+              <Route path="waste/reports" element={<WasteReportsPage />} />
+              <Route path="waste/collection-points" element={<CollectionPointsPage />} />
+              <Route path="waste/events" element={<CollectionEventsPage />} />
+              <Route path="waste/credits" element={<CreditTransactionsPage />} />
             </Route>
 
             {/* Youth-specific Routes (age 18-35) */}
