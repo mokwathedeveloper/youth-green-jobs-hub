@@ -1,35 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import type { FC } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/routing/ProtectedRoute';
+import GuestGuard from './components/routing/GuestGuard';
+import AuthGuard from './components/routing/AuthGuard';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Auth Components
+import LoginForm from './components/auth/LoginForm';
+import RegisterForm from './components/auth/RegisterForm';
+import ProfileForm from './components/auth/ProfileForm';
 
+// Layout Components (to be created)
+import DashboardLayout from './components/layout/DashboardLayout';
+import PublicLayout from './components/layout/PublicLayout';
+
+// Page Components (placeholders for now)
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+const App: FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<PublicLayout />}>
+              <Route index element={<HomePage />} />
+            </Route>
 
-export default App
+            {/* Guest-only Routes (redirect authenticated users) */}
+            <Route path="/login" element={
+              <GuestGuard>
+                <LoginForm />
+              </GuestGuard>
+            } />
+            <Route path="/register" element={
+              <GuestGuard>
+                <RegisterForm />
+              </GuestGuard>
+            } />
+
+            {/* Protected Routes (require authentication) */}
+            <Route path="/dashboard" element={
+              <AuthGuard>
+                <DashboardLayout />
+              </AuthGuard>
+            }>
+              <Route index element={<DashboardPage />} />
+              <Route path="profile" element={<ProfileForm />} />
+            </Route>
+
+            {/* Youth-specific Routes (age 18-35) */}
+            <Route path="/youth/*" element={
+              <ProtectedRoute minAge={18} maxAge={35}>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              {/* Youth-specific routes will be added here */}
+            </Route>
+
+            {/* Catch-all route */}
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;
