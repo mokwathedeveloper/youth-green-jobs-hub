@@ -62,8 +62,10 @@ urlpatterns = [
     # Waste Collection endpoints
     path('api/v1/waste/', include('waste_collection.urls')),
 
+    # Eco Products endpoints
+    path('api/v1/products/', include('products.urls')),
+
     # Future app endpoints (placeholders)
-    # path('api/v1/products/', include('eco_products.urls')),
     # path('api/v1/analytics/', include('analytics.urls')),
 ]
 
