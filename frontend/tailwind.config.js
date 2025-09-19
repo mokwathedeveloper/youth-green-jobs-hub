@@ -5,6 +5,15 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    // SDG color classes
+    'bg-sdg-green', 'bg-sdg-blue', 'bg-sdg-orange',
+    'text-sdg-green', 'text-sdg-blue', 'text-sdg-orange',
+    'border-sdg-green', 'border-sdg-blue', 'border-sdg-orange',
+    'hover:bg-sdg-green/90', 'hover:bg-sdg-blue/90', 'hover:bg-sdg-orange/90',
+    'from-sdg-green', 'from-sdg-blue', 'from-sdg-orange',
+    'to-green-600', 'to-blue-600', 'to-orange-600',
+  ],
   theme: {
     extend: {
       colors: {

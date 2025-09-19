@@ -94,7 +94,7 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             {/* Climate Action - Waste Collection */}
-            <Card className="bg-gradient-to-br from-sdg-green to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Card className="bg-gradient-to-br from-green-600 to-green-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -114,7 +114,7 @@ const HomePage: React.FC = () => {
             </Card>
 
             {/* Sustainable Cities - Eco Products */}
-            <Card className="bg-gradient-to-br from-sdg-blue to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Card className="bg-gradient-to-br from-blue-600 to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -134,7 +134,7 @@ const HomePage: React.FC = () => {
             </Card>
 
             {/* Decent Work - Track Impact */}
-            <Card className="bg-gradient-to-br from-sdg-orange to-orange-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -165,17 +165,17 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="border-2 border-sdg-green hover:bg-green-50 transition-colors">
+            <Card className="border-2 border-green-600 hover:bg-green-50 transition-colors">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-green-100 rounded-lg">
-                    <Globe className="h-6 w-6 text-sdg-green" />
+                    <Globe className="h-6 w-6 text-green-600" />
                   </div>
-                  <span className="text-xs font-semibold bg-green-100 text-sdg-green px-2 py-1 rounded-full">
+                  <span className="text-xs font-semibold bg-green-100 text-green-600 px-2 py-1 rounded-full">
                     Goal 13
                   </span>
                 </div>
-                <CardTitle className="text-sdg-green">Climate Action</CardTitle>
+                <CardTitle className="text-green-600">Climate Action</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
@@ -184,17 +184,17 @@ const HomePage: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-sdg-blue hover:bg-blue-50 transition-colors">
+            <Card className="border-2 border-blue-600 hover:bg-blue-50 transition-colors">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-blue-100 rounded-lg">
-                    <Building2 className="h-6 w-6 text-sdg-blue" />
+                    <Building2 className="h-6 w-6 text-blue-600" />
                   </div>
-                  <span className="text-xs font-semibold bg-blue-100 text-sdg-blue px-2 py-1 rounded-full">
+                  <span className="text-xs font-semibold bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                     Goal 11
                   </span>
                 </div>
-                <CardTitle className="text-sdg-blue">Sustainable Cities</CardTitle>
+                <CardTitle className="text-blue-600">Sustainable Cities</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
@@ -203,17 +203,17 @@ const HomePage: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-sdg-orange hover:bg-orange-50 transition-colors">
+            <Card className="border-2 border-orange-500 hover:bg-orange-50 transition-colors">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-orange-100 rounded-lg">
-                    <Briefcase className="h-6 w-6 text-sdg-orange" />
+                    <Briefcase className="h-6 w-6 text-orange-500" />
                   </div>
-                  <span className="text-xs font-semibold bg-orange-100 text-sdg-orange px-2 py-1 rounded-full">
+                  <span className="text-xs font-semibold bg-orange-100 text-orange-500 px-2 py-1 rounded-full">
                     Goal 8
                   </span>
                 </div>
-                <CardTitle className="text-sdg-orange">Decent Work</CardTitle>
+                <CardTitle className="text-orange-500">Decent Work</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-gradient-to-br from-sdg-green to-green-600 text-white border-0 shadow-xl text-center">
+            <Card className="bg-gradient-to-br from-green-600 to-green-700 text-white border-0 shadow-xl text-center">
               <CardHeader className="pb-4">
                 <div className="flex justify-center mb-4">
                   <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -302,7 +302,7 @@ const HomePage: React.FC = () => {
                 </CardDescription>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link to="/register" onClick={handleGetStarted}>
-                    <Button size="lg" className="w-full sm:w-auto bg-white text-sdg-green hover:bg-gray-50 text-lg px-8 py-4">
+                    <Button size="lg" className="w-full sm:w-auto bg-white text-green-600 hover:bg-gray-50 text-lg px-8 py-4">
                       <Users className="mr-2 h-5 w-5" />
                       Get Started Now
                     </Button>
