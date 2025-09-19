@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from youth_green_jobs_backend.config import get_youth_age_range
 
 from .serializers import (
     UserRegistrationSerializer,
@@ -172,12 +173,12 @@ class UserListView(generics.ListAPIView):
         # Filter by youth status
         youth_only = self.request.query_params.get('youth_only')
         if youth_only and youth_only.lower() == 'true':
-            # This would require a custom query or filtering in Python
-            # For now, we'll filter by age range in the database
+            # Filter by configurable youth age range
             from datetime import date, timedelta
             today = date.today()
-            min_birth_date = today - timedelta(days=35*365)  # 35 years ago
-            max_birth_date = today - timedelta(days=18*365)  # 18 years ago
+            min_age, max_age = get_youth_age_range()
+            min_birth_date = today - timedelta(days=max_age*365)  # max_age years ago
+            max_birth_date = today - timedelta(days=min_age*365)  # min_age years ago
             queryset = queryset.filter(
                 date_of_birth__gte=min_birth_date,
                 date_of_birth__lte=max_birth_date
@@ -334,11 +335,12 @@ def user_stats_view(request):
     total_users = User.objects.filter(is_active=True).count()
     youth_users = User.objects.filter(is_active=True).exclude(date_of_birth__isnull=True)
 
-    # Calculate youth count (this is a simplified calculation)
+    # Calculate youth count using configurable age range
     from datetime import date, timedelta
     today = date.today()
-    min_birth_date = today - timedelta(days=35*365)  # 35 years ago
-    max_birth_date = today - timedelta(days=18*365)  # 18 years ago
+    min_age, max_age = get_youth_age_range()
+    min_birth_date = today - timedelta(days=max_age*365)  # max_age years ago
+    max_birth_date = today - timedelta(days=min_age*365)  # min_age years ago
 
     youth_count = youth_users.filter(
         date_of_birth__gte=min_birth_date,
