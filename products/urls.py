@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'products'
@@ -41,4 +41,7 @@ urlpatterns = [
     
     # Dashboard and statistics
     path('dashboard/stats/', views.dashboard_stats, name='dashboard-stats'),
+
+    # Payment endpoints
+    path('payments/', include('products.payments.urls')),
 ]
