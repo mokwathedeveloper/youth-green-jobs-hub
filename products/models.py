@@ -1,4 +1,5 @@
 import uuid
+import json
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -881,3 +882,263 @@ class CartItem(models.Model):
     def total_price(self):
         """Calculate total price for this cart item"""
         return self.unit_price * self.quantity
+
+
+class PaymentProvider(models.Model):
+    """
+    Payment provider configuration (M-Pesa, Paystack, etc.)
+    """
+    PROVIDER_CHOICES = [
+        ('mpesa', _('M-Pesa')),
+        ('paystack', _('Paystack')),
+        ('bank_transfer', _('Bank Transfer')),
+        ('cash_on_delivery', _('Cash on Delivery')),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, choices=PROVIDER_CHOICES, unique=True)
+    display_name = models.CharField(max_length=100, help_text=_("Display name for users"))
+    is_active = models.BooleanField(default=True)
+    is_sandbox = models.BooleanField(default=True, help_text=_("Whether this is a sandbox/test environment"))
+
+    # Configuration (stored as JSON)
+    configuration = models.JSONField(
+        default=dict,
+        help_text=_("Provider-specific configuration (API keys, endpoints, etc.)")
+    )
+
+    # Supported currencies
+    supported_currencies = models.CharField(
+        max_length=200,
+        default='KES',
+        help_text=_("Comma-separated list of supported currency codes")
+    )
+
+    # Fees and limits
+    transaction_fee_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text=_("Transaction fee as percentage")
+    )
+
+    fixed_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text=_("Fixed transaction fee in KSh")
+    )
+
+    min_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('1.00'),
+        help_text=_("Minimum transaction amount")
+    )
+
+    max_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('1000000.00'),
+        help_text=_("Maximum transaction amount")
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("Payment Provider")
+        verbose_name_plural = _("Payment Providers")
+        ordering = ['display_name']
+
+    def __str__(self):
+        return f"{self.display_name} ({'Sandbox' if self.is_sandbox else 'Live'})"
+
+    @property
+    def supported_currencies_list(self):
+        """Get list of supported currencies"""
+        return [currency.strip() for currency in self.supported_currencies.split(',')]
+
+    def calculate_fee(self, amount):
+        """Calculate transaction fee for given amount"""
+        percentage_fee = amount * (self.transaction_fee_percentage / 100)
+        return percentage_fee + self.fixed_fee
+
+
+class PaymentTransaction(models.Model):
+    """
+    Payment transaction tracking for all payment methods
+    """
+    STATUS_CHOICES = [
+        ('pending', _('Pending')),
+        ('processing', _('Processing')),
+        ('completed', _('Completed')),
+        ('failed', _('Failed')),
+        ('cancelled', _('Cancelled')),
+        ('refunded', _('Refunded')),
+        ('expired', _('Expired')),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Transaction identification
+    transaction_id = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text=_("Unique transaction identifier")
+    )
+
+    external_transaction_id = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text=_("External payment provider transaction ID")
+    )
+
+    # Related order
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='payment_transactions',
+        help_text=_("Order this payment is for")
+    )
+
+    # Payment details
+    provider = models.ForeignKey(
+        PaymentProvider,
+        on_delete=models.CASCADE,
+        related_name='transactions',
+        help_text=_("Payment provider used")
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        help_text=_("Transaction amount")
+    )
+
+    currency = models.CharField(
+        max_length=3,
+        default='KES',
+        help_text=_("Transaction currency code")
+    )
+
+    fee_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text=_("Transaction fee charged")
+    )
+
+    # Status and tracking
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        help_text=_("Current transaction status")
+    )
+
+    # Customer information
+    customer_phone = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True,
+        help_text=_("Customer phone number for mobile payments")
+    )
+
+    customer_email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text=_("Customer email for payment notifications")
+    )
+
+    # Provider-specific data
+    provider_data = models.JSONField(
+        default=dict,
+        help_text=_("Provider-specific transaction data")
+    )
+
+    # Webhook and callback data
+    webhook_data = models.JSONField(
+        default=dict,
+        help_text=_("Webhook callback data from payment provider")
+    )
+
+    # Timestamps
+    initiated_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    # Failure information
+    failure_reason = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_("Reason for payment failure")
+    )
+
+    # Retry information
+    retry_count = models.PositiveIntegerField(
+        default=0,
+        help_text=_("Number of retry attempts")
+    )
+
+    max_retries = models.PositiveIntegerField(
+        default=3,
+        help_text=_("Maximum number of retry attempts")
+    )
+
+    class Meta:
+        verbose_name = _("Payment Transaction")
+        verbose_name_plural = _("Payment Transactions")
+        ordering = ['-initiated_at']
+        indexes = [
+            models.Index(fields=['transaction_id']),
+            models.Index(fields=['external_transaction_id']),
+            models.Index(fields=['status']),
+            models.Index(fields=['order']),
+        ]
+
+    def __str__(self):
+        return f"Payment {self.transaction_id} - {self.get_status_display()}"
+
+    def save(self, *args, **kwargs):
+        if not self.transaction_id:
+            # Generate unique transaction ID
+            import random
+            import string
+            while True:
+                transaction_id = 'PAY' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+                if not PaymentTransaction.objects.filter(transaction_id=transaction_id).exists():
+                    self.transaction_id = transaction_id
+                    break
+        super().save(*args, **kwargs)
+
+    @property
+    def is_successful(self):
+        """Check if payment was successful"""
+        return self.status == 'completed'
+
+    @property
+    def can_retry(self):
+        """Check if payment can be retried"""
+        return self.status in ['failed', 'expired'] and self.retry_count < self.max_retries
+
+    def mark_completed(self, external_id=None, provider_data=None):
+        """Mark payment as completed"""
+        from django.utils import timezone
+        self.status = 'completed'
+        self.completed_at = timezone.now()
+        if external_id:
+            self.external_transaction_id = external_id
+        if provider_data:
+            self.provider_data.update(provider_data)
+        self.save()
+
+    def mark_failed(self, reason=None, provider_data=None):
+        """Mark payment as failed"""
+        self.status = 'failed'
+        if reason:
+            self.failure_reason = reason
+        if provider_data:
+            self.provider_data.update(provider_data)
+        self.save()
