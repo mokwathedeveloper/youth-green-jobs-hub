@@ -13,8 +13,8 @@ import {
   Award,
   Globe
 } from 'lucide-react';
-import Button from '../components/ui/Button';
-import { SDGCard } from '../components/ui/SDGCard';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '../contexts/ToastContext';
 import type { SDGTheme } from '../types/sdg';
 
@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-orange-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section with SDG Theming */}
       <section className="relative overflow-hidden py-20 lg:py-32">
         <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-blue-600/10 to-orange-600/10"></div>
@@ -94,43 +94,64 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             {/* Climate Action - Waste Collection */}
-            <SDGCard
-              theme="climate-action"
-              variant="gradient"
-              size="lg"
-              title="Collect Waste"
-              description="Report and collect waste in your community. Earn credits for every kilogram collected and properly sorted."
-              icon={<Recycle className="h-8 w-8" />}
-              badge="SDG 13"
-              interactive
-              className="transform hover:scale-105 transition-all duration-300"
-            />
+            <Card className="bg-gradient-to-br from-sdg-green to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Recycle className="h-8 w-8" />
+                  </div>
+                  <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                    SDG 13
+                  </span>
+                </div>
+                <CardTitle className="text-white">Collect Waste</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-green-100">
+                  Report and collect waste in your community. Earn credits for every kilogram collected and properly sorted.
+                </CardDescription>
+              </CardContent>
+            </Card>
 
             {/* Sustainable Cities - Eco Products */}
-            <SDGCard
-              theme="sustainable-cities"
-              variant="gradient"
-              size="lg"
-              title="Shop Eco Products"
-              description="Browse and purchase eco-friendly products from local SMEs. Support sustainable businesses in your community."
-              icon={<ShoppingBag className="h-8 w-8" />}
-              badge="SDG 11"
-              interactive
-              className="transform hover:scale-105 transition-all duration-300"
-            />
+            <Card className="bg-gradient-to-br from-sdg-blue to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <ShoppingBag className="h-8 w-8" />
+                  </div>
+                  <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                    SDG 11
+                  </span>
+                </div>
+                <CardTitle className="text-white">Shop Eco Products</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-blue-100">
+                  Browse and purchase eco-friendly products from local SMEs. Support sustainable businesses in your community.
+                </CardDescription>
+              </CardContent>
+            </Card>
 
             {/* Decent Work - Track Impact */}
-            <SDGCard
-              theme="decent-work"
-              variant="gradient"
-              size="lg"
-              title="Track Impact"
-              description="Monitor your environmental impact, earnings, and contribution to Kisumu's sustainability goals."
-              icon={<TrendingUp className="h-8 w-8" />}
-              badge="SDG 8"
-              interactive
-              className="transform hover:scale-105 transition-all duration-300"
-            />
+            <Card className="bg-gradient-to-br from-sdg-orange to-orange-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <TrendingUp className="h-8 w-8" />
+                  </div>
+                  <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                    SDG 8
+                  </span>
+                </div>
+                <CardTitle className="text-white">Track Impact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-orange-100">
+                  Monitor your environmental impact, earnings, and contribution to Kisumu's sustainability goals.
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Additional SDG Goals Showcase */}
@@ -144,35 +165,62 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SDGCard
-              theme="climate-action"
-              variant="outline"
-              size="md"
-              title="Climate Action"
-              description="Reduce waste and carbon footprint"
-              icon={<Globe className="h-6 w-6" />}
-              badge="Goal 13"
-            />
+            <Card className="border-2 border-sdg-green hover:bg-green-50 transition-colors">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Globe className="h-6 w-6 text-sdg-green" />
+                  </div>
+                  <span className="text-xs font-semibold bg-green-100 text-sdg-green px-2 py-1 rounded-full">
+                    Goal 13
+                  </span>
+                </div>
+                <CardTitle className="text-sdg-green">Climate Action</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Reduce waste and carbon footprint
+                </CardDescription>
+              </CardContent>
+            </Card>
 
-            <SDGCard
-              theme="sustainable-cities"
-              variant="outline"
-              size="md"
-              title="Sustainable Cities"
-              description="Build resilient communities"
-              icon={<Building2 className="h-6 w-6" />}
-              badge="Goal 11"
-            />
+            <Card className="border-2 border-sdg-blue hover:bg-blue-50 transition-colors">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Building2 className="h-6 w-6 text-sdg-blue" />
+                  </div>
+                  <span className="text-xs font-semibold bg-blue-100 text-sdg-blue px-2 py-1 rounded-full">
+                    Goal 11
+                  </span>
+                </div>
+                <CardTitle className="text-sdg-blue">Sustainable Cities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Build resilient communities
+                </CardDescription>
+              </CardContent>
+            </Card>
 
-            <SDGCard
-              theme="decent-work"
-              variant="outline"
-              size="md"
-              title="Decent Work"
-              description="Create green job opportunities"
-              icon={<Briefcase className="h-6 w-6" />}
-              badge="Goal 8"
-            />
+            <Card className="border-2 border-sdg-orange hover:bg-orange-50 transition-colors">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Briefcase className="h-6 w-6 text-sdg-orange" />
+                  </div>
+                  <span className="text-xs font-semibold bg-orange-100 text-sdg-orange px-2 py-1 rounded-full">
+                    Goal 8
+                  </span>
+                </div>
+                <CardTitle className="text-sdg-orange">Decent Work</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Create green job opportunities
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -239,30 +287,34 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <SDGCard
-              theme="climate-action"
-              variant="solid"
-              size="xl"
-              title="Join the Community"
-              description="Connect with like-minded youth, access green job opportunities, and make a real impact in your community while earning income."
-              icon={<Award className="h-10 w-10" />}
-              interactive
-              className="text-center"
-            >
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/register" onClick={handleGetStarted}>
-                  <Button size="lg" className="w-full sm:w-auto bg-white text-green-600 hover:bg-gray-50 text-lg px-8 py-4">
-                    <Users className="mr-2 h-5 w-5" />
-                    Get Started Now
-                  </Button>
-                </Link>
-                <Link to="/about">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white/10 text-lg px-8 py-4">
-                    Learn More
-                  </Button>
-                </Link>
-              </div>
-            </SDGCard>
+            <Card className="bg-gradient-to-br from-sdg-green to-green-600 text-white border-0 shadow-xl text-center">
+              <CardHeader className="pb-4">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <Award className="h-10 w-10" />
+                  </div>
+                </div>
+                <CardTitle className="text-white text-2xl">Join the Community</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-green-100 text-lg mb-8">
+                  Connect with like-minded youth, access green job opportunities, and make a real impact in your community while earning income.
+                </CardDescription>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link to="/register" onClick={handleGetStarted}>
+                    <Button size="lg" className="w-full sm:w-auto bg-white text-sdg-green hover:bg-gray-50 text-lg px-8 py-4">
+                      <Users className="mr-2 h-5 w-5" />
+                      Get Started Now
+                    </Button>
+                  </Link>
+                  <Link to="/about">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white/10 text-lg px-8 py-4">
+                      Learn More
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Additional Trust Indicators */}
