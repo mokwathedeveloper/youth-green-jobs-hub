@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
+from datetime import date
+from youth_green_jobs_backend.config import get_default_county, get_upload_path
 
 
 class User(AbstractUser):
@@ -41,8 +43,8 @@ class User(AbstractUser):
     # Location Information
     county = models.CharField(
         max_length=50,
-        default='Kisumu',
-        help_text=_("County in Kenya (default: Kisumu)")
+        default=get_default_county,
+        help_text=_("County in Kenya")
     )
 
     sub_county = models.CharField(
@@ -102,7 +104,7 @@ class User(AbstractUser):
 
     # Profile and Verification
     profile_picture = models.ImageField(
-        upload_to='profile_pictures/',
+        upload_to=lambda instance, filename: get_upload_path('profile_pictures') + filename,
         blank=True,
         null=True,
         help_text=_("Profile picture for user identification")
@@ -121,7 +123,7 @@ class User(AbstractUser):
     )
 
     verification_document = models.FileField(
-        upload_to='verification_documents/',
+        upload_to=lambda instance, filename: get_upload_path('verification_docs') + filename,
         blank=True,
         null=True,
         help_text=_("Identity document for verification (ID, passport, etc.)")
