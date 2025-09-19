@@ -6,7 +6,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { NotificationProps, SDGTheme, NotificationType } from '../types/sdg';
+import type { NotificationProps, SDGTheme } from '../types/sdg';
 
 interface ToastItem extends NotificationProps {
   id: string;
@@ -46,7 +46,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const generateId = useCallback(() => {
-    return `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `toast-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }, []);
 
   const showToast = useCallback((toast: Omit<NotificationProps, 'onClose'>): string => {

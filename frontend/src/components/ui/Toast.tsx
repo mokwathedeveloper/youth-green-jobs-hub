@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
-import { NotificationProps } from '../../types/sdg';
+import type { NotificationProps } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import { clsx } from 'clsx';
 
@@ -188,16 +188,7 @@ const Toast: React.FC<NotificationProps> = ({
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes shrink {
-          from {
-            width: 100%;
-          }
-          to {
-            width: 0%;
-          }
-        }
-      `}</style>
+
     </div>
   );
 };

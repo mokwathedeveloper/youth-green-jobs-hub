@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
-import { ToastContainer } from './components/ui/ToastContainer';
+import ToastContainer from './components/ui/ToastContainer';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestGuard from './components/routing/GuestGuard';
 import AuthGuard from './components/routing/AuthGuard';

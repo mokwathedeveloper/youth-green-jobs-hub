@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Send, User, Mail, MessageSquare, Phone, MapPin } from 'lucide-react';
-import { SDGTheme } from '../../types/sdg';
+import type { SDGTheme } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import Button from './Button';
 import Input from './Input';
