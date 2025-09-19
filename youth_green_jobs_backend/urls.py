@@ -69,6 +69,12 @@ urlpatterns = [
 
     # Analytics endpoints
     path('api/v1/analytics/', include('analytics.urls')),
+
+    # Gamification endpoints
+    path('api/v1/gamification/', include('gamification.urls')),
+
+    # Partnership endpoints
+    path('api/v1/partnerships/', include('partnerships.urls')),
 ]
 
 # Serve media files in development

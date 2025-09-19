@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'waste_management',
     'eco_products',
     'analytics',
+    'gamification',
+    'partnerships',
 ]
 
 MIDDLEWARE = [
@@ -368,3 +370,24 @@ ANALYTICS_CONFIG = {
     'ANALYTICS_RETENTION_DAYS': config('ANALYTICS_RETENTION_DAYS', default=365, cast=int),
     'ENABLE_PERFORMANCE_MONITORING': config('ENABLE_PERFORMANCE_MONITORING', default=True, cast=bool),
 }
+
+# ===== PAYMENT CONFIGURATION =====
+# Site URL for payment callbacks
+SITE_URL = config('SITE_URL', default='http://localhost:3000')
+
+# M-Pesa Configuration
+MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
+MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
+MPESA_BUSINESS_SHORT_CODE = config('MPESA_BUSINESS_SHORT_CODE', default='174379')
+MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
+MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='')
+MPESA_SANDBOX = config('MPESA_SANDBOX', default=True, cast=bool)
+
+# Paystack Configuration
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='')
+PAYSTACK_SANDBOX = config('PAYSTACK_SANDBOX', default=True, cast=bool)
+
+# ===== GOOGLE MAPS CONFIGURATION =====
+GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY', default='')
+GOOGLE_MAPS_JS_API_KEY = config('GOOGLE_MAPS_JS_API_KEY', default='')
