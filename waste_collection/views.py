@@ -5,8 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-# Temporarily disabled for migration creation
-# from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Point
 from decimal import Decimal
 
 from .models import (
@@ -16,10 +15,9 @@ from .models import (
     CreditTransaction,
     CollectionEvent,
     EventParticipation,
-    # Temporarily disabled GIS models
-    # CollectionRoute,
-    # CollectionPointLocation,
-    # RouteOptimization
+    CollectionRoute,
+    CollectionPointLocation,
+    RouteOptimization
 )
 from .serializers import (
     WasteCategorySerializer,

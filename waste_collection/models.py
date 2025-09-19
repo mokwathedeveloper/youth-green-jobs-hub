@@ -3,9 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import uuid
-# Temporarily disabled for migration creation
-# from django.contrib.gis.db import models as gis_models
-# from django.contrib.gis.geos import Point, LineString
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point, LineString
 from youth_green_jobs_backend.config import get_default_county, get_upload_path
 
 User = get_user_model()
@@ -418,5 +417,235 @@ class EventParticipation(models.Model):
         return f"{self.user.username} - {self.event.title}"
 
 
-# Maps and Location Models - Temporarily disabled for migration creation
-# GIS models will be added after GDAL installation
+# Maps and Location Models
+class CollectionRoute(models.Model):
+    """Optimized routes for waste collection"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+    # Route geometry
+    route_geometry = gis_models.LineStringField(
+        help_text="Route path as LineString geometry",
+        null=True, blank=True
+    )
+
+    # Route details
+    estimated_duration_minutes = models.PositiveIntegerField(
+        help_text="Estimated time to complete route in minutes"
+    )
+    estimated_distance_km = models.DecimalField(
+        max_digits=8, decimal_places=2,
+        help_text="Estimated distance in kilometers"
+    )
+
+    # Route optimization
+    optimization_score = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        default=Decimal('0.00'),
+        help_text="Route efficiency score (0-100)"
+    )
+
+    # Status and metadata
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-optimization_score', 'name']
+        verbose_name = 'Collection Route'
+        verbose_name_plural = 'Collection Routes'
+
+    def __str__(self):
+        return f"{self.name} ({self.optimization_score}% efficient)"
+
+
+class CollectionPointLocation(models.Model):
+    """Enhanced location data for collection points with GIS support"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    collection_point = models.OneToOneField(
+        CollectionPoint,
+        on_delete=models.CASCADE,
+        related_name='location_data'
+    )
+
+    # Geographic data
+    coordinates = gis_models.PointField(
+        help_text="Precise GPS coordinates of the collection point"
+    )
+
+    # Address components
+    street_address = models.CharField(max_length=255, blank=True)
+    neighborhood = models.CharField(max_length=100, blank=True)
+    ward = models.CharField(max_length=100, blank=True)
+    constituency = models.CharField(max_length=100, blank=True)
+    county = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+
+    # Location metadata
+    place_id = models.CharField(
+        max_length=255, blank=True,
+        help_text="Google Places API place ID"
+    )
+    plus_code = models.CharField(
+        max_length=20, blank=True,
+        help_text="Google Plus Code for the location"
+    )
+
+    # Accessibility and features
+    accessibility_features = models.JSONField(
+        default=dict,
+        help_text="Accessibility features (wheelchair_accessible, parking, etc.)"
+    )
+
+    # Verification status
+    is_verified = models.BooleanField(
+        default=False,
+        help_text="Whether location has been verified by field team"
+    )
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verified_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='verified_locations'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Collection Point Location'
+        verbose_name_plural = 'Collection Point Locations'
+
+    def __str__(self):
+        return f"Location for {self.collection_point.name}"
+
+    @property
+    def latitude(self):
+        """Get latitude from coordinates"""
+        return self.coordinates.y if self.coordinates else None
+
+    @property
+    def longitude(self):
+        """Get longitude from coordinates"""
+        return self.coordinates.x if self.coordinates else None
+
+    def set_coordinates(self, latitude, longitude):
+        """Set coordinates from latitude and longitude"""
+        self.coordinates = Point(longitude, latitude)
+
+
+class RouteOptimization(models.Model):
+    """Route optimization requests and results"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Optimization parameters
+    start_location = gis_models.PointField(help_text="Starting point for optimization")
+    collection_points = models.ManyToManyField(
+        CollectionPoint,
+        help_text="Collection points to include in optimization"
+    )
+
+    # Optimization constraints
+    max_duration_minutes = models.PositiveIntegerField(
+        default=480,  # 8 hours
+        help_text="Maximum route duration in minutes"
+    )
+    max_distance_km = models.DecimalField(
+        max_digits=8, decimal_places=2,
+        default=Decimal('100.00'),
+        help_text="Maximum route distance in kilometers"
+    )
+    vehicle_capacity_kg = models.DecimalField(
+        max_digits=8, decimal_places=2,
+        default=Decimal('1000.00'),
+        help_text="Vehicle capacity in kilograms"
+    )
+
+    # Optimization results
+    optimized_route = models.ForeignKey(
+        CollectionRoute,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        help_text="Generated optimized route"
+    )
+
+    # Status tracking
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    # Metadata
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    # Results
+    optimization_results = models.JSONField(
+        default=dict,
+        help_text="Detailed optimization results and metrics"
+    )
+
+    class Meta:
+        ordering = ['-requested_at']
+        verbose_name = 'Route Optimization'
+        verbose_name_plural = 'Route Optimizations'
+
+    def __str__(self):
+        return f"Route optimization {self.id} - {self.get_status_display()}"
+
+
+class GeospatialAnalytics(models.Model):
+    """Geospatial analytics and insights"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Analysis parameters
+    analysis_type = models.CharField(
+        max_length=50,
+        choices=[
+            ('coverage', 'Coverage Analysis'),
+            ('density', 'Collection Point Density'),
+            ('efficiency', 'Route Efficiency'),
+            ('accessibility', 'Accessibility Analysis'),
+            ('demand', 'Demand Prediction'),
+        ]
+    )
+
+    # Geographic scope
+    analysis_area = gis_models.PolygonField(
+        help_text="Geographic area for analysis",
+        null=True, blank=True
+    )
+
+    # Time period
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    # Analysis results
+    results = models.JSONField(
+        default=dict,
+        help_text="Analysis results and metrics"
+    )
+
+    # Visualizations
+    map_data = models.JSONField(
+        default=dict,
+        help_text="GeoJSON data for map visualizations"
+    )
+
+    # Metadata
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-generated_at']
+        verbose_name = 'Geospatial Analytics'
+        verbose_name_plural = 'Geospatial Analytics'
+
+    def __str__(self):
+        return f"{self.get_analysis_type_display()} - {self.generated_at.date()}"
