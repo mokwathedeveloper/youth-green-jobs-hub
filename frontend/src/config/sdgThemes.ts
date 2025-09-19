@@ -137,8 +137,6 @@ export const generateSDGCSSVariables = (theme: SDGTheme): Record<string, string>
 
 // Tailwind class generators for dynamic styling
 export const getSDGTailwindClasses = (theme: SDGTheme) => {
-  const themeConfig = getSDGTheme(theme);
-
   return {
     // Background classes
     bg: {

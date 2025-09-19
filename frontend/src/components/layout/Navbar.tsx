@@ -21,7 +21,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({
-  theme = 'climate',
+  theme = 'climate-action',
   className = '',
   showNotifications = true,
   notificationCount = 0,

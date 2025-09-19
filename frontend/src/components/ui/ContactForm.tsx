@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Send, User, Mail, MessageSquare, Phone, MapPin } from 'lucide-react';
+import { Send, MessageSquare, MapPin } from 'lucide-react';
 import type { SDGTheme } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import Button from './Button';
@@ -25,7 +25,7 @@ const contactFormSchema = z.object({
   subject: z.string().min(5, 'Subject must be at least 5 characters'),
   category: z.enum(['general', 'support', 'partnership', 'feedback', 'bug-report']),
   message: z.string().min(10, 'Message must be at least 10 characters'),
-  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+  priority: z.enum(['low', 'medium', 'high']).optional().default('medium'),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -39,7 +39,7 @@ interface ContactFormProps {
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({
-  theme = 'cities',
+  theme = 'sustainable-cities',
   onSubmit,
   className = '',
   showPriority = false,
@@ -145,7 +145,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             type="text"
             placeholder="Enter your full name"
             error={errors.name?.message}
-            icon={<User className="w-4 h-4" />}
             {...register('name')}
           />
           <Input
@@ -153,7 +152,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             type="email"
             placeholder="Enter your email"
             error={errors.email?.message}
-            icon={<Mail className="w-4 h-4" />}
             {...register('email')}
           />
         </div>
@@ -165,7 +163,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             type="tel"
             placeholder="Enter your phone number"
             error={errors.phone?.message}
-            icon={<Phone className="w-4 h-4" />}
             {...register('phone')}
           />
           <Select

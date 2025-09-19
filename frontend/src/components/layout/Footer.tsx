@@ -12,13 +12,12 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Linkedin,
-  ExternalLink
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin
 } from 'lucide-react';
-import { SDGTheme } from '../../types/sdg';
+import type { SDGTheme } from '../../types/sdg';
 import { getSDGTailwindClasses, getSDGTheme } from '../../config/sdgThemes';
 import { clsx } from 'clsx';
 
@@ -28,7 +27,7 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({
-  theme = 'climate',
+  theme = 'climate-action',
   className = '',
 }) => {
   const themeConfig = getSDGTheme(theme);
