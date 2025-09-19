@@ -93,12 +93,36 @@ WSGI_APPLICATION = 'youth_green_jobs_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Support for DATABASE_URL (for production) or fallback to SQLite (for development)
+DATABASE_URL = config('DATABASE_URL', default=None)
+
+if DATABASE_URL:
+    # Production database configuration using DATABASE_URL
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    # Development database configuration (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
+            'NAME': config('DB_NAME', default=str(BASE_DIR / 'db.sqlite3')),
+            'USER': config('DB_USER', default=''),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default=''),
+            'PORT': config('DB_PORT', default=''),
+            'OPTIONS': {
+                'init_command': config('DB_INIT_COMMAND', default=''),
+            } if config('DB_INIT_COMMAND', default='') else {},
+        }
+    }
+
+# Database connection settings
+DATABASES['default'].update({
+    'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=0, cast=int),
+    'CONN_HEALTH_CHECKS': config('DB_CONN_HEALTH_CHECKS', default=False, cast=bool),
+})
 
 
 # Password validation
@@ -157,7 +181,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': config('DRF_PAGE_SIZE', default=20, cast=int),
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
@@ -169,14 +193,13 @@ REST_FRAMEWORK = {
 }
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React development server
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",  # Vite development server
-    "http://127.0.0.1:5173",
-]
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173',
+    cast=lambda v: [s.strip() for s in v.split(',')]
+)
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=True, cast=bool)
 
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.User'
@@ -189,10 +212,33 @@ LANGUAGE_CODE = 'en-us'
 USE_I18N = True
 USE_TZ = True
 
-# Security Settings for Production
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+# Security Settings
+SECURE_BROWSER_XSS_FILTER = config('SECURE_BROWSER_XSS_FILTER', default=True, cast=bool)
+SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF', default=True, cast=bool)
+X_FRAME_OPTIONS = config('X_FRAME_OPTIONS', default='DENY')
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
+SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+SECURE_PROXY_SSL_HEADER = None
+if config('SECURE_PROXY_SSL_HEADER', default=''):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Session Security
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+SESSION_COOKIE_HTTPONLY = config('SESSION_COOKIE_HTTPONLY', default=True, cast=bool)
+SESSION_COOKIE_SAMESITE = config('SESSION_COOKIE_SAMESITE', default='Lax')
+SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', default=1209600, cast=int)  # 2 weeks
+
+# CSRF Security
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+CSRF_COOKIE_HTTPONLY = config('CSRF_COOKIE_HTTPONLY', default=True, cast=bool)
+CSRF_COOKIE_SAMESITE = config('CSRF_COOKIE_SAMESITE', default='Lax')
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
 
 # Email Configuration (for production)
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
@@ -233,20 +279,20 @@ LOGGING = {
 
 # JWT Configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', default=60, cast=int)),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=config('JWT_REFRESH_TOKEN_LIFETIME_DAYS', default=7, cast=int)),
+    'ROTATE_REFRESH_TOKENS': config('JWT_ROTATE_REFRESH_TOKENS', default=True, cast=bool),
+    'BLACKLIST_AFTER_ROTATION': config('JWT_BLACKLIST_AFTER_ROTATION', default=True, cast=bool),
+    'UPDATE_LAST_LOGIN': config('JWT_UPDATE_LAST_LOGIN', default=True, cast=bool),
 
-    'ALGORITHM': 'HS256',
+    'ALGORITHM': config('JWT_ALGORITHM', default='HS256'),
     'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': 'youth-green-jobs-hub',
+    'AUDIENCE': config('JWT_AUDIENCE', default=None),
+    'ISSUER': config('JWT_ISSUER', default='youth-green-jobs-hub'),
     'JSON_ENCODER': None,
     'JWK_URL': None,
-    'LEEWAY': 0,
+    'LEEWAY': config('JWT_LEEWAY', default=0, cast=int),
 
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
@@ -261,6 +307,64 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=config('JWT_SLIDING_TOKEN_LIFETIME_MINUTES', default=60, cast=int)),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=config('JWT_SLIDING_TOKEN_REFRESH_LIFETIME_DAYS', default=7, cast=int)),
+}
+
+# ===== APPLICATION-SPECIFIC CONFIGURATION =====
+
+# Platform Configuration
+PLATFORM_CONFIG = {
+    'DEFAULT_COUNTY': config('DEFAULT_COUNTY', default='Kisumu'),
+    'DEFAULT_COUNTRY': config('DEFAULT_COUNTRY', default='Kenya'),
+    'DEFAULT_TIMEZONE': config('DEFAULT_TIMEZONE', default='Africa/Nairobi'),
+    'PLATFORM_NAME': config('PLATFORM_NAME', default='Youth Green Jobs & Waste Recycling Hub'),
+    'PLATFORM_VERSION': config('PLATFORM_VERSION', default='1.0.0'),
+    'SUPPORT_EMAIL': config('SUPPORT_EMAIL', default='support@youthgreenjobs.ke'),
+    'SUPPORT_WEBSITE': config('SUPPORT_WEBSITE', default='https://youthgreenjobs.ke'),
+}
+
+# Youth Eligibility Configuration
+YOUTH_CONFIG = {
+    'MIN_AGE': config('YOUTH_MIN_AGE', default=18, cast=int),
+    'MAX_AGE': config('YOUTH_MAX_AGE', default=35, cast=int),
+}
+
+# Waste Collection Configuration
+WASTE_CONFIG = {
+    'DEFAULT_CREDIT_RATE': config('DEFAULT_CREDIT_RATE', default='1.00'),
+    'DEFAULT_CO2_REDUCTION_RATE': config('DEFAULT_CO2_REDUCTION_RATE', default='0.5000'),
+    'DEFAULT_STOCK_THRESHOLD': config('DEFAULT_STOCK_THRESHOLD', default=5, cast=int),
+    'DEFAULT_BONUS_MULTIPLIER': config('DEFAULT_BONUS_MULTIPLIER', default='1.00'),
+    'MAX_UPLOAD_SIZE_MB': config('MAX_UPLOAD_SIZE_MB', default=10, cast=int),
+}
+
+# File Upload Configuration
+UPLOAD_CONFIG = {
+    'WASTE_REPORTS_DIR': config('WASTE_REPORTS_UPLOAD_DIR', default='waste_reports/'),
+    'PRODUCTS_DIR': config('PRODUCTS_UPLOAD_DIR', default='products/'),
+    'VERIFICATION_DOCS_DIR': config('VERIFICATION_DOCS_UPLOAD_DIR', default='verification_documents/'),
+    'PROFILE_PICTURES_DIR': config('PROFILE_PICTURES_UPLOAD_DIR', default='profile_pictures/'),
+}
+
+# API Configuration
+API_CONFIG = {
+    'DEFAULT_TIMEOUT_SECONDS': config('API_DEFAULT_TIMEOUT_SECONDS', default=30, cast=int),
+    'MAX_REQUESTS_PER_MINUTE': config('API_MAX_REQUESTS_PER_MINUTE', default=100, cast=int),
+    'ENABLE_API_VERSIONING': config('ENABLE_API_VERSIONING', default=True, cast=bool),
+}
+
+# Geolocation Configuration
+GEOLOCATION_CONFIG = {
+    'DEFAULT_LATITUDE': config('DEFAULT_LATITUDE', default='-0.0917', cast=float),  # Kisumu coordinates
+    'DEFAULT_LONGITUDE': config('DEFAULT_LONGITUDE', default='34.7680', cast=float),
+    'GEOLOCATION_TIMEOUT_MS': config('GEOLOCATION_TIMEOUT_MS', default=10000, cast=int),
+    'GEOLOCATION_MAX_AGE_MS': config('GEOLOCATION_MAX_AGE_MS', default=300000, cast=int),  # 5 minutes
+}
+
+# Analytics Configuration
+ANALYTICS_CONFIG = {
+    'ENABLE_ANALYTICS': config('ENABLE_ANALYTICS', default=True, cast=bool),
+    'ANALYTICS_RETENTION_DAYS': config('ANALYTICS_RETENTION_DAYS', default=365, cast=int),
+    'ENABLE_PERFORMANCE_MONITORING': config('ENABLE_PERFORMANCE_MONITORING', default=True, cast=bool),
 }
