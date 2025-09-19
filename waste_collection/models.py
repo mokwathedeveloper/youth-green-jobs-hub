@@ -3,6 +3,9 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import uuid
+# Temporarily disabled for migration creation
+# from django.contrib.gis.db import models as gis_models
+# from django.contrib.gis.geos import Point, LineString
 from youth_green_jobs_backend.config import get_default_county, get_upload_path
 
 User = get_user_model()
@@ -413,3 +416,7 @@ class EventParticipation(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"
+
+
+# Maps and Location Models - Temporarily disabled for migration creation
+# GIS models will be added after GDAL installation

@@ -27,4 +27,10 @@ urlpatterns = [
     
     # Dashboard and Statistics
     path('dashboard/stats/', views.user_dashboard_stats, name='user-dashboard-stats'),
+
+    # Maps and Route Optimization
+    path('maps/geocode/', views.geocode_address, name='geocode-address'),
+    path('maps/reverse-geocode/', views.reverse_geocode, name='reverse-geocode'),
+    path('routes/optimize/', views.optimize_route, name='optimize-route'),
+    path('analytics/coverage/', views.collection_point_coverage_analysis, name='coverage-analysis'),
 ]

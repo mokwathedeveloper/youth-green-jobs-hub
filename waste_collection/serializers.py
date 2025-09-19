@@ -1,12 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import (
-    WasteCategory, 
-    CollectionPoint, 
-    WasteReport, 
-    CreditTransaction, 
-    CollectionEvent, 
-    EventParticipation
+    WasteCategory,
+    CollectionPoint,
+    WasteReport,
+    CreditTransaction,
+    CollectionEvent,
+    EventParticipation,
+    CollectionRoute,
+    CollectionPointLocation,
+    RouteOptimization
 )
 
 User = get_user_model()
@@ -293,3 +296,89 @@ class CollectionEventCreateSerializer(serializers.ModelSerializer):
             event.target_categories.set(target_category_ids)
         
         return event
+
+
+# Maps and Route Serializers
+
+class CollectionRouteSerializer(serializers.ModelSerializer):
+    """Serializer for collection routes"""
+    created_by = UserBasicSerializer(read_only=True)
+
+    class Meta:
+        model = CollectionRoute
+        fields = [
+            'id', 'name', 'description', 'estimated_duration_minutes',
+            'estimated_distance_km', 'optimization_score', 'is_active',
+            'created_by', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class CollectionPointLocationSerializer(serializers.ModelSerializer):
+    """Serializer for collection point locations"""
+    collection_point = CollectionPointSerializer(read_only=True)
+    verified_by = UserBasicSerializer(read_only=True)
+    latitude = serializers.ReadOnlyField()
+    longitude = serializers.ReadOnlyField()
+
+    class Meta:
+        model = CollectionPointLocation
+        fields = [
+            'id', 'collection_point', 'latitude', 'longitude',
+            'street_address', 'neighborhood', 'ward', 'constituency',
+            'county', 'postal_code', 'place_id', 'plus_code',
+            'accessibility_features', 'is_verified', 'verified_at',
+            'verified_by', 'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'id', 'latitude', 'longitude', 'verified_at',
+            'verified_by', 'created_at', 'updated_at'
+        ]
+
+
+class RouteOptimizationSerializer(serializers.ModelSerializer):
+    """Serializer for route optimization requests"""
+    requested_by = UserBasicSerializer(read_only=True)
+    optimized_route = CollectionRouteSerializer(read_only=True)
+    collection_points = CollectionPointSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = RouteOptimization
+        fields = [
+            'id', 'max_duration_minutes', 'max_distance_km',
+            'vehicle_capacity_kg', 'optimized_route', 'status',
+            'requested_by', 'requested_at', 'completed_at',
+            'optimization_results', 'collection_points'
+        ]
+        read_only_fields = [
+            'id', 'optimized_route', 'status', 'requested_by',
+            'requested_at', 'completed_at', 'optimization_results'
+        ]
+
+
+class RouteOptimizationCreateSerializer(serializers.Serializer):
+    """Serializer for creating route optimization requests"""
+    start_latitude = serializers.FloatField()
+    start_longitude = serializers.FloatField()
+    collection_point_ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        min_length=2
+    )
+    max_duration_minutes = serializers.IntegerField(default=480)
+    max_distance_km = serializers.DecimalField(
+        max_digits=8, decimal_places=2, default=100.00
+    )
+    vehicle_capacity_kg = serializers.DecimalField(
+        max_digits=8, decimal_places=2, default=1000.00
+    )
+
+
+class GeocodeSerializer(serializers.Serializer):
+    """Serializer for geocoding requests"""
+    address = serializers.CharField(max_length=500)
+
+
+class ReverseGeocodeSerializer(serializers.Serializer):
+    """Serializer for reverse geocoding requests"""
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()

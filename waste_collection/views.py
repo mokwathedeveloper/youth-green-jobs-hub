@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+# Temporarily disabled for migration creation
+# from django.contrib.gis.geos import Point
 from decimal import Decimal
 
 from .models import (
@@ -13,7 +15,11 @@ from .models import (
     WasteReport,
     CreditTransaction,
     CollectionEvent,
-    EventParticipation
+    EventParticipation,
+    # Temporarily disabled GIS models
+    # CollectionRoute,
+    # CollectionPointLocation,
+    # RouteOptimization
 )
 from .serializers import (
     WasteCategorySerializer,
@@ -423,3 +429,218 @@ def nearby_collection_points(request):
         'total_found': len(nearby_points),
         'search_radius_km': radius_km
     })
+
+
+# Maps and Route Optimization Views
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def geocode_address(request):
+    """Geocode an address to get coordinates"""
+    address = request.data.get('address')
+    if not address:
+        return Response(
+            {'error': 'Address is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        from .services.maps_service import maps_service
+        result = maps_service.geocode_address(address)
+
+        if result:
+            return Response({
+                'success': True,
+                'result': result
+            })
+        else:
+            return Response({
+                'success': False,
+                'error': 'Address not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reverse_geocode(request):
+    """Reverse geocode coordinates to get address"""
+    latitude = request.data.get('latitude')
+    longitude = request.data.get('longitude')
+
+    if latitude is None or longitude is None:
+        return Response(
+            {'error': 'Latitude and longitude are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        from .services.maps_service import maps_service
+        result = maps_service.reverse_geocode(float(latitude), float(longitude))
+
+        if result:
+            return Response({
+                'success': True,
+                'result': result
+            })
+        else:
+            return Response({
+                'success': False,
+                'error': 'Location not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def optimize_route(request):
+    """Optimize collection route"""
+    try:
+        # Extract request data
+        start_lat = request.data.get('start_latitude')
+        start_lng = request.data.get('start_longitude')
+        collection_point_ids = request.data.get('collection_point_ids', [])
+        constraints = request.data.get('constraints', {})
+
+        if start_lat is None or start_lng is None:
+            return Response(
+                {'error': 'Start coordinates are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not collection_point_ids:
+            return Response(
+                {'error': 'Collection point IDs are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get collection points
+        collection_points = CollectionPoint.objects.filter(
+            id__in=collection_point_ids
+        )
+
+        if not collection_points.exists():
+            return Response(
+                {'error': 'No valid collection points found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create start location point
+        start_location = Point(float(start_lng), float(start_lat))
+
+        # Optimize route
+        from .services.route_optimizer import route_optimizer
+        optimization_result = route_optimizer.optimize_collection_route(
+            start_location=start_location,
+            collection_points=list(collection_points),
+            constraints=constraints
+        )
+
+        if optimization_result:
+            return Response({
+                'success': True,
+                'optimization_result': {
+                    'total_distance_km': float(optimization_result['total_distance_km']),
+                    'total_duration_minutes': optimization_result['total_duration_minutes'],
+                    'efficiency_score': float(optimization_result['efficiency_score']),
+                    'waypoint_order': optimization_result['waypoint_order'],
+                    'overview_polyline': optimization_result['overview_polyline'],
+                    'bounds': optimization_result['bounds'],
+                }
+            })
+        else:
+            return Response({
+                'success': False,
+                'error': 'Route optimization failed'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def collection_point_coverage_analysis(request):
+    """Analyze collection point coverage in an area"""
+    try:
+        # Get analysis parameters
+        center_lat = request.GET.get('center_latitude')
+        center_lng = request.GET.get('center_longitude')
+        radius_km = float(request.GET.get('radius_km', 10))
+
+        if center_lat is None or center_lng is None:
+            return Response(
+                {'error': 'Center coordinates are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        center_lat = float(center_lat)
+        center_lng = float(center_lng)
+
+        # Get collection points in the area
+        collection_points = CollectionPoint.objects.filter(
+            is_active=True
+        )
+
+        # Calculate coverage metrics
+        points_in_area = []
+        total_capacity = 0
+
+        for point in collection_points:
+            # Calculate distance from center
+            distance = ((point.latitude - center_lat) ** 2 +
+                       (point.longitude - center_lng) ** 2) ** 0.5 * 111  # Rough km conversion
+
+            if distance <= radius_km:
+                points_in_area.append({
+                    'id': str(point.id),
+                    'name': point.name,
+                    'latitude': point.latitude,
+                    'longitude': point.longitude,
+                    'capacity_kg': float(point.capacity_kg),
+                    'distance_from_center_km': round(distance, 2)
+                })
+                total_capacity += point.capacity_kg
+
+        # Calculate coverage metrics
+        area_km2 = 3.14159 * (radius_km ** 2)  # Circle area
+        points_per_km2 = len(points_in_area) / area_km2 if area_km2 > 0 else 0
+        capacity_per_km2 = float(total_capacity) / area_km2 if area_km2 > 0 else 0
+
+        return Response({
+            'analysis_area': {
+                'center_latitude': center_lat,
+                'center_longitude': center_lng,
+                'radius_km': radius_km,
+                'area_km2': round(area_km2, 2)
+            },
+            'coverage_metrics': {
+                'total_collection_points': len(points_in_area),
+                'total_capacity_kg': float(total_capacity),
+                'points_per_km2': round(points_per_km2, 3),
+                'capacity_per_km2': round(capacity_per_km2, 2),
+                'coverage_rating': 'excellent' if points_per_km2 > 0.5 else
+                                 'good' if points_per_km2 > 0.2 else
+                                 'fair' if points_per_km2 > 0.1 else 'poor'
+            },
+            'collection_points': points_in_area
+        })
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
