@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { SDGCardProps } from '../../types/sdg';
+import type { SDGCardProps } from '../../types/sdg';
 import { getSDGTailwindClasses, getSDGTheme } from '../../config/sdgThemes';
 import { clsx } from 'clsx';
 
@@ -70,9 +70,9 @@ const SDGCard: React.FC<SDGCardProps> = ({
     ),
     gradient: clsx(
       'bg-gradient-to-br text-white border-0',
-      theme === 'climate' ? 'from-green-500 to-green-700' :
-      theme === 'cities' ? 'from-blue-500 to-blue-700' :
-      theme === 'work' ? 'from-orange-400 to-orange-600' :
+      theme === 'climate-action' ? 'from-green-500 to-green-700' :
+      theme === 'sustainable-cities' ? 'from-blue-500 to-blue-700' :
+      theme === 'decent-work' ? 'from-orange-400 to-orange-600' :
       'from-gray-500 to-gray-700'
     ),
   };
@@ -201,3 +201,4 @@ const SDGCard: React.FC<SDGCardProps> = ({
 };
 
 export default SDGCard;
+export { SDGCard };

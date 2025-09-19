@@ -6,7 +6,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { NotificationProps, SDGTheme, NotificationType } from '../types/sdg';
+import type { NotificationProps, SDGTheme, NotificationType } from '../types/sdg';
 
 interface ToastItem extends NotificationProps {
   id: string;
@@ -78,7 +78,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   const showSuccess = useCallback((
     title: string, 
     message?: string, 
-    theme: SDGTheme = 'climate'
+    theme: SDGTheme = 'climate-action'
   ): string => {
     return showToast({
       type: 'success',
@@ -116,7 +116,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   const showInfo = useCallback((
     title: string, 
     message?: string, 
-    theme: SDGTheme = 'cities'
+    theme: SDGTheme = 'sustainable-cities'
   ): string => {
     return showToast({
       type: 'info',

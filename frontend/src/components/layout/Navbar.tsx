@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf, Bell, User, ChevronDown } from 'lucide-react';
-import { SDGTheme, SDGNavItem } from '../../types/sdg';
+import type { SDGTheme, SDGNavItem } from '../../types/sdg';
 import { getSDGTailwindClasses, getSDGTheme } from '../../config/sdgThemes';
 import { useAuth } from '../../contexts/AuthContext';
 import { clsx } from 'clsx';
@@ -35,17 +35,17 @@ const Navbar: React.FC<NavbarProps> = ({
 
   // Navigation items
   const publicNavItems: SDGNavItem[] = [
-    { name: 'Home', href: '/', theme: 'climate' },
-    { name: 'About', href: '/about', theme: 'cities' },
-    { name: 'Services', href: '/services', theme: 'work' },
+    { name: 'Home', href: '/', theme: 'climate-action' },
+    { name: 'About', href: '/about', theme: 'sustainable-cities' },
+    { name: 'Services', href: '/services', theme: 'decent-work' },
     { name: 'Contact', href: '/contact', theme: 'default' },
   ];
 
   const authenticatedNavItems: SDGNavItem[] = [
-    { name: 'Dashboard', href: '/dashboard', theme: 'climate' },
-    { name: 'Waste Collection', href: '/dashboard/waste', theme: 'climate' },
-    { name: 'Eco Products', href: '/dashboard/products', theme: 'work' },
-    { name: 'Analytics', href: '/dashboard/analytics', theme: 'cities' },
+    { name: 'Dashboard', href: '/dashboard', theme: 'climate-action' },
+    { name: 'Waste Collection', href: '/dashboard/waste', theme: 'climate-action' },
+    { name: 'Eco Products', href: '/dashboard/products', theme: 'decent-work' },
+    { name: 'Analytics', href: '/dashboard/analytics', theme: 'sustainable-cities' },
   ];
 
   const userMenuItems = [

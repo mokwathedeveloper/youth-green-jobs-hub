@@ -6,7 +6,7 @@
  * across the application.
  */
 
-import { SDGTheme, SDGThemeConfig, SDGColorPalette } from '../types/sdg';
+import type { SDGTheme, SDGThemeConfig, SDGColorPalette } from '../types/sdg';
 
 // SDG Color Palettes based on official SDG colors
 const SDG_COLOR_PALETTES: Record<SDGTheme, SDGColorPalette> = {
