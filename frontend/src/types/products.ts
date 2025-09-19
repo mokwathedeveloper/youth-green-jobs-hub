@@ -315,3 +315,56 @@ export interface ProductAPIError {
 export interface ValidationError {
   [key: string]: string[];
 }
+
+// Payment Types
+export interface PaymentProvider {
+  id: string;
+  name: string;
+  display_name: string;
+  is_active: boolean;
+  supported_currencies_list: string[];
+  min_amount: number;
+  max_amount: number;
+  transaction_fee_percentage: number;
+  fixed_fee: number;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  transaction_id: string;
+  external_transaction_id?: string;
+  order: Order;
+  provider: PaymentProvider;
+  amount: number;
+  currency: string;
+  fee_amount: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded' | 'expired';
+  customer_phone?: string;
+  customer_email?: string;
+  initiated_at: string;
+  completed_at?: string;
+  expires_at?: string;
+  failure_reason?: string;
+  retry_count: number;
+  max_retries: number;
+}
+
+export interface PaymentInitiateData {
+  order_id: string;
+  provider: string;
+  customer_phone: string;
+  customer_email?: string;
+}
+
+export interface PaymentResult {
+  success: boolean;
+  message: string;
+  transaction_id?: string;
+  external_id?: string;
+  data?: any;
+}
+
+export interface PaymentRefundData {
+  amount?: number;
+  reason?: string;
+}

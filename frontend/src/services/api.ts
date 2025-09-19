@@ -44,7 +44,12 @@ import type {
   AddToCartData,
   ProductSearchParams,
   ProductRecommendations,
-  DashboardStats as ProductDashboardStats
+  DashboardStats as ProductDashboardStats,
+  PaymentProvider,
+  PaymentTransaction,
+  PaymentInitiateData,
+  PaymentResult,
+  PaymentRefundData
 } from '../types/products';
 import type {
   PlatformMetrics,
@@ -806,6 +811,45 @@ export const analyticsApi = {
   getTopPerformers: async (days?: number): Promise<TopPerformers> => {
     const params = days ? { days } : {};
     const response = await apiClient.get('/analytics/top-performers/', { params });
+    return response.data;
+  },
+};
+
+// Payment API
+export const paymentApi = {
+  // Get available payment providers
+  getPaymentProviders: async (): Promise<{ providers: PaymentProvider[] }> => {
+    const response = await apiClient.get('/products/payments/providers/');
+    return response.data;
+  },
+
+  // Initiate payment
+  initiatePayment: async (data: PaymentInitiateData): Promise<PaymentResult> => {
+    const response = await apiClient.post('/products/payments/initiate/', data);
+    return response.data;
+  },
+
+  // Verify payment
+  verifyPayment: async (transactionId: string): Promise<PaymentResult> => {
+    const response = await apiClient.get(`/products/payments/verify/${transactionId}/`);
+    return response.data;
+  },
+
+  // Get payment history
+  getPaymentHistory: async (page?: number): Promise<{
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: PaymentTransaction[]
+  }> => {
+    const params = page ? { page } : {};
+    const response = await apiClient.get('/products/payments/history/', { params });
+    return response.data;
+  },
+
+  // Refund payment (admin only)
+  refundPayment: async (transactionId: string, data: PaymentRefundData): Promise<PaymentResult> => {
+    const response = await apiClient.post(`/products/payments/refund/${transactionId}/`, data);
     return response.data;
   },
 };
