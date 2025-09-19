@@ -11,7 +11,7 @@ import { SDGTheme, SDGThemeConfig, SDGColorPalette } from '../types/sdg';
 // SDG Color Palettes based on official SDG colors
 const SDG_COLOR_PALETTES: Record<SDGTheme, SDGColorPalette> = {
   // SDG 13: Climate Action (Green)
-  climate: {
+  'climate-action': {
     primary: '#2E7D32',
     primaryHover: '#388E3C',
     primaryLight: '#C8E6C9',
@@ -26,7 +26,7 @@ const SDG_COLOR_PALETTES: Record<SDGTheme, SDGColorPalette> = {
   },
 
   // SDG 11: Sustainable Cities and Communities (Blue)
-  cities: {
+  'sustainable-cities': {
     primary: '#1976D2',
     primaryHover: '#1E88E5',
     primaryLight: '#BBDEFB',
@@ -41,7 +41,7 @@ const SDG_COLOR_PALETTES: Record<SDGTheme, SDGColorPalette> = {
   },
 
   // SDG 8: Decent Work and Economic Growth (Orange)
-  work: {
+  'decent-work': {
     primary: '#FF9800',
     primaryHover: '#FB8C00',
     primaryLight: '#FFE0B2',
@@ -73,25 +73,25 @@ const SDG_COLOR_PALETTES: Record<SDGTheme, SDGColorPalette> = {
 
 // SDG Theme Configurations
 export const SDG_THEMES: Record<SDGTheme, SDGThemeConfig> = {
-  climate: {
+  'climate-action': {
     name: 'Climate Action',
     goal: 13,
     description: 'Take urgent action to combat climate change and its impacts',
-    colors: SDG_COLOR_PALETTES.climate,
+    colors: SDG_COLOR_PALETTES['climate-action'],
     icon: '🌍',
   },
-  cities: {
+  'sustainable-cities': {
     name: 'Sustainable Cities',
     goal: 11,
     description: 'Make cities and human settlements inclusive, safe, resilient and sustainable',
-    colors: SDG_COLOR_PALETTES.cities,
+    colors: SDG_COLOR_PALETTES['sustainable-cities'],
     icon: '🏙️',
   },
-  work: {
+  'decent-work': {
     name: 'Decent Work',
     goal: 8,
     description: 'Promote sustained, inclusive and sustainable economic growth, full and productive employment',
-    colors: SDG_COLOR_PALETTES.work,
+    colors: SDG_COLOR_PALETTES['decent-work'],
     icon: '💼',
   },
   default: {
@@ -138,43 +138,43 @@ export const generateSDGCSSVariables = (theme: SDGTheme): Record<string, string>
 // Tailwind class generators for dynamic styling
 export const getSDGTailwindClasses = (theme: SDGTheme) => {
   const themeConfig = getSDGTheme(theme);
-  
+
   return {
     // Background classes
     bg: {
-      primary: theme === 'climate' ? 'bg-green-600' : 
-               theme === 'cities' ? 'bg-blue-600' : 
-               theme === 'work' ? 'bg-orange-500' : 'bg-gray-600',
-      primaryHover: theme === 'climate' ? 'hover:bg-green-700' : 
-                    theme === 'cities' ? 'hover:bg-blue-700' : 
-                    theme === 'work' ? 'hover:bg-orange-600' : 'hover:bg-gray-700',
-      light: theme === 'climate' ? 'bg-green-50' : 
-             theme === 'cities' ? 'bg-blue-50' : 
-             theme === 'work' ? 'bg-orange-50' : 'bg-gray-50',
+      primary: theme === 'climate-action' ? 'bg-green-600' :
+               theme === 'sustainable-cities' ? 'bg-blue-600' :
+               theme === 'decent-work' ? 'bg-orange-500' : 'bg-gray-600',
+      primaryHover: theme === 'climate-action' ? 'hover:bg-green-700' :
+                    theme === 'sustainable-cities' ? 'hover:bg-blue-700' :
+                    theme === 'decent-work' ? 'hover:bg-orange-600' : 'hover:bg-gray-700',
+      light: theme === 'climate-action' ? 'bg-green-50' :
+             theme === 'sustainable-cities' ? 'bg-blue-50' :
+             theme === 'decent-work' ? 'bg-orange-50' : 'bg-gray-50',
     },
     // Text classes
     text: {
-      primary: theme === 'climate' ? 'text-green-600' : 
-               theme === 'cities' ? 'text-blue-600' : 
-               theme === 'work' ? 'text-orange-500' : 'text-gray-600',
-      dark: theme === 'climate' ? 'text-green-800' : 
-            theme === 'cities' ? 'text-blue-800' : 
-            theme === 'work' ? 'text-orange-800' : 'text-gray-800',
+      primary: theme === 'climate-action' ? 'text-green-600' :
+               theme === 'sustainable-cities' ? 'text-blue-600' :
+               theme === 'decent-work' ? 'text-orange-500' : 'text-gray-600',
+      dark: theme === 'climate-action' ? 'text-green-800' :
+            theme === 'sustainable-cities' ? 'text-blue-800' :
+            theme === 'decent-work' ? 'text-orange-800' : 'text-gray-800',
     },
     // Border classes
     border: {
-      primary: theme === 'climate' ? 'border-green-600' : 
-               theme === 'cities' ? 'border-blue-600' : 
-               theme === 'work' ? 'border-orange-500' : 'border-gray-600',
-      light: theme === 'climate' ? 'border-green-200' : 
-             theme === 'cities' ? 'border-blue-200' : 
-             theme === 'work' ? 'border-orange-200' : 'border-gray-200',
+      primary: theme === 'climate-action' ? 'border-green-600' :
+               theme === 'sustainable-cities' ? 'border-blue-600' :
+               theme === 'decent-work' ? 'border-orange-500' : 'border-gray-600',
+      light: theme === 'climate-action' ? 'border-green-200' :
+             theme === 'sustainable-cities' ? 'border-blue-200' :
+             theme === 'decent-work' ? 'border-orange-200' : 'border-gray-200',
     },
     // Ring classes for focus states
     ring: {
-      primary: theme === 'climate' ? 'ring-green-500' : 
-               theme === 'cities' ? 'ring-blue-500' : 
-               theme === 'work' ? 'ring-orange-500' : 'ring-gray-500',
+      primary: theme === 'climate-action' ? 'ring-green-500' :
+               theme === 'sustainable-cities' ? 'ring-blue-500' :
+               theme === 'decent-work' ? 'ring-orange-500' : 'ring-gray-500',
     },
   };
 };

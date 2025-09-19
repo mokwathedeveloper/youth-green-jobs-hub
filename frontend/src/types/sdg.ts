@@ -6,13 +6,13 @@
  */
 
 // SDG Theme identifiers mapped to specific goals
-export type SDGTheme = 'climate' | 'cities' | 'work' | 'default';
+export type SDGTheme = 'climate-action' | 'sustainable-cities' | 'decent-work' | 'default';
 
 // SDG Goal mapping for semantic naming
 export const SDG_GOALS = {
-  climate: 13, // Climate Action
-  cities: 11,  // Sustainable Cities and Communities
-  work: 8,     // Decent Work and Economic Growth
+  'climate-action': 13, // Climate Action
+  'sustainable-cities': 11,  // Sustainable Cities and Communities
+  'decent-work': 8,     // Decent Work and Economic Growth
 } as const;
 
 // Color palette for each SDG theme
@@ -54,12 +54,14 @@ export interface SDGCardProps {
   variant?: ComponentVariant;
   icon?: React.ReactNode;
   image?: string;
+  badge?: string;
   actions?: React.ReactNode;
   onClick?: () => void;
   className?: string;
   children?: React.ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  interactive?: boolean;
 }
 
 // Notification/Alert types
