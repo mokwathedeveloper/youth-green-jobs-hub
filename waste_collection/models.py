@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import uuid
+from youth_green_jobs_backend.config import get_default_county, get_upload_path
 
 User = get_user_model()
 
@@ -67,7 +68,7 @@ class CollectionPoint(models.Model):
     name = models.CharField(max_length=200)
     point_type = models.CharField(max_length=20, choices=POINT_TYPES)
     address = models.TextField()
-    county = models.CharField(max_length=100, default='Kisumu')
+    county = models.CharField(max_length=100, default=get_default_county)
     sub_county = models.CharField(max_length=100, blank=True)
     latitude = models.DecimalField(
         max_digits=10,
@@ -143,7 +144,7 @@ class WasteReport(models.Model):
         help_text="Estimated weight in kilograms"
     )
     location_description = models.TextField()
-    county = models.CharField(max_length=100, default='Kisumu')
+    county = models.CharField(max_length=100, default=get_default_county)
     sub_county = models.CharField(max_length=100, blank=True)
     latitude = models.DecimalField(
         max_digits=10,
@@ -158,7 +159,7 @@ class WasteReport(models.Model):
         blank=True
     )
     photo = models.ImageField(
-        upload_to='waste_reports/',
+        upload_to=lambda instance, filename: get_upload_path('waste_reports') + filename,
         null=True,
         blank=True,
         help_text="Photo of the waste"
@@ -321,7 +322,7 @@ class CollectionEvent(models.Model):
         related_name='organized_events'
     )
     location = models.TextField()
-    county = models.CharField(max_length=100, default='Kisumu')
+    county = models.CharField(max_length=100, default=get_default_county)
     sub_county = models.CharField(max_length=100, blank=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
