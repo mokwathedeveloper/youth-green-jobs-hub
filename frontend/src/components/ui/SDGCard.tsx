@@ -26,6 +26,8 @@ const SDGCard: React.FC<SDGCardProps> = ({
   children,
   loading = false,
   disabled = false,
+  interactive,
+  badge,
   ...props
 }) => {
   const themeConfig = getSDGTheme(theme);
