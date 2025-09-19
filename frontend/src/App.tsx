@@ -1,6 +1,8 @@
 import type { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
+import ToastContainer from './components/ui/ToastContainer';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestGuard from './components/routing/GuestGuard';
 import AuthGuard from './components/routing/AuthGuard';
@@ -32,9 +34,10 @@ import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products'
 const App: FC = () => {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
+      <ToastProvider>
+        <Router>
+          <div className="App">
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<PublicLayout />}>
               <Route index element={<HomePage />} />
@@ -86,9 +89,11 @@ const App: FC = () => {
             {/* Catch-all route */}
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
-        </div>
-      </Router>
+            </Routes>
+            <ToastContainer />
+          </div>
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 };

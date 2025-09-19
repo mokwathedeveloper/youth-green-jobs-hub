@@ -1,54 +1,109 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles */
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-feature-settings: "rlig" 1, "calt" 1;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 98%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 98%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 142 76% 36%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 76% 36%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', system-ui, sans-serif;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
-/* Custom component styles */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
+/* Force generate color utilities */
+@layer utilities {
+  .bg-green-600 { background-color: #059669; }
+  .bg-green-700 { background-color: #047857; }
+  .bg-blue-600 { background-color: #2563eb; }
+  .bg-blue-700 { background-color: #1d4ed8; }
+  .bg-orange-500 { background-color: #f97316; }
+  .bg-orange-600 { background-color: #ea580c; }
 
-.btn-primary {
-  background-color: #2E7D32;
-  color: white;
-}
+  .text-green-600 { color: #059669; }
+  .text-blue-600 { color: #2563eb; }
+  .text-orange-500 { color: #f97316; }
 
-.btn-primary:hover {
-  background-color: #388e3c;
-}
+  .border-green-600 { border-color: #059669; }
+  .border-blue-600 { border-color: #2563eb; }
+  .border-orange-500 { border-color: #f97316; }
 
-.btn-secondary {
-  background-color: #1976D2;
-  color: white;
-}
+  .hover\:bg-green-700:hover { background-color: #047857; }
+  .hover\:bg-blue-50:hover { background-color: #eff6ff; }
+  .hover\:bg-green-50:hover { background-color: #f0fdf4; }
+  .hover\:bg-orange-50:hover { background-color: #fff7ed; }
 
-.btn-secondary:hover {
-  background-color: #1e88e5;
-}
+  .from-green-600 { --tw-gradient-from: #059669; --tw-gradient-to: rgb(5 150 105 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+  .from-blue-600 { --tw-gradient-from: #2563eb; --tw-gradient-to: rgb(37 99 235 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+  .from-orange-500 { --tw-gradient-from: #f97316; --tw-gradient-to: rgb(249 115 22 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
 
-.card {
-  border-radius: 1rem;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  padding: 1.5rem;
-  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  .to-green-600 { --tw-gradient-to: #059669; }
+  .to-green-700 { --tw-gradient-to: #047857; }
+  .to-blue-600 { --tw-gradient-to: #2563eb; }
+  .to-blue-700 { --tw-gradient-to: #1d4ed8; }
+  .to-orange-600 { --tw-gradient-to: #ea580c; }
+
+  .bg-green-100 { background-color: #dcfce7; }
+  .bg-blue-100 { background-color: #dbeafe; }
+  .bg-orange-100 { background-color: #fed7aa; }
+
+  .text-green-100 { color: #dcfce7; }
 }

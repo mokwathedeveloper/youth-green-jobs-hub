@@ -20,7 +20,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../ui/Button';
+import { Button } from '@/components/ui/button';
 
 const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();

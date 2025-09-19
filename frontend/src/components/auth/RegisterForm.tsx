@@ -6,7 +6,7 @@ import { UserPlus, Leaf } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { registerSchema } from '../../schemas/auth';
 import type { RegisterFormData } from '../../schemas/auth';
-import Button from '../ui/Button';
+import { Button } from '@/components/ui/button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Alert from '../ui/Alert';

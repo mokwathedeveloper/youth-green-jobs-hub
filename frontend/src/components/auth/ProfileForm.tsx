@@ -5,7 +5,7 @@ import { User, Save, Camera, Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { profileUpdateSchema } from '../../schemas/auth';
 import type { ProfileUpdateFormData } from '../../schemas/auth';
-import Button from '../ui/Button';
+import { Button } from '@/components/ui/button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Alert from '../ui/Alert';

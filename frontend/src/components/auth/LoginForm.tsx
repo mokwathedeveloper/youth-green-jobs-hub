@@ -6,7 +6,7 @@ import { LogIn, Leaf } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema } from '../../schemas/auth';
 import type { LoginFormData } from '../../schemas/auth';
-import Button from '../ui/Button';
+import { Button } from '@/components/ui/button';
 import Input from '../ui/Input';
 import Alert from '../ui/Alert';
 
