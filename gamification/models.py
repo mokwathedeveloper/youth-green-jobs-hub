@@ -2,7 +2,8 @@
 Gamification models for the Youth Green Jobs platform
 """
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import uuid
@@ -158,7 +159,7 @@ class UserProfile(models.Model):
 class UserBadge(models.Model):
     """Junction table for user badges with earning details"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
     
     earned_at = models.DateTimeField(auto_now_add=True)
@@ -179,7 +180,7 @@ class UserBadge(models.Model):
     )
     
     class Meta:
-        unique_together = ['user', 'badge']
+        unique_together = ['user_profile', 'badge']
         ordering = ['-earned_at']
         verbose_name = 'User Badge'
         verbose_name_plural = 'User Badges'
@@ -191,7 +192,7 @@ class UserBadge(models.Model):
 class PointTransaction(models.Model):
     """Record of all point transactions"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='point_transactions')
+    user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='point_transactions')
     
     points = models.IntegerField(help_text="Points gained (positive) or lost (negative)")
     
@@ -284,7 +285,7 @@ class Challenge(models.Model):
 class ChallengeParticipation(models.Model):
     """User participation in challenges"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name='participants')
     
     joined_at = models.DateTimeField(auto_now_add=True)
@@ -299,7 +300,7 @@ class ChallengeParticipation(models.Model):
     is_completed = models.BooleanField(default=False)
     
     class Meta:
-        unique_together = ['user', 'challenge']
+        unique_together = ['user_profile', 'challenge']
         ordering = ['-joined_at']
         verbose_name = 'Challenge Participation'
         verbose_name_plural = 'Challenge Participations'

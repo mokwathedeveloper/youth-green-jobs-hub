@@ -10,6 +10,11 @@ from youth_green_jobs_backend.config import get_default_county, get_upload_path
 User = get_user_model()
 
 
+def waste_report_photo_path(instance, filename):
+    """Generate upload path for waste report photos"""
+    return get_upload_path('waste_reports') + filename
+
+
 class WasteCategory(models.Model):
     """
     Categories of waste that can be collected and recycled
@@ -161,7 +166,7 @@ class WasteReport(models.Model):
         blank=True
     )
     photo = models.ImageField(
-        upload_to=lambda instance, filename: get_upload_path('waste_reports') + filename,
+        upload_to=waste_report_photo_path,
         null=True,
         blank=True,
         help_text="Photo of the waste"

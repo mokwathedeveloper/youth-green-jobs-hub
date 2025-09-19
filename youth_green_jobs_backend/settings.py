@@ -105,10 +105,10 @@ if DATABASE_URL:
         'default': dj_database_url.parse(DATABASE_URL)
     }
 else:
-    # Development database configuration (SQLite)
+    # Development database configuration (SpatiaLite for GIS support)
     DATABASES = {
         'default': {
-            'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
+            'ENGINE': config('DB_ENGINE', default='django.contrib.gis.db.backends.spatialite'),
             'NAME': config('DB_NAME', default=str(BASE_DIR / 'db.sqlite3')),
             'USER': config('DB_USER', default=''),
             'PASSWORD': config('DB_PASSWORD', default=''),
