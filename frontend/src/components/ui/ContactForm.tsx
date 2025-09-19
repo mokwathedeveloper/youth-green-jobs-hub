@@ -12,7 +12,7 @@ import { z } from 'zod';
 import { Send, MessageSquare, MapPin, Mail, Phone } from 'lucide-react';
 import type { SDGTheme } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
-import Button from './Button';
+import { Button } from '@/components/ui/button';
 import Input from './Input';
 import Select from './Select';
 import { clsx } from 'clsx';

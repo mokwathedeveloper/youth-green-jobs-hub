@@ -10,7 +10,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import Button from '../components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();

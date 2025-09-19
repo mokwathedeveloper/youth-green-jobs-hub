@@ -3,7 +3,7 @@ import { X, CreditCard, Smartphone, Building, Truck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Button from '../ui/Button';
+import { Button } from '@/components/ui/button';
 import { paymentApi } from '../../services/api';
 import type { Order, PaymentProvider, PaymentInitiateData } from '../../types/products';
 
