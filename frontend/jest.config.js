@@ -1,21 +1,18 @@
 /** @type {import('jest').Config} */
-export default {
+module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      useESM: true,
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
+      tsconfig: 'tsconfig.test.json',
+      useESM: false,
     }],
   },
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js)',
@@ -26,6 +23,7 @@ export default {
     '!src/**/*.d.ts',
     '!src/main.tsx',
     '!src/vite-env.d.ts',
+    '!src/setupTests.ts',
     '!src/**/*.stories.{ts,tsx}',
     '!src/**/__tests__/**',
     '!src/**/*.test.{ts,tsx}',
@@ -42,9 +40,4 @@ export default {
   coverageReporters: ['text', 'lcov', 'html'],
   coverageDirectory: 'coverage',
   testTimeout: 10000,
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 };
