@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import (
-    SMEVendor, ProductCategory, Product, ProductImage, 
-    Order, OrderItem, ProductReview, ShoppingCart, CartItem
+    SMEVendor, ProductCategory, Product, ProductImage,
+    Order, OrderItem, ProductReview, ShoppingCart, CartItem,
+    PaymentProvider, PaymentTransaction
 )
 
 User = get_user_model()
@@ -253,3 +254,45 @@ class ProductReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductReview
         fields = ['product', 'rating', 'title', 'comment']
+
+
+# Payment Serializers
+class PaymentProviderSerializer(serializers.ModelSerializer):
+    """Payment provider serializer"""
+    supported_currencies_list = serializers.ReadOnlyField()
+
+    class Meta:
+        model = PaymentProvider
+        fields = [
+            'id', 'name', 'display_name', 'is_active', 'supported_currencies_list',
+            'min_amount', 'max_amount', 'transaction_fee_percentage', 'fixed_fee'
+        ]
+
+
+class PaymentTransactionSerializer(serializers.ModelSerializer):
+    """Payment transaction serializer"""
+    provider = PaymentProviderSerializer(read_only=True)
+    order = OrderListSerializer(read_only=True)
+
+    class Meta:
+        model = PaymentTransaction
+        fields = [
+            'id', 'transaction_id', 'external_transaction_id', 'order', 'provider',
+            'amount', 'currency', 'fee_amount', 'status', 'customer_phone',
+            'customer_email', 'initiated_at', 'completed_at', 'expires_at',
+            'failure_reason', 'retry_count', 'max_retries'
+        ]
+
+
+class PaymentInitiateSerializer(serializers.Serializer):
+    """Serializer for payment initiation"""
+    order_id = serializers.UUIDField()
+    provider = serializers.CharField(max_length=50)
+    customer_phone = serializers.CharField(max_length=15)
+    customer_email = serializers.EmailField(required=False)
+
+
+class PaymentRefundSerializer(serializers.Serializer):
+    """Serializer for payment refund"""
+    amount = serializers.DecimalField(max_digits=12, decimal_places=2, required=False)
+    reason = serializers.CharField(max_length=500, required=False)
