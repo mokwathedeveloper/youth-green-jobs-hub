@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from youth_green_jobs_backend.config import get_platform_info
 
 
 @api_view(['GET'])
@@ -30,10 +31,11 @@ def api_root(request):
     API root endpoint for Youth Green Jobs & Waste Recycling Hub
     Provides information about available API endpoints
     """
+    platform_info = get_platform_info()
     return Response({
-        'message': 'Welcome to Youth Green Jobs & Waste Recycling Hub API',
-        'version': 'v1',
-        'description': 'Connecting youth with green jobs and eco-friendly opportunities in Kisumu, Kenya',
+        'message': f'Welcome to {platform_info["name"]} API',
+        'version': platform_info['version'],
+        'description': 'Connecting youth with green jobs and eco-friendly opportunities',
         'endpoints': {
             'authentication': '/api/v1/auth/',
             'waste_management': '/api/v1/waste/',
@@ -43,8 +45,8 @@ def api_root(request):
             'docs': '/api/v1/docs/',
         },
         'support': {
-            'email': 'support@youthgreenjobs.ke',
-            'website': 'https://youthgreenjobs.ke',
+            'email': platform_info['support_email'],
+            'website': platform_info['support_website'],
         }
     })
 
