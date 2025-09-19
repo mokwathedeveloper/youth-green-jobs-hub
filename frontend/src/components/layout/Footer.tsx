@@ -18,7 +18,7 @@ import {
   Linkedin
 } from 'lucide-react';
 import type { SDGTheme } from '../../types/sdg';
-import { getSDGTailwindClasses, getSDGTheme } from '../../config/sdgThemes';
+import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import { clsx } from 'clsx';
 
 interface FooterProps {
@@ -30,7 +30,6 @@ const Footer: React.FC<FooterProps> = ({
   theme = 'climate-action',
   className = '',
 }) => {
-  const themeConfig = getSDGTheme(theme);
   const tailwindClasses = getSDGTailwindClasses(theme);
 
   const footerSections = [

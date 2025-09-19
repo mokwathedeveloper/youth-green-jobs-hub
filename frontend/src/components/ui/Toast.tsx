@@ -168,9 +168,9 @@ const Toast: React.FC<NotificationProps> = ({
           <div
             className={clsx(
               'h-full transition-all ease-linear',
-              type === 'success' && theme !== 'default' 
-                ? 'bg-current' 
-                : type === 'success' 
+              type === 'success' && theme !== 'default'
+                ? 'bg-current'
+                : type === 'success'
                 ? 'bg-green-500'
                 : type === 'error'
                 ? 'bg-red-500'
@@ -180,10 +180,6 @@ const Toast: React.FC<NotificationProps> = ({
                 ? 'bg-current'
                 : 'bg-blue-500'
             )}
-            style={{
-              width: '100%',
-              animation: `shrink ${duration}ms linear forwards`,
-            }}
           />
         </div>
       )}

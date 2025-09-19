@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Send, MessageSquare, MapPin } from 'lucide-react';
+import { Send, MessageSquare, MapPin, Mail, Phone } from 'lucide-react';
 import type { SDGTheme } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import Button from './Button';
@@ -25,7 +25,7 @@ const contactFormSchema = z.object({
   subject: z.string().min(5, 'Subject must be at least 5 characters'),
   category: z.enum(['general', 'support', 'partnership', 'feedback', 'bug-report']),
   message: z.string().min(10, 'Message must be at least 10 characters'),
-  priority: z.enum(['low', 'medium', 'high']).optional().default('medium'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -54,7 +54,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
     formState: { errors },
     reset,
   } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
+    resolver: zodResolver(contactFormSchema) as any,
     defaultValues: {
       category: defaultCategory as any,
       priority: 'medium',
@@ -137,7 +137,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(handleFormSubmit as any)} className="space-y-6">
         {/* Name and Email row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

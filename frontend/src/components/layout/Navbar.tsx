@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf, Bell, User, ChevronDown } from 'lucide-react';
 import type { SDGTheme, SDGNavItem } from '../../types/sdg';
-import { getSDGTailwindClasses, getSDGTheme } from '../../config/sdgThemes';
+import { getSDGTailwindClasses } from '../../config/sdgThemes';
 import { useAuth } from '../../contexts/AuthContext';
 import { clsx } from 'clsx';
 
@@ -30,7 +30,6 @@ const Navbar: React.FC<NavbarProps> = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
-  const themeConfig = getSDGTheme(theme);
   const tailwindClasses = getSDGTailwindClasses(theme);
 
   // Navigation items
