@@ -64,14 +64,12 @@ import type {
   AnalyticsFilters
 } from '../types/analytics';
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const API_VERSION = 'v1';
+import { API_CONFIG, GEOLOCATION_CONFIG } from '../config';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}/api/${API_VERSION}`,
-  timeout: 10000,
+  baseURL: API_CONFIG.FULL_BASE_URL,
+  timeout: API_CONFIG.TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -539,11 +537,7 @@ export const wasteApi = {
         (error) => {
           reject(new Error(`Geolocation error: ${error.message}`));
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutes
-        }
+        GEOLOCATION_CONFIG.OPTIONS
       );
     });
   },
