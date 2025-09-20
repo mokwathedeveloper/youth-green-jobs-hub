@@ -104,6 +104,8 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
     }
+    # Override engine to use PostGIS for spatial support
+    DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 else:
     # Development database configuration (SpatiaLite for GIS support)
     DATABASES = {
