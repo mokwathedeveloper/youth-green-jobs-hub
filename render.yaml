@@ -1,0 +1,55 @@
+services:
+  # Web Service (Django Backend)
+  - type: web
+    name: youth-green-jobs-api
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn youth_green_jobs_backend.wsgi:application --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DJANGO_SETTINGS_MODULE
+        value: youth_green_jobs_backend.render_settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: PLATFORM_NAME
+        value: "Youth Green Jobs Hub"
+      - key: DEFAULT_COUNTY
+        value: "Kisumu"
+      - key: DEFAULT_COUNTRY
+        value: "Kenya"
+      - key: SUPPORT_EMAIL
+        value: "support@youthgreenjobs.ke"
+      - key: EMAIL_HOST_USER
+        value: "moffatmokwa12@gmail.com"
+      - key: EMAIL_HOST_PASSWORD
+        value: "submvqaqehrsafag"
+      - key: MPESA_CONSUMER_KEY
+        value: "Ke64cGWZwtUkTVxthjAAlBMifiOnS3zgwQLLoBVGRLHJs4kv"
+      - key: MPESA_CONSUMER_SECRET
+        value: "cAlHJM16AkWBIDnnOlAYQIqyG9FDmiBy4mAfXiOTAKfjPHlwAYIK7H72dMCocYLE"
+      - key: MPESA_BUSINESS_SHORT_CODE
+        value: "174379"
+      - key: MPESA_PASSKEY
+        value: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
+      - key: MPESA_SANDBOX
+        value: "True"
+      - key: PAYSTACK_PUBLIC_KEY
+        value: "pk_test_d915e01d46c506ba76e7b594e7c4aa0632754596"
+      - key: PAYSTACK_SECRET_KEY
+        value: "sk_test_b5881958a5fe756e92a31e141ed0a870b6accda5"
+      - key: PAYSTACK_SANDBOX
+        value: "True"
+
+  # PostgreSQL Database
+  - type: pserv
+    name: youth-green-jobs-db
+    env: postgresql
+    plan: free
+    ipAllowList: []
+    databases:
+      - name: youth_green_jobs_db
+        user: youth_green_jobs_user
