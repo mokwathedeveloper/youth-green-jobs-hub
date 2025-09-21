@@ -16,7 +16,7 @@ import ChartCard from './ChartCard';
 import SystemHealthCard from './SystemHealthCard';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import ErrorBoundary from '../ui/ErrorBoundary';
-import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import type { AnalyticsTimeRange } from '../../types/analytics';
 
 const AnalyticsDashboard: React.FC = () => {
@@ -39,7 +39,6 @@ const AnalyticsDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const timeRangeOptions: { value: AnalyticsTimeRange; label: string }[] = [
-    { value: '24h', label: 'Last 24 Hours' },
     { value: '7d', label: 'Last 7 Days' },
     { value: '30d', label: 'Last 30 Days' },
     { value: '90d', label: 'Last 3 Months' },

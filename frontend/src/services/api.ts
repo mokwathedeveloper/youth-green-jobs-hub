@@ -818,6 +818,12 @@ export const productsApi = {
     const response = await apiClient.get('/products/dashboard/stats/');
     return response.data;
   },
+
+  // Checkout
+  checkout: async (checkoutData: any): Promise<Order> => {
+    const response = await apiClient.post('/products/checkout/', checkoutData);
+    return response.data;
+  },
 };
 
 // Analytics API Service
@@ -941,6 +947,13 @@ export const analyticsApi = {
   getTopPerformers: async (days?: number): Promise<TopPerformers> => {
     const params = days ? { days } : {};
     const response = await apiClient.get('/analytics/top-performers/', { params });
+    return response.data;
+  },
+
+  // Chart Data (generic method for compatibility)
+  getChartData: async (chartType: string, timeRange: string): Promise<TimeSeriesData> => {
+    const params = { chart_type: chartType, time_range: timeRange };
+    const response = await apiClient.get('/analytics/charts/data/', { params });
     return response.data;
   },
 };

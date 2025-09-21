@@ -14,7 +14,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { useWaste } from '../../hooks/useWaste';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import ErrorBoundary from '../ui/ErrorBoundary';
-import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 interface WasteDashboardProps {
   userId?: string; // If provided, shows personal dashboard
@@ -62,9 +62,9 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
   ];
 
   const creditData = [
-    { name: 'Earned', value: stats.credits.total_earned, color: '#10B981' },
-    { name: 'Spent', value: stats.credits.total_spent, color: '#EF4444' },
-    { name: 'Bonus', value: stats.credits.total_bonus, color: '#8B5CF6' }
+    { name: 'Earned', value: dashboardStats.credits.total_earned, color: '#10B981' },
+    { name: 'Spent', value: dashboardStats.credits.total_spent, color: '#EF4444' },
+    { name: 'Bonus', value: dashboardStats.credits.total_bonus, color: '#8B5CF6' }
   ];
 
   // Mock monthly data for trends (in a real app, this would come from the API)
@@ -129,34 +129,34 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Reports"
-          value={stats.reports.total_reports}
+          value={dashboardStats.reports.total_reports}
           icon={<Package className="w-6 h-6 text-white" />}
           color="bg-blue-500"
-          subtitle={`${stats.reports.collected_reports} collected`}
+          subtitle={`${dashboardStats.reports.collected_reports} collected`}
           trend="+12% from last month"
         />
-        
+
         <StatCard
           title="Credit Balance"
-          value={stats.credits.current_balance}
+          value={dashboardStats.credits.current_balance}
           icon={<Coins className="w-6 h-6 text-white" />}
           color="bg-yellow-500"
-          subtitle={`${stats.credits.total_earned} total earned`}
+          subtitle={`${dashboardStats.credits.total_earned} total earned`}
           trend="+8% from last month"
         />
-        
+
         <StatCard
           title="Weight Collected"
-          value={`${stats.reports.total_actual_weight_kg} kg`}
+          value={`${dashboardStats.reports.total_actual_weight_kg} kg`}
           icon={<Weight className="w-6 h-6 text-white" />}
           color="bg-green-500"
-          subtitle={`${stats.reports.total_estimated_weight_kg} kg estimated`}
+          subtitle={`${dashboardStats.reports.total_estimated_weight_kg} kg estimated`}
           trend="+15% from last month"
         />
-        
+
         <StatCard
           title="CO₂ Reduced"
-          value={`${stats.environmental_impact.total_co2_reduction_kg} kg`}
+          value={`${dashboardStats.environmental_impact.total_co2_reduction_kg} kg`}
           icon={<Leaf className="w-6 h-6 text-white" />}
           color="bg-emerald-500"
           subtitle="Environmental impact"
@@ -293,7 +293,7 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
             <button className="text-sm text-green-600 hover:text-green-700">View All</button>
           </div>
           <div className="space-y-3">
-            {stats.events.events_joined > 0 ? (
+            {dashboardStats.events.events_joined > 0 ? (
               [1, 2].map((item) => (
                 <div key={item} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center">
@@ -332,15 +332,15 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold">{stats.reports.total_reports}</p>
+                <p className="text-2xl font-bold">{dashboardStats.reports.total_reports}</p>
                 <p className="text-sm text-green-100">Reports Submitted</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{stats.reports.total_actual_weight_kg} kg</p>
+                <p className="text-2xl font-bold">{dashboardStats.reports.total_actual_weight_kg} kg</p>
                 <p className="text-sm text-green-100">Waste Collected</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{stats.environmental_impact.total_co2_reduction_kg} kg</p>
+                <p className="text-2xl font-bold">{dashboardStats.environmental_impact.total_co2_reduction_kg} kg</p>
                 <p className="text-sm text-green-100">CO₂ Reduced</p>
               </div>
             </div>

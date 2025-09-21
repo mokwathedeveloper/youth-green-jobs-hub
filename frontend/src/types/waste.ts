@@ -194,6 +194,11 @@ export interface DashboardStats {
   environmental_impact: {
     total_co2_reduction_kg: number;
   };
+  total_credits: number;
+  total_waste_collected: number;
+  co2_saved: number;
+  trees_saved: number;
+  water_saved: number;
 }
 
 export interface NearbyCollectionPointsResponse {

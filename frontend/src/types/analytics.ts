@@ -244,6 +244,11 @@ export interface DashboardMetrics {
   total_credits_earned: number;
   total_co2_reduction: number;
   growth_rate: number;
+  active_reports: number;
+  previous_total_users?: number;
+  previous_waste_collected?: number;
+  previous_credits_earned?: number;
+  previous_active_reports?: number;
 }
 
 export interface ChartData {
@@ -257,6 +262,9 @@ export interface UserActivity {
   new_registrations: number;
   waste_reports: number;
   marketplace_orders: number;
+  action: string;
+  user_name: string;
+  timestamp: string;
 }
 
 export interface EnvironmentalImpact {
@@ -265,6 +273,9 @@ export interface EnvironmentalImpact {
   waste_diverted_kg: number;
   trees_equivalent: number;
   water_saved_liters: number;
+  co2_saved: number;
+  water_saved: number;
+  energy_saved: number;
 }
 
 export interface CountyRanking {
@@ -346,6 +357,10 @@ export interface SystemHealth {
   current_metrics: SystemHealthMetrics;
   '24h_averages': SystemHealth24hAverages;
   active_alerts: number;
+  cpu_usage: number;
+  memory_usage: number;
+  disk_usage: number;
+  response_time: number;
 }
 
 // Environmental Impact Summary Types
