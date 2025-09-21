@@ -38,7 +38,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => any>(
   delay: number,
   deps: React.DependencyList
 ): T => {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const debouncedCallback = useCallback((...args: Parameters<T>) => {
     if (timeoutRef.current) {
@@ -68,7 +68,7 @@ export const useThrottledCallback = <T extends (...args: any[]) => any>(
   deps: React.DependencyList
 ): T => {
   const lastRun = useRef<number>(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const throttledCallback = useCallback((...args: Parameters<T>) => {
     const now = Date.now();
@@ -125,7 +125,7 @@ export const useDeepMemo = <T>(
   factory: () => T,
   deps: React.DependencyList
 ): T => {
-  const ref = useRef<{ deps: React.DependencyList; value: T }>();
+  const ref = useRef<{ deps: React.DependencyList; value: T } | null>(null);
 
   const deepEqual = (a: any, b: any): boolean => {
     if (a === b) return true;
@@ -199,8 +199,8 @@ export const useLazyMemo = <T>(
   factory: () => T,
   deps: React.DependencyList
 ): (() => T) => {
-  const valueRef = useRef<T>();
-  const depsRef = useRef<React.DependencyList>();
+  const valueRef = useRef<T | null>(null);
+  const depsRef = useRef<React.DependencyList | null>(null);
   const initializedRef = useRef(false);
 
   return useCallback(() => {

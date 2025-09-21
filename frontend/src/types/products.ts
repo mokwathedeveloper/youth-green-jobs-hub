@@ -368,3 +368,25 @@ export interface PaymentRefundData {
   amount?: number;
   reason?: string;
 }
+
+// Missing types for cart and checkout
+export interface CartSummary {
+  total_items: number;
+  total_amount: number;
+  subtotal: number;
+  tax_amount: number;
+  shipping_amount: number;
+  discount_amount: number;
+}
+
+export interface CheckoutData {
+  payment_method: PaymentMethod;
+  delivery_address: string;
+  delivery_county: string;
+  delivery_sub_county?: string;
+  delivery_phone: string;
+  delivery_instructions?: string;
+  customer_notes?: string;
+  use_credits?: boolean;
+  credits_amount?: number;
+}

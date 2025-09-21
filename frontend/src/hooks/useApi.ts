@@ -255,7 +255,7 @@ export function useDebouncedApi<T, P extends any[] = []>(
   options: UseApiOptions<T> = {}
 ) {
   const api = useApi(apiFunction, options);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const debouncedExecute = useCallback(
     (...args: P) => {

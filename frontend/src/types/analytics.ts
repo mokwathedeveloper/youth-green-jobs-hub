@@ -235,6 +235,38 @@ export interface TimeSeriesData {
   datasets: ChartDataset[];
 }
 
+// Missing types for analytics hooks
+export type AnalyticsTimeRange = '7d' | '30d' | '90d' | '1y';
+
+export interface DashboardMetrics {
+  total_users: number;
+  total_waste_collected: number;
+  total_credits_earned: number;
+  total_co2_reduction: number;
+  growth_rate: number;
+}
+
+export interface ChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+}
+
+export interface UserActivity {
+  date: string;
+  active_users: number;
+  new_registrations: number;
+  waste_reports: number;
+  marketplace_orders: number;
+}
+
+export interface EnvironmentalImpact {
+  date: string;
+  co2_reduction_kg: number;
+  waste_diverted_kg: number;
+  trees_equivalent: number;
+  water_saved_liters: number;
+}
+
 export interface CountyRanking {
   county: string;
   value: number;
