@@ -31,9 +31,10 @@ export const useWaste = () => {
   const getWasteReportsWrapper = async (page: number, pageSize: number) => {
     const response = await wasteApi.getWasteReports({ page, page_size: pageSize });
     return {
-      data: response.results,
-      total: response.count,
-      hasMore: !!response.next
+      results: response.results,
+      count: response.count,
+      next: response.next,
+      previous: response.previous
     };
   };
 
@@ -50,9 +51,10 @@ export const useWaste = () => {
   const getCollectionEventsWrapper = async (page: number, pageSize: number) => {
     const response = await wasteApi.getCollectionEvents({ page, page_size: pageSize });
     return {
-      data: response.results,
-      total: response.count,
-      hasMore: !!response.next
+      results: response.results,
+      count: response.count,
+      next: response.next,
+      previous: response.previous
     };
   };
 
@@ -77,9 +79,10 @@ export const useWaste = () => {
   const getCreditTransactionsWrapper = async (page: number, pageSize: number) => {
     const response = await wasteApi.getCreditTransactions({ page, page_size: pageSize });
     return {
-      data: response.results,
-      total: response.count,
-      hasMore: !!response.next
+      results: response.results,
+      count: response.count,
+      next: response.next,
+      previous: response.previous
     };
   };
 

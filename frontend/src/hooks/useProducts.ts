@@ -20,11 +20,12 @@ export const useProducts = () => {
   // Products
   // Create wrapper functions to make API methods compatible with usePaginatedApi
   const getProductsWrapper = async (page: number, pageSize: number) => {
-    const response = await productsApi.getProducts({ page, page_size: pageSize });
+    const response = await productsApi.getProducts({ page: page.toString(), page_size: pageSize.toString() });
     return {
-      data: response.results,
-      total: response.count,
-      hasMore: !!response.next
+      results: response.results,
+      count: response.count,
+      next: response.next,
+      previous: response.previous
     };
   };
 
@@ -32,11 +33,12 @@ export const useProducts = () => {
   const featuredProductsApi = useApi(productsApi.getFeaturedProducts);
   const productDetailApi = useApi(productsApi.getProduct);
   const searchProductsWrapper = async (page: number, pageSize: number) => {
-    const response = await productsApi.searchProducts({ page, page_size: pageSize });
+    const response = await productsApi.searchProducts({ page: page.toString(), page_size: pageSize.toString() });
     return {
-      data: response.results,
-      total: response.count,
-      hasMore: !!response.next
+      results: response.results,
+      count: response.count,
+      next: response.next,
+      previous: response.previous
     };
   };
 
@@ -92,7 +94,7 @@ export const useProducts = () => {
   const reviewsApi = useApi(productsApi.getProductReviews);
   const createReviewApi = useApi(productsApi.createReview, {
     onSuccess: () => {
-      reviewsApi.refresh();
+      reviewsApi.reset();
       // Refresh product detail if available
       if (productDetailApi.data) {
         productDetailApi.execute(productDetailApi.data.id);
@@ -301,10 +303,10 @@ export const useProducts = () => {
     hasMoreProducts: productsListApi.hasMore,
     hasMoreSearchResults: searchProductsApi.hasMore,
     hasMoreVendors: vendorsApi.hasMore,
-    hasMoreVendorProducts: vendorProductsApi.hasMore,
-    hasMoreCategoryProducts: categoryProductsApi.hasMore,
+    hasMoreVendorProducts: false, // useApi doesn't have hasMore
+    hasMoreCategoryProducts: false, // useApi doesn't have hasMore
     hasMoreOrders: ordersApi.hasMore,
-    hasMoreReviews: reviewsApi.hasMore,
+    hasMoreReviews: false, // useApi doesn't have hasMore
 
     // Actions
     loadProducts,
