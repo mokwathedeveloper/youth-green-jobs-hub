@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ErrorProvider } from './contexts/ErrorContext';
@@ -36,12 +37,13 @@ import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products'
 
 const App: FC = () => {
   return (
-    <ErrorBoundary>
-      <ErrorProvider>
-        <LoadingProvider>
-          <AuthProvider>
-            <ToastProvider>
-              <Router>
+    <HelmetProvider>
+      <ErrorBoundary>
+        <ErrorProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <ToastProvider>
+                <Router>
                 <div className="App">
             <Routes>
             {/* Public Routes */}
@@ -99,11 +101,12 @@ const App: FC = () => {
                   <ToastContainer />
                 </div>
               </Router>
-            </ToastProvider>
-          </AuthProvider>
-        </LoadingProvider>
-      </ErrorProvider>
-    </ErrorBoundary>
+              </ToastProvider>
+            </AuthProvider>
+          </LoadingProvider>
+        </ErrorProvider>
+      </ErrorBoundary>
+    </HelmetProvider>
   );
 };
 
