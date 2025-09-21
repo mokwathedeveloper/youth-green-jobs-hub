@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Leaf } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema } from '../../schemas/auth';
 import type { LoginFormData } from '../../schemas/auth';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,9 @@ const LoginForm: React.FC = () => {
   const {
     login,
     isAuthenticated,
-    loginLoading,
-    loginError,
-    resetLoginError
+    isLoading,
+    error,
+    clearError
   } = useAuth();
   const navigate = useNavigate();
   
@@ -37,8 +37,8 @@ const LoginForm: React.FC = () => {
 
   // Clear error when component unmounts
   useEffect(() => {
-    return () => resetLoginError();
-  }, [resetLoginError]);
+    return () => clearError();
+  }, [clearError]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -72,11 +72,11 @@ const LoginForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
             {/* Error Alert */}
-            {loginError && (
+            {error && (
               <Alert
                 type="error"
-                message={loginError}
-                onClose={resetLoginError}
+                message={error}
+                onClose={clearError}
               />
             )}
 
@@ -105,8 +105,8 @@ const LoginForm: React.FC = () => {
             <Button
               type="submit"
               className="w-full"
-              loading={loginLoading}
-              disabled={loginLoading}
+              loading={isLoading}
+              disabled={isLoading}
             >
               <LogIn className="w-4 h-4 mr-2" />
               Sign In
