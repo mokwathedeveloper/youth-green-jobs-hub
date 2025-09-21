@@ -1,44 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, List, Filter, Search, Loader2 } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
-import type { ProductListItem, ProductSearchParams } from '../../types/products';
+import { useProducts } from '../../hooks/useProducts';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import EmptyState from '../ui/EmptyState';
+import type { ProductSearchParams } from '../../types/products';
 
 interface ProductListProps {
-  products: ProductListItem[];
-  isLoading?: boolean;
-  error?: string | null;
-  totalCount?: number;
-  currentPage?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
-  onFiltersChange?: (filters: ProductSearchParams) => void;
-  onAddToCart?: (productId: string) => void;
-  onToggleFavorite?: (productId: string) => void;
-  favoriteProducts?: string[];
   showFilters?: boolean;
   className?: string;
+  initialFilters?: ProductSearchParams;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
-  products,
-  isLoading = false,
-  error = null,
-  totalCount = 0,
-  currentPage = 1,
-  totalPages = 1,
-  onPageChange,
-  onFiltersChange,
-  onAddToCart,
-  onToggleFavorite,
-  favoriteProducts = [],
   showFilters = true,
-  className = ''
+  className = '',
+  initialFilters = {}
 }) => {
+  const {
+    products,
+    productsLoading,
+    productsError,
+    pagination,
+    searchProducts,
+    addToCart,
+    toggleFavorite,
+    favoriteProducts,
+    addToCartLoading,
+  } = useProducts();
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+
+  useEffect(() => {
+    searchProducts({ ...initialFilters, q: searchQuery, ordering: sortBy });
+  }, [searchProducts, initialFilters, searchQuery, sortBy]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
