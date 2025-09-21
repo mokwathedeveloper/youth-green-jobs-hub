@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Leaf } from 'lucide-react';
+import { UserPlus, Leaf, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { registerSchema } from '../../schemas/auth';
 import type { RegisterFormData } from '../../schemas/auth';
@@ -20,6 +20,7 @@ const RegisterForm: React.FC = () => {
     clearError
   } = useAuth();
   const navigate = useNavigate();
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   
   const {
     register,
@@ -49,9 +50,12 @@ const RegisterForm: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerUser(data);
-      // Navigation will happen automatically via useEffect
+      setRegistrationSuccess(true);
+      // After successful registration, user will be automatically logged in
+      // and redirected via the useEffect above
     } catch (err) {
       // Error is handled by the auth context
+      setRegistrationSuccess(false);
     }
   };
 
@@ -106,6 +110,15 @@ const RegisterForm: React.FC = () => {
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+            {/* Success Alert */}
+            {registrationSuccess && (
+              <Alert
+                type="success"
+                message="Registration successful! Redirecting to dashboard..."
+                icon={<CheckCircle className="h-5 w-5" />}
+              />
+            )}
+
             {/* Error Alert */}
             {error && (
               <Alert
