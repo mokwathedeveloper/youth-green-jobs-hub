@@ -233,10 +233,10 @@ export const useBundleAnalysis = () => {
 };
 
 // Performance monitoring wrapper component
-export const withPerformanceMonitoring = <P extends object>(
+export const withPerformanceMonitoring = function<P extends object>(
   Component: React.ComponentType<P>,
   componentName: string
-) => {
+) {
   return React.forwardRef<any, P>((props, ref) => {
     const { startRender, endRender } = usePerformance(componentName);
 
@@ -245,6 +245,6 @@ export const withPerformanceMonitoring = <P extends object>(
       return () => endRender();
     });
 
-    return <Component {...props} ref={ref} />;
+    return React.createElement(Component, { ...props, ref });
   });
 };
