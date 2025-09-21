@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Camera, MapPin, Upload, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { wasteReportSchema, type WasteReportFormData } from '../../schemas/wasteSchemas';
-import { wasteApi } from '../../services/api';
-import type { WasteCategory, CollectionPoint, MapLocation } from '../../types/waste';
+import { useWaste } from '../../hooks/useWaste';
+import type { MapLocation } from '../../types/waste';
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface WasteReportFormProps {
   onSuccess?: (reportId: string) => void;
@@ -17,9 +18,16 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   onCancel,
   initialData
 }) => {
-  const [categories, setCategories] = useState<WasteCategory[]>([]);
-  const [collectionPoints, setCollectionPoints] = useState<CollectionPoint[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const {
+    categories,
+    collectionPoints,
+    categoriesLoading,
+    createWasteReport,
+    createReportLoading,
+    createReportError,
+    resetCreateReportError,
+  } = useWaste();
+
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<MapLocation | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
