@@ -203,6 +203,7 @@ export interface DashboardStats {
 
 export interface NearbyCollectionPointsResponse {
   collection_points: CollectionPoint[];
+  results: CollectionPoint[];
   total_found: number;
   search_radius_km: number;
 }

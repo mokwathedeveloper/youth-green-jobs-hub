@@ -187,9 +187,11 @@ export interface ProductReview {
 export interface CartItem {
   id: string;
   product: ProductListItem;
+  product_id: string;
   quantity: number;
   unit_price: number;
   total_price: number;
+  price: number;
   added_at: string;
   updated_at: string;
 }
@@ -200,6 +202,7 @@ export interface ShoppingCart {
   items: CartItem[];
   total_items: number;
   total_amount: number;
+  summary?: CartSummary;
   created_at: string;
   updated_at: string;
 }

@@ -76,6 +76,10 @@ export interface ApiError {
   status?: number;
   code?: string;
   details?: Record<string, any>;
+  data?: {
+    message?: string;
+    [key: string]: any;
+  };
 }
 
 // API Response wrapper
