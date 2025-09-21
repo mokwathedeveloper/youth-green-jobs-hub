@@ -43,7 +43,9 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
     return (
       <div className="text-center py-12">
         <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-        <p className="text-red-600 mb-4">{dashboardError || 'Failed to load dashboard'}</p>
+        <p className="text-red-600 mb-4">
+          {typeof dashboardError === 'string' ? dashboardError : dashboardError?.message || 'Failed to load dashboard'}
+        </p>
         <button
           onClick={loadDashboardStats}
           className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"

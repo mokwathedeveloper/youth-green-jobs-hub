@@ -56,7 +56,7 @@ export const useCart = () => {
   // Add item to cart
   const addToCart = useCallback(async (productId: string, quantity: number = 1) => {
     try {
-      await addToCartExecute(productId, quantity);
+      await addToCartExecute({ product_id: productId, quantity });
       await loadCart(); // Refresh cart after adding
       return true;
     } catch (error) {
@@ -79,7 +79,7 @@ export const useCart = () => {
       console.error('Failed to update cart item:', error);
       return false;
     }
-  }, [updateCartExecute, loadCart, removeFromCart]);
+  }, [updateCartExecute, loadCart]);
 
   // Remove item from cart
   const removeFromCart = useCallback(async (itemId: string) => {

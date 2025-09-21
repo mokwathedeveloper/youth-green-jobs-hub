@@ -5,7 +5,7 @@
  * and ensure all components work together seamlessly.
  */
 
-import { apiClient } from '../services/api';
+import apiClient from '../services/api';
 
 interface TestResult {
   name: string;
