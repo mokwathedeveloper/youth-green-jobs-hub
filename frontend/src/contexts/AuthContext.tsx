@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthState, AuthContextType, User, AuthTokens, LoginCredentials, RegisterData } from '../types/auth';
 import { authApi, subscribeToLoadingState, type ApiError } from '../services/api';
@@ -298,6 +298,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  // Utility functions
+  const getFullName = useCallback(() => {
+    if (!state.user) return '';
+    return `${state.user.first_name || ''} ${state.user.last_name || ''}`.trim() || state.user.username;
+  }, [state.user]);
+
+  const getInitials = useCallback(() => {
+    if (!state.user) return '';
+    const firstName = state.user.first_name || '';
+    const lastName = state.user.last_name || '';
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    }
+    return state.user.username?.[0]?.toUpperCase() || '';
+  }, [state.user]);
+
   const contextValue: AuthContextType = {
     ...state,
     login,
@@ -306,6 +322,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshToken,
     updateProfile,
     clearError,
+    getFullName,
+    getInitials,
   };
 
   return (
