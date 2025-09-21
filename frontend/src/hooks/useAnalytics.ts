@@ -23,7 +23,7 @@ export const useAnalytics = () => {
     loading: metricsLoading,
     error: metricsError,
     execute: fetchMetrics,
-  } = useApi(analyticsApi.getDashboardMetrics);
+  } = useApi(analyticsApi.getDashboardSummary);
 
   // System health
   const {
@@ -33,13 +33,13 @@ export const useAnalytics = () => {
     execute: fetchHealth,
   } = useApi(analyticsApi.getSystemHealth);
 
-  // User activity
+  // User activity (using user growth trends as proxy)
   const {
     data: activityData,
     loading: activityLoading,
     error: activityError,
     execute: fetchActivity,
-  } = useApi(analyticsApi.getUserActivity);
+  } = useApi(analyticsApi.getUserGrowthTrends);
 
   // Environmental impact
   const {
@@ -47,7 +47,7 @@ export const useAnalytics = () => {
     loading: impactLoading,
     error: impactError,
     execute: fetchImpact,
-  } = useApi(analyticsApi.getEnvironmentalImpact);
+  } = useApi(analyticsApi.getEnvironmentalImpactSummary);
 
   // Chart data
   const {

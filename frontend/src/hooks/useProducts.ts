@@ -18,7 +18,7 @@ import type {
 
 export const useProducts = () => {
   // Products
-  const productsApi = usePaginatedApi(productsApi.getProducts);
+  const productsListApi = usePaginatedApi(productsApi.getProducts);
   const featuredProductsApi = useApi(productsApi.getFeaturedProducts);
   const productDetailApi = useApi(productsApi.getProduct);
   const searchProductsApi = usePaginatedApi(productsApi.searchProducts);
@@ -68,7 +68,7 @@ export const useProducts = () => {
 
   // Reviews
   const reviewsApi = usePaginatedApi(productsApi.getProductReviews);
-  const createReviewApi = useApi(productsApi.createProductReview, {
+  const createReviewApi = useApi(productsApi.createReview, {
     onSuccess: () => {
       reviewsApi.refresh();
       // Refresh product detail if available
@@ -83,8 +83,8 @@ export const useProducts = () => {
 
   // Convenience methods
   const loadProducts = useCallback((params?: ProductSearchParams) => {
-    return productsApi.refresh(params);
-  }, [productsApi]);
+    return productsListApi.refresh(params);
+  }, [productsListApi]);
 
   const loadFeaturedProducts = useCallback(() => {
     return featuredProductsApi.execute();
@@ -216,7 +216,7 @@ export const useProducts = () => {
 
   return {
     // State
-    products: productsApi.data,
+    products: productsListApi.data,
     featuredProducts: featuredProductsApi.data || [],
     currentProduct: productDetailApi.data,
     searchResults: searchProductsApi.data,
@@ -232,7 +232,7 @@ export const useProducts = () => {
     productReviews: reviewsApi.data,
 
     // Loading states
-    productsLoading: productsApi.loading,
+    productsLoading: productsListApi.loading,
     featuredProductsLoading: featuredProductsApi.loading,
     productDetailLoading: productDetailApi.loading,
     searchLoading: searchProductsApi.loading,
@@ -254,7 +254,7 @@ export const useProducts = () => {
     createReviewLoading: createReviewApi.loading,
 
     // Error states
-    productsError: productsApi.error,
+    productsError: productsListApi.error,
     featuredProductsError: featuredProductsApi.error,
     productDetailError: productDetailApi.error,
     searchError: searchProductsApi.error,
@@ -276,7 +276,7 @@ export const useProducts = () => {
     createReviewError: createReviewApi.error,
 
     // Pagination
-    hasMoreProducts: productsApi.hasMore,
+    hasMoreProducts: productsListApi.hasMore,
     hasMoreSearchResults: searchProductsApi.hasMore,
     hasMoreVendors: vendorsApi.hasMore,
     hasMoreVendorProducts: vendorProductsApi.hasMore,

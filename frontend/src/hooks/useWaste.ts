@@ -20,7 +20,7 @@ export const useWaste = () => {
   const dashboardStatsApi = useApi(wasteApi.getDashboardStats);
 
   // Waste categories
-  const categoriesApi = useApi(wasteApi.getWasteCategories, { immediate: true });
+  const categoriesApi = useApi(wasteApi.getCategories, { immediate: true });
 
   // Collection points
   const collectionPointsApi = useApi(wasteApi.getCollectionPoints);

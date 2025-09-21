@@ -58,6 +58,12 @@ export interface RegisterData {
   preferred_language?: 'en' | 'sw';
 }
 
+export interface ChangePasswordData {
+  current_password: string;
+  new_password: string;
+  new_password_confirm: string;
+}
+
 export interface AuthResponse {
   message?: string;
   user?: User;
