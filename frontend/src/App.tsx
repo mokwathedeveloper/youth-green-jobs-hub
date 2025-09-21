@@ -2,7 +2,10 @@ import type { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { ErrorProvider } from './contexts/ErrorContext';
+import { LoadingProvider } from './contexts/LoadingContext';
 import ToastContainer from './components/ui/ToastContainer';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestGuard from './components/routing/GuestGuard';
 import AuthGuard from './components/routing/AuthGuard';
@@ -33,10 +36,13 @@ import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products'
 
 const App: FC = () => {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <div className="App">
+    <ErrorBoundary>
+      <ErrorProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <Router>
+                <div className="App">
             <Routes>
             {/* Public Routes */}
             <Route path="/" element={<PublicLayout />}>
@@ -90,11 +96,14 @@ const App: FC = () => {
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
-            <ToastContainer />
-          </div>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+                  <ToastContainer />
+                </div>
+              </Router>
+            </ToastProvider>
+          </AuthProvider>
+        </LoadingProvider>
+      </ErrorProvider>
+    </ErrorBoundary>
   );
 };
 
