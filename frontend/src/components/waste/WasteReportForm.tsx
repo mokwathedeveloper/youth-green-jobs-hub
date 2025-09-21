@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Camera, MapPin, Upload, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { wasteReportSchema, type WasteReportFormData } from '../../schemas/wasteSchemas';
 import { useWaste } from '../../hooks/useWaste';
-import type { MapLocation } from '../../types/waste';
+import { wasteApi } from '../../services/api';
+import type { MapLocation, WasteCategory, CollectionPoint } from '../../types/waste';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface WasteReportFormProps {
@@ -29,6 +30,9 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   } = useWaste();
 
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [localCategories, setCategories] = useState<WasteCategory[]>([]);
+  const [localCollectionPoints, setCollectionPoints] = useState<CollectionPoint[]>([]);
   const [currentLocation, setCurrentLocation] = useState<MapLocation | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -57,7 +61,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     const loadCategories = async () => {
       try {
         const data = await wasteApi.getCategories();
-        setCategories(data.filter(cat => cat.is_active));
+        setCategories(data.filter((cat: any) => cat.is_active));
       } catch (error) {
         console.error('Failed to load categories:', error);
       } finally {
@@ -213,7 +217,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Select category</option>
-                {categories.map((category) => (
+                {(localCategories.length > 0 ? localCategories : categories || []).map((category: any) => (
                   <option key={category.id} value={category.id}>
                     {category.name} ({category.credit_rate_per_kg} credits/kg)
                   </option>
@@ -349,7 +353,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
         </div>
 
         {/* Collection Point */}
-        {collectionPoints.length > 0 && (
+        {(localCollectionPoints.length > 0 || (Array.isArray(collectionPoints) && collectionPoints.length > 0)) && (
           <div>
             <label htmlFor="collection_point_id" className="block text-sm font-medium text-gray-700 mb-1">
               Preferred Collection Point (Optional)
@@ -360,7 +364,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">No preference</option>
-              {collectionPoints.map((point) => (
+              {(localCollectionPoints.length > 0 ? localCollectionPoints : collectionPoints).map((point: any) => (
                 <option key={point.id} value={point.id}>
                   {point.name} - {point.address}
                   {point.distance_km && ` (${point.distance_km.toFixed(1)} km away)`}
