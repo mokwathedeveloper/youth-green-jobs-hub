@@ -177,15 +177,15 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
             title="Waste Collection Trends"
-            chartType="line"
-            timeRange={timeRange}
+            type="line"
+
             className="lg:col-span-1"
           />
           
           <ChartCard
             title="User Activity"
-            chartType="bar"
-            timeRange={timeRange}
+            type="bar"
+
             className="lg:col-span-1"
           />
         </div>
@@ -193,7 +193,20 @@ const AnalyticsDashboard: React.FC = () => {
         {/* System Health and Environmental Impact */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <SystemHealthCard
-            health={systemHealth}
+            systemHealth={systemHealth || {
+              status: 'unknown' as const,
+              uptime: 0,
+              cpu_usage: 0,
+              memory_usage: 0,
+              disk_usage: 0,
+              response_time: 0,
+              active_connections: 0,
+              error_rate: 0,
+              last_backup: '',
+              database_status: 'unknown' as const,
+              cache_status: 'unknown' as const,
+              queue_status: 'unknown' as const
+            }}
             loading={healthLoading}
             status={getHealthStatus()}
             className="lg:col-span-1"

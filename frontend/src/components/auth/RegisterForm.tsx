@@ -115,7 +115,7 @@ const RegisterForm: React.FC = () => {
               <Alert
                 type="success"
                 message="Registration successful! Redirecting to dashboard..."
-                icon={<CheckCircle className="h-5 w-5" />}
+
               />
             )}
 
