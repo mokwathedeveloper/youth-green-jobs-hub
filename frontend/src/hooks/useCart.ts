@@ -145,6 +145,7 @@ export const useCart = () => {
 
   return {
     // Data
+    cart: cartData,
     cartItems,
     cartSummary,
     cartTotal: getCartTotal(),
