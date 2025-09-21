@@ -245,6 +245,6 @@ export const withPerformanceMonitoring = function<P extends object>(
       return () => endRender();
     });
 
-    return React.createElement(Component, { ...props, ref });
+    return React.createElement(Component, { ...props, ref } as any);
   });
 };

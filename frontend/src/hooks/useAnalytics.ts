@@ -60,9 +60,9 @@ export const useAnalytics = () => {
   // Load dashboard metrics
   const loadDashboardMetrics = useCallback(async (range?: AnalyticsTimeRange) => {
     try {
-      const data = await fetchMetrics(range || timeRange);
+      const data = await fetchMetrics();
       if (data) {
-        setDashboardMetrics(data);
+        setDashboardMetrics(data as any);
       }
     } catch (error) {
       console.error('Failed to load dashboard metrics:', error);
@@ -84,9 +84,9 @@ export const useAnalytics = () => {
   // Load user activity
   const loadUserActivity = useCallback(async (range?: AnalyticsTimeRange) => {
     try {
-      const data = await fetchActivity(range || timeRange);
+      const data = await fetchActivity();
       if (data) {
-        setUserActivity(data);
+        setUserActivity(data as any);
       }
     } catch (error) {
       console.error('Failed to load user activity:', error);
@@ -96,9 +96,9 @@ export const useAnalytics = () => {
   // Load environmental impact
   const loadEnvironmentalImpact = useCallback(async (range?: AnalyticsTimeRange) => {
     try {
-      const data = await fetchImpact(range || timeRange);
+      const data = await fetchImpact();
       if (data) {
-        setEnvironmentalImpact(data);
+        setEnvironmentalImpact(data as any);
       }
     } catch (error) {
       console.error('Failed to load environmental impact:', error);

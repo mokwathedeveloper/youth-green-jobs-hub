@@ -66,8 +66,8 @@ class IntegrationTester {
       // Test API client initialization
       suite.tests.push({
         name: 'API Client Initialization',
-        status: apiClient ? 'pass' : 'fail',
-        message: apiClient ? 'API client initialized successfully' : 'API client not initialized',
+        status: typeof apiClient === 'object' && apiClient !== null ? 'pass' : 'fail',
+        message: typeof apiClient === 'object' && apiClient !== null ? 'API client initialized successfully' : 'API client not initialized',
       });
 
       // Test environment configuration
