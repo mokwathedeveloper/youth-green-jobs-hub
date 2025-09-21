@@ -364,7 +364,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">No preference</option>
-              {(localCollectionPoints.length > 0 ? localCollectionPoints : collectionPoints).map((point: any) => (
+              {(localCollectionPoints.length > 0 ? localCollectionPoints : (Array.isArray(collectionPoints) ? collectionPoints : collectionPoints?.results || [])).map((point: any) => (
                 <option key={point.id} value={point.id}>
                   {point.name} - {point.address}
                   {point.distance_km && ` (${point.distance_km.toFixed(1)} km away)`}

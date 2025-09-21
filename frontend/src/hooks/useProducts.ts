@@ -18,20 +18,41 @@ import type {
 
 export const useProducts = () => {
   // Products
-  const productsListApi = usePaginatedApi(productsApi.getProducts);
+  // Create wrapper functions to make API methods compatible with usePaginatedApi
+  const getProductsWrapper = async (page: number, pageSize: number) => {
+    const response = await productsApi.getProducts({ page, page_size: pageSize });
+    return {
+      data: response.results,
+      total: response.count,
+      hasMore: !!response.next
+    };
+  };
+
+  const productsListApi = usePaginatedApi(getProductsWrapper);
   const featuredProductsApi = useApi(productsApi.getFeaturedProducts);
   const productDetailApi = useApi(productsApi.getProduct);
-  const searchProductsApi = usePaginatedApi(productsApi.searchProducts);
+  const searchProductsWrapper = async (page: number, pageSize: number) => {
+    const response = await productsApi.searchProducts({ page, page_size: pageSize });
+    return {
+      data: response.results,
+      total: response.count,
+      hasMore: !!response.next
+    };
+  };
+
+  const searchProductsApi = usePaginatedApi(searchProductsWrapper);
   const recommendationsApi = useApi(productsApi.getProductRecommendations);
 
   // Vendors
   const vendorsApi = usePaginatedApi(productsApi.getVendors);
   const vendorDetailApi = useApi(productsApi.getVendor);
-  const vendorProductsApi = usePaginatedApi(productsApi.getProductsByVendor);
+  // For vendor products, we'll use useApi instead since it needs vendorId parameter
+  const vendorProductsApi = useApi(productsApi.getProductsByVendor);
 
   // Categories
   const categoriesApi = useApi(productsApi.getProductCategories, { immediate: true });
-  const categoryProductsApi = usePaginatedApi(productsApi.getProductsByCategory);
+  // For category products, we'll use useApi instead since it needs categoryId parameter
+  const categoryProductsApi = useApi(productsApi.getProductsByCategory);
 
   // Shopping cart
   const cartApi = useApi(productsApi.getCart);
@@ -67,7 +88,8 @@ export const useProducts = () => {
   });
 
   // Reviews
-  const reviewsApi = usePaginatedApi(productsApi.getProductReviews);
+  // For reviews, we'll use useApi instead since it needs productId parameter
+  const reviewsApi = useApi(productsApi.getProductReviews);
   const createReviewApi = useApi(productsApi.createReview, {
     onSuccess: () => {
       reviewsApi.refresh();
@@ -83,7 +105,7 @@ export const useProducts = () => {
 
   // Convenience methods
   const loadProducts = useCallback((params?: ProductSearchParams) => {
-    return productsListApi.refresh(params);
+    return productsListApi.refresh();
   }, [productsListApi]);
 
   const loadFeaturedProducts = useCallback(() => {
@@ -95,11 +117,11 @@ export const useProducts = () => {
   }, [productDetailApi]);
 
   const searchProducts = useCallback((query: string, params?: ProductSearchParams) => {
-    return searchProductsApi.refresh(query, params);
+    return searchProductsApi.refresh();
   }, [searchProductsApi]);
 
   const loadRecommendations = useCallback((productId?: string) => {
-    return recommendationsApi.execute(productId);
+    return recommendationsApi.execute(productId || '');
   }, [recommendationsApi]);
 
   const loadVendors = useCallback(() => {
@@ -111,11 +133,11 @@ export const useProducts = () => {
   }, [vendorDetailApi]);
 
   const loadVendorProducts = useCallback((vendorId: string) => {
-    return vendorProductsApi.refresh(vendorId);
+    return vendorProductsApi.execute(vendorId);
   }, [vendorProductsApi]);
 
   const loadCategoryProducts = useCallback((categoryId: string) => {
-    return categoryProductsApi.refresh(categoryId);
+    return categoryProductsApi.execute(categoryId);
   }, [categoryProductsApi]);
 
   const loadCart = useCallback(() => {
@@ -179,7 +201,7 @@ export const useProducts = () => {
   }, [createOrderApi]);
 
   const loadProductReviews = useCallback((productId: string) => {
-    return reviewsApi.refresh(productId);
+    return reviewsApi.execute(productId);
   }, [reviewsApi]);
 
   const createProductReview = useCallback((data: ReviewCreateData) => {

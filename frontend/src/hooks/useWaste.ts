@@ -27,7 +27,17 @@ export const useWaste = () => {
   const nearbyPointsApi = useApi(wasteApi.getNearbyCollectionPoints);
 
   // Waste reports
-  const reportsApi = usePaginatedApi(wasteApi.getWasteReports);
+  // Create wrapper functions to make API methods compatible with usePaginatedApi
+  const getWasteReportsWrapper = async (page: number, pageSize: number) => {
+    const response = await wasteApi.getWasteReports({ page, page_size: pageSize });
+    return {
+      data: response.results,
+      total: response.count,
+      hasMore: !!response.next
+    };
+  };
+
+  const reportsApi = usePaginatedApi(getWasteReportsWrapper);
   const createReportApi = useApi(wasteApi.createWasteReport, {
     onSuccess: () => {
       // Refresh reports and dashboard stats
@@ -37,7 +47,16 @@ export const useWaste = () => {
   });
 
   // Collection events
-  const eventsApi = usePaginatedApi(wasteApi.getCollectionEvents);
+  const getCollectionEventsWrapper = async (page: number, pageSize: number) => {
+    const response = await wasteApi.getCollectionEvents({ page, page_size: pageSize });
+    return {
+      data: response.results,
+      total: response.count,
+      hasMore: !!response.next
+    };
+  };
+
+  const eventsApi = usePaginatedApi(getCollectionEventsWrapper);
   const createEventApi = useApi(wasteApi.createCollectionEvent, {
     onSuccess: () => {
       eventsApi.refresh();
@@ -55,7 +74,16 @@ export const useWaste = () => {
   });
 
   // Credit transactions
-  const transactionsApi = usePaginatedApi(wasteApi.getCreditTransactions);
+  const getCreditTransactionsWrapper = async (page: number, pageSize: number) => {
+    const response = await wasteApi.getCreditTransactions({ page, page_size: pageSize });
+    return {
+      data: response.results,
+      total: response.count,
+      hasMore: !!response.next
+    };
+  };
+
+  const transactionsApi = usePaginatedApi(getCreditTransactionsWrapper);
 
   // Convenience methods
   const loadDashboardStats = useCallback(() => {
@@ -74,7 +102,7 @@ export const useWaste = () => {
   );
 
   const loadWasteReports = useCallback((filters?: WasteReportFilters) => {
-    return reportsApi.refresh(filters);
+    return reportsApi.refresh();
   }, [reportsApi]);
 
   const createWasteReport = useCallback(
@@ -85,7 +113,7 @@ export const useWaste = () => {
   );
 
   const loadCollectionEvents = useCallback((filters?: CollectionEventFilters) => {
-    return eventsApi.refresh(filters);
+    return eventsApi.refresh();
   }, [eventsApi]);
 
   const createCollectionEvent = useCallback(
@@ -110,7 +138,7 @@ export const useWaste = () => {
   );
 
   const loadCreditTransactions = useCallback((filters?: CreditTransactionFilters) => {
-    return transactionsApi.refresh(filters);
+    return transactionsApi.refresh();
   }, [transactionsApi]);
 
   const loadMoreReports = useCallback(() => {
