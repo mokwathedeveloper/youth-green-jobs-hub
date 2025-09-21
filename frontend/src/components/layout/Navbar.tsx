@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf, Bell, User, ChevronDown } from 'lucide-react';
 import type { SDGTheme, SDGNavItem } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { clsx } from 'clsx';
 
 interface NavbarProps {
