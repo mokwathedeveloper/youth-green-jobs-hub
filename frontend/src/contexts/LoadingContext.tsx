@@ -143,11 +143,11 @@ export const useComponentLoading = (componentId: string) => {
 export const useAsyncOperation = () => {
   const { startLoading, stopLoading } = useLoading();
 
-  const executeWithLoading = useCallback(async <T>(
+  const executeWithLoading = useCallback(async function<T>(
     operation: () => Promise<T>,
     loadingId: string,
     message?: string
-  ): Promise<T> => {
+  ): Promise<T> {
     try {
       startLoading(loadingId, message);
       const result = await operation();
