@@ -7,21 +7,28 @@ import EmptyState from '../ui/EmptyState';
 import Modal from '../ui/Modal';
 
 interface ShoppingCartProps {
+  cart?: any;
+  isLoading?: boolean;
+  onUpdateQuantity?: (itemId: string, quantity: number) => Promise<void>;
+  onRemoveItem?: (itemId: string) => Promise<void>;
+  onClearCart?: () => Promise<void>;
   onClose?: () => void;
   isOpen?: boolean;
   className?: string;
 }
 
 export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
+  cart: propCart,
+  isLoading: propIsLoading,
+  onUpdateQuantity,
+  onRemoveItem,
+  onClearCart,
   onClose,
   isOpen = true,
   className = ''
 }) => {
   const {
-    cartItems,
-    cartSummary,
-    cartTotal,
-    cartItemCount,
+    cart: hookCart,
     cartLoading,
     updateCartItem,
     removeFromCart,
@@ -29,6 +36,10 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
     updateCartLoading,
     removeFromCartLoading,
   } = useCart();
+
+  // Use props if provided, otherwise use hook data
+  const cart = propCart || hookCart;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : cartLoading;
 
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
@@ -45,7 +56,11 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
     
     setUpdatingItems(prev => new Set(prev).add(itemId));
     try {
-      await onUpdateQuantity(itemId, newQuantity);
+      if (onUpdateQuantity) {
+        await onUpdateQuantity(itemId, newQuantity);
+      } else {
+        await updateCartItem(itemId, newQuantity);
+      }
     } finally {
       setUpdatingItems(prev => {
         const newSet = new Set(prev);
@@ -58,7 +73,11 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
   const handleRemoveItem = async (itemId: string) => {
     setUpdatingItems(prev => new Set(prev).add(itemId));
     try {
-      await onRemoveItem(itemId);
+      if (onRemoveItem) {
+        await onRemoveItem(itemId);
+      } else {
+        await removeFromCart(itemId);
+      }
     } finally {
       setUpdatingItems(prev => {
         const newSet = new Set(prev);
@@ -68,7 +87,7 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
     }
   };
 
-  const renderCartItem = (item: CartItem) => {
+  const renderCartItem = (item: any) => {
     const isUpdating = updatingItems.has(item.id);
     
     return (
@@ -253,7 +272,13 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
 
                 {cart.items.length > 0 && (
                   <button
-                    onClick={onClearCart}
+                    onClick={() => {
+                      if (onClearCart) {
+                        onClearCart();
+                      } else {
+                        clearCart();
+                      }
+                    }}
                     className="w-full text-sm text-red-600 hover:text-red-700 py-2"
                   >
                     Clear Cart
