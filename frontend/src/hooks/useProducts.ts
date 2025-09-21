@@ -2,14 +2,7 @@ import { useCallback } from 'react';
 import { productsApi } from '../services/api';
 import { useApi, usePaginatedApi, useOptimistic } from './useApi';
 import type {
-  Product,
-  ProductListItem,
-  SMEVendor,
-  ProductCategory,
-  Order,
-  ProductReview,
   ShoppingCart,
-  CartItem,
   AddToCartData,
   ProductSearchParams,
   OrderCreateData,
@@ -106,7 +99,7 @@ export const useProducts = () => {
   const optimisticCart = useOptimistic<ShoppingCart | null>(null);
 
   // Convenience methods
-  const loadProducts = useCallback((params?: ProductSearchParams) => {
+  const loadProducts = useCallback((_params?: ProductSearchParams) => {
     return productsListApi.refresh();
   }, [productsListApi]);
 
@@ -118,7 +111,7 @@ export const useProducts = () => {
     return productDetailApi.execute(id);
   }, [productDetailApi]);
 
-  const searchProducts = useCallback((query: string, params?: ProductSearchParams) => {
+  const searchProducts = useCallback((_query: string, _params?: ProductSearchParams) => {
     return searchProductsApi.refresh();
   }, [searchProductsApi]);
 

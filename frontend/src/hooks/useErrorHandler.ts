@@ -13,7 +13,7 @@ interface ErrorHandlerOptions {
 
 export const useErrorHandler = () => {
   const { showError, showWarning, showSuccess, showInfo } = useError();
-  const { stopLoading, clearAllLoading } = useLoading();
+  const { clearAllLoading } = useLoading();
 
   // Handle API errors with proper user feedback
   const handleApiError = useCallback((

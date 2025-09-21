@@ -13,8 +13,7 @@ import {
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useWaste } from '../../hooks/useWaste';
 import LoadingSpinner from '../ui/LoadingSpinner';
-import ErrorBoundary from '../ui/ErrorBoundary';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+
 
 interface WasteDashboardProps {
   userId?: string; // If provided, shows personal dashboard
@@ -26,9 +25,7 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
     dashboardLoading,
     dashboardError,
     loadDashboardStats,
-    getTotalCredits,
-    getTotalWasteCollected,
-    getEnvironmentalImpact,
+
   } = useWaste();
 
   useEffect(() => {

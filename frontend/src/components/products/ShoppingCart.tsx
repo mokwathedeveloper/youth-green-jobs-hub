@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart as CartIcon, Plus, Minus, Trash2, X, CreditCard, Coins } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import EmptyState from '../ui/EmptyState';
-import Modal from '../ui/Modal';
+
 
 interface ShoppingCartProps {
   cart?: any;
@@ -33,8 +31,7 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
     updateCartItem,
     removeFromCart,
     clearCart,
-    updateCartLoading,
-    removeFromCartLoading,
+
   } = useCart();
 
   // Use props if provided, otherwise use hook data

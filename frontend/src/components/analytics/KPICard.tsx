@@ -1,7 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useAnalytics } from '../../hooks/useAnalytics';
-import LoadingSpinner from '../ui/LoadingSpinner';
+
 import type { DashboardCardProps } from '../../types/analytics';
 
 interface KPICardProps extends Omit<DashboardCardProps, 'icon'> {

@@ -2,17 +2,13 @@ import { useCallback } from 'react';
 import { wasteApi } from '../services/api';
 import { useApi, usePaginatedApi } from './useApi';
 import type {
-  WasteCategory,
-  CollectionPoint,
-  WasteReport,
-  CollectionEvent,
-  DashboardStats,
+
   WasteReportFormData,
   CollectionEventFormData,
   WasteReportFilters,
   CollectionEventFilters,
   CreditTransactionFilters,
-  MapLocation,
+
 } from '../types/waste';
 
 export const useWaste = () => {
@@ -104,7 +100,7 @@ export const useWaste = () => {
     [nearbyPointsApi]
   );
 
-  const loadWasteReports = useCallback((filters?: WasteReportFilters) => {
+  const loadWasteReports = useCallback((_filters?: WasteReportFilters) => {
     return reportsApi.refresh();
   }, [reportsApi]);
 
@@ -115,7 +111,7 @@ export const useWaste = () => {
     [createReportApi]
   );
 
-  const loadCollectionEvents = useCallback((filters?: CollectionEventFilters) => {
+  const loadCollectionEvents = useCallback((_filters?: CollectionEventFilters) => {
     return eventsApi.refresh();
   }, [eventsApi]);
 
@@ -140,7 +136,7 @@ export const useWaste = () => {
     [leaveEventApi]
   );
 
-  const loadCreditTransactions = useCallback((filters?: CreditTransactionFilters) => {
+  const loadCreditTransactions = useCallback((_filters?: CreditTransactionFilters) => {
     return transactionsApi.refresh();
   }, [transactionsApi]);
 

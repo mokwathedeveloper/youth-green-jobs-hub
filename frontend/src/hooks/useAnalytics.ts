@@ -4,7 +4,7 @@ import { analyticsApi } from '../services/api';
 import type { 
   DashboardMetrics, 
   AnalyticsTimeRange, 
-  ChartData, 
+
   SystemHealth,
   UserActivity,
   EnvironmentalImpact 
@@ -19,7 +19,7 @@ export const useAnalytics = () => {
 
   // Dashboard metrics
   const {
-    data: metricsData,
+    data: _metricsData,
     loading: metricsLoading,
     error: metricsError,
     execute: fetchMetrics,
@@ -27,7 +27,7 @@ export const useAnalytics = () => {
 
   // System health
   const {
-    data: healthData,
+    data: _healthData,
     loading: healthLoading,
     error: healthError,
     execute: fetchHealth,
@@ -35,7 +35,7 @@ export const useAnalytics = () => {
 
   // User activity (using user growth trends as proxy)
   const {
-    data: activityData,
+    data: _activityData,
     loading: activityLoading,
     error: activityError,
     execute: fetchActivity,
@@ -43,7 +43,7 @@ export const useAnalytics = () => {
 
   // Environmental impact
   const {
-    data: impactData,
+    data: _impactData,
     loading: impactLoading,
     error: impactError,
     execute: fetchImpact,
@@ -51,14 +51,14 @@ export const useAnalytics = () => {
 
   // Chart data
   const {
-    data: chartData,
+    data: _chartData,
     loading: chartLoading,
     error: chartError,
     execute: fetchChartData,
   } = useApi(analyticsApi.getChartData);
 
   // Load dashboard metrics
-  const loadDashboardMetrics = useCallback(async (range?: AnalyticsTimeRange) => {
+  const loadDashboardMetrics = useCallback(async (_range?: AnalyticsTimeRange) => {
     try {
       const data = await fetchMetrics();
       if (data) {
@@ -82,7 +82,7 @@ export const useAnalytics = () => {
   }, [fetchHealth]);
 
   // Load user activity
-  const loadUserActivity = useCallback(async (range?: AnalyticsTimeRange) => {
+  const loadUserActivity = useCallback(async (_range?: AnalyticsTimeRange) => {
     try {
       const data = await fetchActivity();
       if (data) {
@@ -94,7 +94,7 @@ export const useAnalytics = () => {
   }, [fetchActivity, timeRange]);
 
   // Load environmental impact
-  const loadEnvironmentalImpact = useCallback(async (range?: AnalyticsTimeRange) => {
+  const loadEnvironmentalImpact = useCallback(async (_range?: AnalyticsTimeRange) => {
     try {
       const data = await fetchImpact();
       if (data) {

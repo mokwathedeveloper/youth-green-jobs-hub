@@ -4,11 +4,8 @@ import {
   Users, 
   Recycle, 
   Coins, 
-  TrendingUp, 
   RefreshCw,
-  Calendar,
-  Download,
-  Filter
+  Download
 } from 'lucide-react';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import KPICard from './KPICard';
@@ -33,7 +30,7 @@ const AnalyticsDashboard: React.FC = () => {
     refreshAnalytics,
     formatMetric,
     calculateChange,
-    getHealthStatus,
+
   } = useAnalytics();
 
   const [isRefreshing, setIsRefreshing] = useState(false);

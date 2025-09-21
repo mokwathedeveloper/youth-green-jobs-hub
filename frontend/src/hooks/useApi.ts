@@ -33,7 +33,7 @@ export function useApi<T, P extends any[] = []>(
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
-  const { immediate = false, onSuccess, onError, retryConfig } = options;
+  const { immediate = false, onSuccess, onError } = options;
 
   const execute = useCallback(
     async (...args: P) => {

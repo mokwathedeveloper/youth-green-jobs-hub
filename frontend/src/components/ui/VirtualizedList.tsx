@@ -41,24 +41,9 @@ function VirtualizedList<T>({
     onScroll?.(newScrollTop);
   }, [onScroll]);
 
-  // Scroll to specific index
-  const scrollToIndex = useCallback((index: number) => {
-    if (containerRef.current) {
-      const scrollTop = index * itemHeight;
-      containerRef.current.scrollTop = scrollTop;
-      setScrollTop(scrollTop);
-    }
-  }, [itemHeight]);
 
-  // Scroll to top
-  const scrollToTop = useCallback(() => {
-    scrollToIndex(0);
-  }, [scrollToIndex]);
 
-  // Scroll to bottom
-  const scrollToBottom = useCallback(() => {
-    scrollToIndex(items.length - 1);
-  }, [scrollToIndex, items.length]);
+
 
   return (
     <div
@@ -98,7 +83,7 @@ function VirtualizedList<T>({
 }
 
 // Hook for virtualized list utilities
-export const useVirtualizedList = function<T>(items: T[], itemHeight: number) {
+export const useVirtualizedList = function<T>(_items: T[], itemHeight: number) {
   const [containerHeight, setContainerHeight] = useState(400);
   const containerRef = useRef<HTMLDivElement>(null);
 

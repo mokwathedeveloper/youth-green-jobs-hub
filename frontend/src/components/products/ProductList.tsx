@@ -3,8 +3,7 @@ import { Grid, List, Filter, Search, Loader2 } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import { useProducts } from '../../hooks/useProducts';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import EmptyState from '../ui/EmptyState';
+
 import type { ProductSearchParams } from '../../types/products';
 
 interface ProductListProps {
@@ -47,8 +46,7 @@ export const ProductList: React.FC<ProductListProps> = ({
     productsLoading,
     productsError,
     searchProducts,
-    addToCart,
-    addToCartLoading,
+
   } = useProducts();
 
   // Use props if provided, otherwise use hook data

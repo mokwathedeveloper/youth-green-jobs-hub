@@ -6,7 +6,7 @@ import { wasteReportSchema, type WasteReportFormData } from '../../schemas/waste
 import { useWaste } from '../../hooks/useWaste';
 import { wasteApi } from '../../services/api';
 import type { MapLocation, WasteCategory, CollectionPoint } from '../../types/waste';
-import LoadingSpinner from '../ui/LoadingSpinner';
+
 
 interface WasteReportFormProps {
   onSuccess?: (reportId: string) => void;
@@ -22,11 +22,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   const {
     categories,
     collectionPoints,
-    categoriesLoading,
-    createWasteReport,
-    createReportLoading,
-    createReportError,
-    resetCreateReportError,
+
   } = useWaste();
 
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
