@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Leaf } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { loginSchema } from '../../schemas/auth';
 import type { LoginFormData } from '../../schemas/auth';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,13 @@ import Input from '../ui/Input';
 import Alert from '../ui/Alert';
 
 const LoginForm: React.FC = () => {
-  const { login, isLoading, error, isAuthenticated, clearError } = useAuth();
+  const {
+    login,
+    isAuthenticated,
+    loginLoading,
+    loginError,
+    resetLoginError
+  } = useAuth();
   const navigate = useNavigate();
   
   const {
@@ -31,8 +37,8 @@ const LoginForm: React.FC = () => {
 
   // Clear error when component unmounts
   useEffect(() => {
-    return () => clearError();
-  }, [clearError]);
+    return () => resetLoginError();
+  }, [resetLoginError]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -66,11 +72,11 @@ const LoginForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
             {/* Error Alert */}
-            {error && (
+            {loginError && (
               <Alert
                 type="error"
-                message={error}
-                onClose={clearError}
+                message={loginError}
+                onClose={resetLoginError}
               />
             )}
 
@@ -99,8 +105,8 @@ const LoginForm: React.FC = () => {
             <Button
               type="submit"
               className="w-full"
-              loading={isLoading}
-              disabled={isLoading}
+              loading={loginLoading}
+              disabled={loginLoading}
             >
               <LogIn className="w-4 h-4 mr-2" />
               Sign In

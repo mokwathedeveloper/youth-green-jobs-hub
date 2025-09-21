@@ -1,64 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  Coins, 
-  Leaf, 
-  TrendingUp, 
+import React, { useEffect } from 'react';
+import {
+  Package,
+  Coins,
+  Leaf,
+  TrendingUp,
   Calendar,
   Weight,
-
   Clock,
   AlertCircle,
   Users
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { wasteApi } from '../../services/api';
-import type { DashboardStats } from '../../types/waste';
+import { useWaste } from '../../hooks/useWaste';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import ErrorBoundary from '../ui/ErrorBoundary';
+import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
 
 interface WasteDashboardProps {
   userId?: string; // If provided, shows personal dashboard
 }
 
 export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    dashboardStats,
+    dashboardLoading,
+    dashboardError,
+    loadDashboardStats,
+    getTotalCredits,
+    getTotalWasteCollected,
+    getEnvironmentalImpact,
+  } = useWaste();
 
   useEffect(() => {
-    const loadStats = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await wasteApi.getDashboardStats();
-        setStats(data);
-      } catch (error) {
-        console.error('Failed to load dashboard stats:', error);
-        setError('Failed to load dashboard statistics. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadDashboardStats();
+  }, [loadDashboardStats, userId]);
 
-    loadStats();
-  }, [userId]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-        <span className="ml-2 text-gray-600">Loading dashboard...</span>
-      </div>
-    );
+  if (dashboardLoading) {
+    return <LoadingSpinner size="lg" text="Loading dashboard..." className="py-12" />;
   }
 
-  if (error || !stats) {
+  if (dashboardError || !dashboardStats) {
     return (
       <div className="text-center py-12">
         <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-        <p className="text-red-600 mb-4">{error || 'Failed to load dashboard'}</p>
+        <p className="text-red-600 mb-4">{dashboardError || 'Failed to load dashboard'}</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={loadDashboardStats}
           className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
         >
           Try Again
@@ -69,9 +56,9 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
 
   // Prepare chart data
   const reportStatusData = [
-    { name: 'Reported', value: stats.reports.total_reports - stats.reports.verified_reports, color: '#3B82F6' },
-    { name: 'Verified', value: stats.reports.verified_reports - stats.reports.collected_reports, color: '#F59E0B' },
-    { name: 'Collected', value: stats.reports.collected_reports, color: '#10B981' }
+    { name: 'Reported', value: dashboardStats.reports.total_reports - dashboardStats.reports.verified_reports, color: '#3B82F6' },
+    { name: 'Verified', value: dashboardStats.reports.verified_reports - dashboardStats.reports.collected_reports, color: '#F59E0B' },
+    { name: 'Collected', value: dashboardStats.reports.collected_reports, color: '#10B981' }
   ];
 
   const creditData = [

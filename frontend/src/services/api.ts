@@ -1,6 +1,5 @@
 import axios from 'axios';
-import type { AxiosInstance } from 'axios';
-import type { AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import type {
   LoginCredentials,
   RegisterData,
@@ -71,7 +70,38 @@ import type {
 
 import { API_CONFIG, GEOLOCATION_CONFIG } from '../config';
 
-// Create axios instance
+// API Error types
+export interface ApiError {
+  message: string;
+  status?: number;
+  code?: string;
+  details?: Record<string, any>;
+}
+
+// API Response wrapper
+export interface ApiResponse<T = any> {
+  data: T;
+  success: boolean;
+  message?: string;
+  errors?: Record<string, string[]>;
+}
+
+// Retry configuration
+interface RetryConfig {
+  retries: number;
+  retryDelay: number;
+  retryCondition?: (error: AxiosError) => boolean;
+}
+
+const DEFAULT_RETRY_CONFIG: RetryConfig = {
+  retries: 3,
+  retryDelay: 1000,
+  retryCondition: (error: AxiosError) => {
+    return !error.response || error.response.status >= 500;
+  },
+};
+
+// Create axios instance with enhanced configuration
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_CONFIG.FULL_BASE_URL,
   timeout: API_CONFIG.TIMEOUT_MS,
@@ -80,9 +110,27 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request counter for loading states
+let activeRequests = 0;
+const loadingCallbacks: Set<(loading: boolean) => void> = new Set();
+
+export const subscribeToLoadingState = (callback: (loading: boolean) => void) => {
+  loadingCallbacks.add(callback);
+  return () => loadingCallbacks.delete(callback);
+};
+
+const updateLoadingState = () => {
+  const isLoading = activeRequests > 0;
+  loadingCallbacks.forEach(callback => callback(isLoading));
+};
+
+// Enhanced request interceptor
 apiClient.interceptors.request.use(
   (config) => {
+    // Increment active requests counter
+    activeRequests++;
+    updateLoadingState();
+
     // Add auth token if available
     const tokens = localStorage.getItem('auth_tokens');
     if (tokens) {
@@ -95,19 +143,42 @@ apiClient.interceptors.request.use(
         console.error('Error parsing auth tokens:', error);
       }
     }
+
+    // Add request timestamp for debugging
+    config.metadata = { startTime: Date.now() };
+
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    activeRequests--;
+    updateLoadingState();
+    return Promise.reject(createApiError(error));
   }
 );
 
-// Response interceptor for token refresh
+// Enhanced response interceptor with retry logic
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Decrement active requests counter
+    activeRequests--;
+    updateLoadingState();
+
+    // Log response time in development
+    if (import.meta.env.DEV && response.config.metadata?.startTime) {
+      const duration = Date.now() - response.config.metadata.startTime;
+      console.log(`API Request: ${response.config.method?.toUpperCase()} ${response.config.url} - ${duration}ms`);
+    }
+
+    return response;
+  },
   async (error) => {
+    // Decrement active requests counter
+    activeRequests--;
+    updateLoadingState();
+
     const originalRequest = error.config;
 
+    // Handle 401 Unauthorized with token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -121,25 +192,77 @@ apiClient.interceptors.response.use(
               access: refreshResponse.access,
               refresh: refreshResponse.refresh || parsedTokens.refresh,
             };
-            
+
             localStorage.setItem('auth_tokens', JSON.stringify(newTokens));
             originalRequest.headers.Authorization = `Bearer ${newTokens.access}`;
-            
+
             return apiClient(originalRequest);
           }
         }
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        // Refresh failed, clear auth and redirect
         localStorage.removeItem('auth_tokens');
         localStorage.removeItem('auth_user');
         window.location.href = '/login';
-        return Promise.reject(refreshError);
+        return Promise.reject(createApiError(refreshError));
       }
     }
 
-    return Promise.reject(error);
+    // Handle retry logic for network errors and 5xx errors
+    if (shouldRetry(error, originalRequest)) {
+      return retryRequest(originalRequest);
+    }
+
+    return Promise.reject(createApiError(error));
   }
 );
+
+// Error handling utilities
+const createApiError = (error: any): ApiError => {
+  if (error.response) {
+    // Server responded with error status
+    return {
+      message: error.response.data?.message || error.response.data?.detail || 'Server error occurred',
+      status: error.response.status,
+      code: error.response.data?.code,
+      details: error.response.data,
+    };
+  } else if (error.request) {
+    // Network error
+    return {
+      message: 'Network error. Please check your connection.',
+      code: 'NETWORK_ERROR',
+    };
+  } else {
+    // Other error
+    return {
+      message: error.message || 'An unexpected error occurred',
+      code: 'UNKNOWN_ERROR',
+    };
+  }
+};
+
+const shouldRetry = (error: AxiosError, config: any): boolean => {
+  const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
+  const retryCount = config.__retryCount || 0;
+
+  return (
+    retryCount < retryConfig.retries &&
+    retryConfig.retryCondition(error)
+  );
+};
+
+const retryRequest = async (config: any): Promise<any> => {
+  const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
+  config.__retryCount = (config.__retryCount || 0) + 1;
+
+  // Exponential backoff
+  const delay = retryConfig.retryDelay * Math.pow(2, config.__retryCount - 1);
+
+  await new Promise(resolve => setTimeout(resolve, delay));
+
+  return apiClient(config);
+};
 
 // Authentication API
 export const authApi = {

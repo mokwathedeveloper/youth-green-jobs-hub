@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart as CartIcon, Plus, Minus, Trash2, X, CreditCard, Coins } from 'lucide-react';
-import type { ShoppingCart, CartItem } from '../../types/products';
+import { useCart } from '../../hooks/useCart';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import EmptyState from '../ui/EmptyState';
+import Modal from '../ui/Modal';
 
 interface ShoppingCartProps {
-  cart: ShoppingCart | null;
-  isLoading?: boolean;
-  onUpdateQuantity: (itemId: string, quantity: number) => void;
-  onRemoveItem: (itemId: string) => void;
-  onClearCart: () => void;
   onClose?: () => void;
   isOpen?: boolean;
   className?: string;
 }
 
 export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
-  cart,
-  isLoading = false,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
   onClose,
   isOpen = true,
   className = ''
 }) => {
+  const {
+    cartItems,
+    cartSummary,
+    cartTotal,
+    cartItemCount,
+    cartLoading,
+    updateCartItem,
+    removeFromCart,
+    clearCart,
+    updateCartLoading,
+    removeFromCartLoading,
+  } = useCart();
+
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   const formatPrice = (price: number) => {
