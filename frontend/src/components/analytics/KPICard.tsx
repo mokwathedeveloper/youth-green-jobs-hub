@@ -1,5 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useAnalytics } from '../../hooks/useAnalytics';
+import LoadingSpinner from '../ui/LoadingSpinner';
 import type { DashboardCardProps } from '../../types/analytics';
 
 interface KPICardProps extends Omit<DashboardCardProps, 'icon'> {
@@ -20,15 +22,11 @@ const KPICard: React.FC<KPICardProps> = ({
   loading = false,
   className = ''
 }) => {
+  const { formatMetric } = useAnalytics();
+
   const formatValue = (val: string | number): string => {
     if (typeof val === 'number') {
-      // Format large numbers with K, M suffixes
-      if (val >= 1000000) {
-        return `${(val / 1000000).toFixed(1)}M`;
-      } else if (val >= 1000) {
-        return `${(val / 1000).toFixed(1)}K`;
-      }
-      return val.toLocaleString();
+      return formatMetric(val);
     }
     return val.toString();
   };
