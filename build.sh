@@ -43,9 +43,13 @@ else:
     print('✅ Superuser already exists')
 "
 
+# Create staticfiles directory if it doesn't exist
+echo "📁 Preparing static files directory..."
+mkdir -p staticfiles
+
 # Collect static files
 echo "📁 Collecting static files..."
-python manage.py collectstatic --no-input
+python manage.py collectstatic --no-input --clear
 
 # Verify database setup
 echo "🧪 Verifying database setup..."
