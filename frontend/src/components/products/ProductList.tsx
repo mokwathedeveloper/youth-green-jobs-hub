@@ -8,36 +8,64 @@ import EmptyState from '../ui/EmptyState';
 import type { ProductSearchParams } from '../../types/products';
 
 interface ProductListProps {
+  products?: any[];
+  isLoading?: boolean;
+  error?: string | null;
+  totalCount?: number;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onFiltersChange?: (filters: any) => void;
+  onAddToCart?: (productId: string) => void;
+  onToggleFavorite?: (productId: string) => void;
+  favoriteProducts?: string[];
   showFilters?: boolean;
+  showFiltersPanel?: boolean;
   className?: string;
   initialFilters?: ProductSearchParams;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
+  products: propProducts,
+  isLoading: propIsLoading,
+  error: propError,
+  totalCount = 0,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
+  onFiltersChange,
+  onAddToCart,
+  onToggleFavorite,
+  favoriteProducts = [],
   showFilters = true,
+  showFiltersPanel: propShowFiltersPanel,
   className = '',
   initialFilters = {}
 }) => {
   const {
-    products,
+    products: hookProducts,
     productsLoading,
     productsError,
-    pagination,
     searchProducts,
     addToCart,
-    toggleFavorite,
-    favoriteProducts,
     addToCartLoading,
   } = useProducts();
 
+  // Use props if provided, otherwise use hook data
+  const products = propProducts || hookProducts || [];
+  const isLoading = propIsLoading !== undefined ? propIsLoading : productsLoading;
+  const error = propError !== undefined ? propError : productsError;
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+  const [showFiltersPanel, setShowFiltersPanel] = useState(propShowFiltersPanel || false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
-    searchProducts({ ...initialFilters, q: searchQuery, ordering: sortBy });
-  }, [searchProducts, initialFilters, searchQuery, sortBy]);
+    if (!propProducts) {
+      searchProducts({ ...initialFilters, q: searchQuery, ordering: sortBy } as any);
+    }
+  }, [searchProducts, initialFilters, searchQuery, sortBy, propProducts]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +167,9 @@ export const ProductList: React.FC<ProductListProps> = ({
         <Search className="w-full h-full" />
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading products</h3>
-      <p className="text-gray-500 mb-4">{error}</p>
+      <p className="text-gray-500 mb-4">
+        {typeof error === 'string' ? error : error?.message || 'An error occurred'}
+      </p>
       <button
         onClick={() => window.location.reload()}
         className="text-green-600 hover:text-green-700 font-medium"
