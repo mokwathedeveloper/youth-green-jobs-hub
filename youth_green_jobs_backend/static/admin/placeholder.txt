@@ -1,0 +1,3 @@
+# Static files placeholder
+# This file ensures the static directory exists for Django collectstatic
+# Django admin and DRF static files will be collected here during deployment
