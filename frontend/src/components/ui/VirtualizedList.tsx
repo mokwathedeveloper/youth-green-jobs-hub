@@ -98,7 +98,7 @@ function VirtualizedList<T>({
 }
 
 // Hook for virtualized list utilities
-export const useVirtualizedList = <T>(items: T[], itemHeight: number) => {
+export const useVirtualizedList = function<T>(items: T[], itemHeight: number) {
   const [containerHeight, setContainerHeight] = useState(400);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -129,10 +129,12 @@ export const useVirtualizedList = <T>(items: T[], itemHeight: number) => {
 };
 
 // Memoized list item wrapper
-export const VirtualizedListItem = React.memo<{
+interface VirtualizedListItemProps {
   children: React.ReactNode;
   className?: string;
-}>(({ children, className = '' }) => (
+}
+
+export const VirtualizedListItem = React.memo(({ children, className = '' }: VirtualizedListItemProps) => (
   <div className={clsx('w-full', className)}>
     {children}
   </div>
