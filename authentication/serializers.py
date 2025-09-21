@@ -277,18 +277,25 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
     Custom JWT token serializer
     Adds user profile information to token response
+    Supports both username and username_or_email fields for compatibility
     """
-    username_field = 'username_or_email'
+    username_or_email = serializers.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[self.username_field] = serializers.CharField()
-        self.fields['password'] = serializers.CharField()
+        # Keep both username and username_or_email fields for compatibility
+        self.fields['username'].required = False
 
     def validate(self, attrs):
         """Custom validation to support email or username login"""
-        username_or_email = attrs.get('username_or_email')
+        # Support both username and username_or_email fields for compatibility
+        username_or_email = attrs.get('username_or_email') or attrs.get('username')
         password = attrs.get('password')
+
+        if not username_or_email:
+            raise serializers.ValidationError('Username or email is required.')
+        if not password:
+            raise serializers.ValidationError('Password is required.')
 
         # Try to find user by username or email
         user = None
@@ -298,7 +305,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user = User.objects.get(email=username_or_email)
                 attrs['username'] = user.username
             except User.DoesNotExist:
-                pass
+                raise serializers.ValidationError('No user found with this email.')
         else:
             # Treat as username
             attrs['username'] = username_or_email
