@@ -211,7 +211,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             {...register('message')}
           />
           {errors.message && (
-            <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
+            <p className="mt-1 text-sm text-red-600">{errors.message.message || 'Please enter a valid message'}</p>
           )}
         </div>
 
