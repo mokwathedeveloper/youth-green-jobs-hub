@@ -101,7 +101,7 @@ export function useApi<T, P extends any[] = []>(
 
   const retry = useCallback(() => {
     if (state.error) {
-      execute([] as any);
+      execute(...([] as unknown as P));
     }
   }, [execute, state.error]);
 
@@ -117,7 +117,7 @@ export function useApi<T, P extends any[] = []>(
   // Execute immediately if requested
   useEffect(() => {
     if (immediate) {
-      execute([] as any);
+      execute(...([] as unknown as P));
     }
   }, [immediate, execute]);
 
