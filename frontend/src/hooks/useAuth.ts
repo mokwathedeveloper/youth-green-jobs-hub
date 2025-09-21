@@ -1,5 +1,5 @@
 import { useContext, useCallback } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import { authApi } from '../services/api';
 import { useApi } from './useApi';
 import type { LoginCredentials, RegisterData, User } from '../types/auth';
