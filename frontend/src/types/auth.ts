@@ -81,6 +81,8 @@ export interface AuthContextType extends AuthState {
   refreshToken: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   clearError: () => void;
+  getFullName: () => string;
+  getInitials: () => string;
 }
 
 export interface ApiError {
