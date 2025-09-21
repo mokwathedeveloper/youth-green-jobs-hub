@@ -55,6 +55,9 @@ urlpatterns = [
     # Admin interface
     path('admin/', admin.site.urls),
 
+    # Root redirect to API
+    path('', api_root, name='root'),
+
     # API root
     path('api/v1/', api_root, name='api_root'),
 
