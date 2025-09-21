@@ -178,14 +178,30 @@ const AnalyticsDashboard: React.FC = () => {
           <ChartCard
             title="Waste Collection Trends"
             type="line"
-
+            data={{
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+              datasets: [{
+                label: 'Waste Collected',
+                data: [10, 20, 30, 40, 50, 60],
+                borderColor: '#10B981',
+                backgroundColor: '#10B981'
+              }]
+            }}
             className="lg:col-span-1"
           />
           
           <ChartCard
             title="User Activity"
             type="bar"
-
+            data={{
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+              datasets: [{
+                label: 'Active Users',
+                data: [100, 150, 200, 180, 220, 250],
+                borderColor: '#3B82F6',
+                backgroundColor: '#3B82F6'
+              }]
+            }}
             className="lg:col-span-1"
           />
         </div>
@@ -194,21 +210,31 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <SystemHealthCard
             systemHealth={systemHealth || {
-              status: 'unknown' as const,
-              uptime: 0,
+              status: 'healthy' as const,
+              timestamp: new Date().toISOString(),
+              current_metrics: {
+                api_response_time_ms: 0,
+                api_error_rate: 0,
+                cpu_usage_percent: 0,
+                memory_usage_percent: 0,
+                disk_usage_percent: 0,
+                concurrent_users: 0,
+                db_connections_active: 0
+              },
+              '24h_averages': {
+                avg_response_time_ms: 0,
+                avg_error_rate: 0,
+                avg_cpu_usage: 0,
+                avg_memory_usage: 0
+              },
+              active_alerts: 0,
               cpu_usage: 0,
               memory_usage: 0,
               disk_usage: 0,
-              response_time: 0,
-              active_connections: 0,
-              error_rate: 0,
-              last_backup: '',
-              database_status: 'unknown' as const,
-              cache_status: 'unknown' as const,
-              queue_status: 'unknown' as const
+              response_time: 0
             }}
             loading={healthLoading}
-            status={getHealthStatus()}
+
             className="lg:col-span-1"
           />
           
