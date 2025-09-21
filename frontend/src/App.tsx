@@ -97,10 +97,10 @@ const App: FC = () => {
             {/* Catch-all route */}
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-                  <ToastContainer />
-                </div>
-              </Router>
+              </Routes>
+                    <ToastContainer />
+                  </div>
+                </Router>
               </ToastProvider>
             </AuthProvider>
           </LoadingProvider>
