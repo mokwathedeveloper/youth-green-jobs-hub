@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Leaf } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { registerSchema } from '../../schemas/auth';
 import type { RegisterFormData } from '../../schemas/auth';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,13 @@ import Select from '../ui/Select';
 import Alert from '../ui/Alert';
 
 const RegisterForm: React.FC = () => {
-  const { register: registerUser, isLoading, error, isAuthenticated, clearError } = useAuth();
+  const {
+    register: registerUser,
+    isAuthenticated,
+    registerLoading,
+    registerError,
+    resetRegisterError
+  } = useAuth();
   const navigate = useNavigate();
   
   const {
@@ -37,8 +43,8 @@ const RegisterForm: React.FC = () => {
 
   // Clear error when component unmounts
   useEffect(() => {
-    return () => clearError();
-  }, [clearError]);
+    return () => resetRegisterError();
+  }, [resetRegisterError]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -101,11 +107,11 @@ const RegisterForm: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
             {/* Error Alert */}
-            {error && (
+            {registerError && (
               <Alert
                 type="error"
-                message={error}
-                onClose={clearError}
+                message={registerError}
+                onClose={resetRegisterError}
               />
             )}
 
@@ -249,8 +255,8 @@ const RegisterForm: React.FC = () => {
             <Button
               type="submit"
               className="w-full"
-              loading={isLoading}
-              disabled={isLoading}
+              loading={registerLoading}
+              disabled={registerLoading}
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Create Account

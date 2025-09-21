@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthState, AuthContextType, User, AuthTokens, LoginCredentials, RegisterData } from '../types/auth';
-import { authApi } from '../services/api';
+import { authApi, subscribeToLoadingState, type ApiError } from '../services/api';
 
 // Initial state
 const initialState: AuthState = {
@@ -16,12 +16,13 @@ const initialState: AuthState = {
 type AuthAction =
   | { type: 'AUTH_START' }
   | { type: 'AUTH_SUCCESS'; payload: { user: User; tokens: AuthTokens } }
-  | { type: 'AUTH_FAILURE'; payload: string }
+  | { type: 'AUTH_FAILURE'; payload: ApiError }
   | { type: 'LOGOUT' }
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'UPDATE_TOKENS'; payload: AuthTokens }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'SET_LOADING'; payload: boolean };
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_GLOBAL_LOADING'; payload: boolean };
 
 // Reducer
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -48,7 +49,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         tokens: null,
         isAuthenticated: false,
         isLoading: false,
-        error: action.payload,
+        error: action.payload.message,
       };
     case 'LOGOUT':
       return {
@@ -78,6 +79,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         isLoading: action.payload,
+      };
+    case 'SET_GLOBAL_LOADING':
+      return {
+        ...state,
+        globalLoading: action.payload,
       };
     default:
       return state;
@@ -123,6 +129,14 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+
+  // Subscribe to global loading state
+  useEffect(() => {
+    const unsubscribe = subscribeToLoadingState((loading) => {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: loading });
+    });
+    return unsubscribe;
+  }, []);
 
   // Initialize auth state from storage
   useEffect(() => {
@@ -183,10 +197,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       saveToStorage(tokens, user);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.non_field_errors?.[0] || 
-                          error.response?.data?.detail || 
-                          'Login failed. Please try again.';
-      dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
+      const apiError: ApiError = error.message ? error : {
+        message: error.response?.data?.non_field_errors?.[0] ||
+                error.response?.data?.detail ||
+                'Login failed. Please try again.',
+        status: error.response?.status,
+        code: error.response?.data?.code,
+      };
+      dispatch({ type: 'AUTH_FAILURE', payload: apiError });
     }
   };
 
@@ -209,9 +227,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.non_field_errors?.[0] || 
-                          'Registration failed. Please try again.';
-      dispatch({ type: 'AUTH_FAILURE', payload: errorMessage });
+      const apiError: ApiError = error.message ? error : {
+        message: error.response?.data?.non_field_errors?.[0] ||
+                'Registration failed. Please try again.',
+        status: error.response?.status,
+        code: error.response?.data?.code,
+      };
+      dispatch({ type: 'AUTH_FAILURE', payload: apiError });
     }
   };
 
