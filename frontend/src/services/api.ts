@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import type { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import type {
   LoginCredentials,
   RegisterData,
@@ -116,7 +116,9 @@ const loadingCallbacks: Set<(loading: boolean) => void> = new Set();
 
 export const subscribeToLoadingState = (callback: (loading: boolean) => void) => {
   loadingCallbacks.add(callback);
-  return () => loadingCallbacks.delete(callback);
+  return () => {
+    loadingCallbacks.delete(callback);
+  };
 };
 
 const updateLoadingState = () => {
@@ -145,7 +147,7 @@ apiClient.interceptors.request.use(
     }
 
     // Add request timestamp for debugging
-    config.metadata = { startTime: Date.now() };
+    (config as any).metadata = { startTime: Date.now() };
 
     return config;
   },
@@ -164,8 +166,8 @@ apiClient.interceptors.response.use(
     updateLoadingState();
 
     // Log response time in development
-    if (import.meta.env.DEV && response.config.metadata?.startTime) {
-      const duration = Date.now() - response.config.metadata.startTime;
+    if (import.meta.env.DEV && (response.config as any).metadata?.startTime) {
+      const duration = Date.now() - (response.config as any).metadata.startTime;
       console.log(`API Request: ${response.config.method?.toUpperCase()} ${response.config.url} - ${duration}ms`);
     }
 

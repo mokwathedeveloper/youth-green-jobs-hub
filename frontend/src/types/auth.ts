@@ -77,6 +77,7 @@ export interface AuthState {
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  globalLoading?: boolean;
   error: string | null;
 }
 
