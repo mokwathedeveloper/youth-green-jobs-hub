@@ -642,3 +642,34 @@ def collection_point_coverage_analysis(request):
             'success': False,
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def credit_balance(request):
+    """
+    Get the current credit balance for the authenticated user
+    """
+    user = request.user
+
+    # Get user's credit transactions
+    transactions = CreditTransaction.objects.filter(user=user)
+    total_credits_earned = transactions.filter(
+        transaction_type='earned'
+    ).aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+
+    total_credits_spent = transactions.filter(
+        transaction_type='spent'
+    ).aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+
+    current_balance = total_credits_earned - total_credits_spent
+
+    return Response({
+        'balance': float(current_balance),
+        'total_earned': float(total_credits_earned),
+        'total_spent': float(total_credits_spent),
+    })

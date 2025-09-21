@@ -18,6 +18,7 @@ urlpatterns = [
     
     # Credit Transactions
     path('credits/', views.CreditTransactionListView.as_view(), name='credit-transaction-list'),
+    path('credits/balance/', views.credit_balance, name='credit-balance'),
     
     # Collection Events
     path('events/', views.CollectionEventListCreateView.as_view(), name='collection-event-list-create'),
