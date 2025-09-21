@@ -10,7 +10,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf, Bell, User, ChevronDown } from 'lucide-react';
 import type { SDGTheme, SDGNavItem } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { clsx } from 'clsx';
 
 interface NavbarProps {
@@ -28,7 +28,7 @@ const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout, getFullName, getInitials } = useAuth();
   const location = useLocation();
   const tailwindClasses = getSDGTailwindClasses(theme);
 
@@ -159,8 +159,18 @@ const Navbar: React.FC<NavbarProps> = ({
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                 >
-                  <User className="w-4 h-4" />
-                  <span>{user?.first_name || 'User'}</span>
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt="Profile"
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-medium text-gray-600">
+                      {getInitials()}
+                    </div>
+                  )}
+                  <span className="hidden sm:block">{getFullName()}</span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
@@ -178,13 +188,15 @@ const Navbar: React.FC<NavbarProps> = ({
                       </Link>
                     ))}
                     <hr className="my-1" />
-                    <Link
-                      to="/logout"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Sign out
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>

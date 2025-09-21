@@ -19,11 +19,11 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
 const DashboardLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, getFullName, getInitials } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
