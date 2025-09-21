@@ -210,9 +210,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (data: RegisterData) => {
     dispatch({ type: 'AUTH_START' });
-    
+
     try {
-      const response = await authApi.register(data);
+      // Clean the data - remove empty strings for optional fields
+      const cleanedData = Object.fromEntries(
+        Object.entries(data).filter(([key, value]) => {
+          // Keep required fields even if empty (they'll be validated by backend)
+          const requiredFields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name'];
+          if (requiredFields.includes(key)) return true;
+          // For optional fields, only include if they have a value
+          return value !== '' && value !== null && value !== undefined;
+        })
+      ) as RegisterData;
+
+      console.log('Registration data being sent:', cleanedData);
+      const response = await authApi.register(cleanedData);
       
       if (response.tokens && response.user) {
         // Registration includes immediate login
@@ -227,6 +239,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     } catch (error: any) {
+      console.error('Registration error:', error);
+      console.error('Registration error response:', error.response?.data);
       const apiError: ApiError = error.message ? error : {
         message: error.response?.data?.non_field_errors?.[0] ||
                 'Registration failed. Please try again.',
