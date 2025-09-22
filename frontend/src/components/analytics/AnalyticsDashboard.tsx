@@ -30,10 +30,13 @@ const AnalyticsDashboard: React.FC = () => {
     refreshAnalytics,
     formatMetric,
     calculateChange,
-
+    loadChartData,
+    chartLoading,
   } = useAnalytics();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [wasteCollectionData, setWasteCollectionData] = useState<any>(null);
+  const [userActivityData, setUserActivityData] = useState<any>(null);
 
   const timeRangeOptions: { value: AnalyticsTimeRange; label: string }[] = [
     { value: '7d', label: 'Last 7 Days' },
@@ -44,7 +47,31 @@ const AnalyticsDashboard: React.FC = () => {
 
   const handleTimeRangeChange = async (newRange: AnalyticsTimeRange) => {
     await updateTimeRange(newRange);
+    // Load chart data for new time range
+    await loadChartData();
   };
+
+  // Load chart data
+  const loadChartData = async () => {
+    try {
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 365;
+
+      const [wasteData, userData] = await Promise.all([
+        loadChartData('waste-trends', timeRange),
+        loadChartData('user-growth', timeRange),
+      ]);
+
+      setWasteCollectionData(wasteData);
+      setUserActivityData(userData);
+    } catch (error) {
+      console.error('Failed to load chart data:', error);
+    }
+  };
+
+  // Load chart data on component mount and time range change
+  React.useEffect(() => {
+    loadChartData();
+  }, [timeRange]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -175,30 +202,32 @@ const AnalyticsDashboard: React.FC = () => {
           <ChartCard
             title="Waste Collection Trends"
             type="line"
-            data={{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            data={wasteCollectionData || {
+              labels: [],
               datasets: [{
                 label: 'Waste Collected',
-                data: [10, 20, 30, 40, 50, 60],
+                data: [],
                 borderColor: '#10B981',
                 backgroundColor: '#10B981'
               }]
             }}
+            loading={chartLoading}
             className="lg:col-span-1"
           />
-          
+
           <ChartCard
             title="User Activity"
             type="bar"
-            data={{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            data={userActivityData || {
+              labels: [],
               datasets: [{
                 label: 'Active Users',
-                data: [100, 150, 200, 180, 220, 250],
+                data: [],
                 borderColor: '#3B82F6',
                 backgroundColor: '#3B82F6'
               }]
             }}
+            loading={chartLoading}
             className="lg:col-span-1"
           />
         </div>
