@@ -3,7 +3,7 @@ import { Grid, List, Filter, Search } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import { useProducts } from '../../hooks/useProducts';
-import { useOptimizedApi } from '../../hooks/useOptimizedApi';
+
 import { useUserPreferences } from '../../hooks/useLocalStorage';
 import { ProductGridSkeleton } from '../ui/LoadingSkeleton';
 import ErrorState from '../ui/ErrorState';

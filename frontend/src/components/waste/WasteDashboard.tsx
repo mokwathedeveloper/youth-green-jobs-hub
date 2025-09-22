@@ -9,8 +9,7 @@ import {
   Clock,
   AlertCircle,
   Users,
-  RefreshCw,
-  Settings
+  RefreshCw
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useWaste } from '../../hooks/useWaste';
@@ -38,7 +37,7 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
     loadUserGrowthTrends,
   } = useWaste();
 
-  const { preferences, updatePreference } = useUserPreferences();
+  const { preferences } = useUserPreferences();
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
@@ -120,7 +119,7 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
   ];
 
   // Transform API data for charts
-  const transformTimeSeriesData = useCallback((data: TimeSeriesData | null, dataKey: string) => {
+  const transformTimeSeriesData = useCallback((data: TimeSeriesData | null) => {
     if (!data || !data.labels || !data.datasets) return [];
 
     return data.labels.map((label, index) => {
@@ -139,8 +138,8 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
   }, []);
 
   // Prepare trend data from API
-  const wasteCollectionChartData = transformTimeSeriesData(wasteCollectionTrends, 'waste');
-  const userGrowthChartData = transformTimeSeriesData(userGrowthTrends, 'users');
+  const wasteCollectionChartData = transformTimeSeriesData(wasteCollectionTrends);
+  const userGrowthChartData = transformTimeSeriesData(userGrowthTrends);
 
   const StatCard: React.FC<{
     title: string;

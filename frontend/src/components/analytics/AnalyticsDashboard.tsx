@@ -48,14 +48,12 @@ const AnalyticsDashboard: React.FC = () => {
   const handleTimeRangeChange = async (newRange: AnalyticsTimeRange) => {
     await updateTimeRange(newRange);
     // Load chart data for new time range
-    await loadChartData();
+    await loadDashboardChartData();
   };
 
   // Load chart data
-  const loadChartData = async () => {
+  const loadDashboardChartData = async () => {
     try {
-      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 365;
-
       const [wasteData, userData] = await Promise.all([
         loadChartData('waste-trends', timeRange),
         loadChartData('user-growth', timeRange),
@@ -70,7 +68,7 @@ const AnalyticsDashboard: React.FC = () => {
 
   // Load chart data on component mount and time range change
   React.useEffect(() => {
-    loadChartData();
+    loadDashboardChartData();
   }, [timeRange]);
 
   const handleRefresh = async () => {

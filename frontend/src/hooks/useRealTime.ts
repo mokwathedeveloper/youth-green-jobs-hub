@@ -330,10 +330,10 @@ export function useLiveDashboard() {
   // Real-time updates via WebSocket
   const { isConnected } = useRealTimeData({
     eventTypes: ['dashboard_update', 'new_alert', 'activity_update'],
-    onUpdate: (data, event) => {
+    onUpdate: (_, event) => {
       switch (event.type) {
         case 'dashboard_update':
-          setMetrics(prevMetrics => ({ ...prevMetrics, ...event.data }));
+          setMetrics((prevMetrics: any) => ({ ...prevMetrics, ...event.data }));
           break;
         case 'new_alert':
           setAlerts(prevAlerts => [event.data, ...prevAlerts.slice(0, 9)]); // Keep last 10
@@ -365,7 +365,7 @@ export function useLiveNotifications() {
 
   const { isConnected } = useRealTimeData({
     eventTypes: ['notification'],
-    onUpdate: (data, event) => {
+    onUpdate: (_, event) => {
       const notification = {
         ...event.data,
         id: event.id || Date.now().toString(),
