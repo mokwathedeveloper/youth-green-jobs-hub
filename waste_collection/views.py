@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from django.contrib.gis.geos import Point
+# Temporarily disabled GIS import
+# from django.contrib.gis.geos import Point
 from decimal import Decimal
 
 from .models import (
@@ -15,9 +16,6 @@ from .models import (
     CreditTransaction,
     CollectionEvent,
     EventParticipation,
-    CollectionRoute,
-    CollectionPointLocation,
-    RouteOptimization
 )
 from .serializers import (
     WasteCategorySerializer,
@@ -534,7 +532,7 @@ def optimize_route(request):
             )
 
         # Create start location point
-        start_location = Point(float(start_lng), float(start_lat))
+        start_location = f"{start_lng},{start_lat}"
 
         # Optimize route
         from .services.route_optimizer import route_optimizer
