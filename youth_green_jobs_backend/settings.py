@@ -54,8 +54,6 @@ INSTALLED_APPS = [
     'authentication',
     'waste_collection',
     'products',
-    'waste_management',
-    'eco_products',
     'analytics',
     'gamification',
     'partnerships',
