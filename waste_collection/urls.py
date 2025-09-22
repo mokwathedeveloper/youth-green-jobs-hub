@@ -1,10 +1,18 @@
 from django.urls import path
 from . import views
+from . import api_views
 
 app_name = 'waste_collection'
 
 urlpatterns = [
-    # Waste Categories
+    # Real API endpoints (NO MOCK DATA)
+    path('api/analytics/', api_views.analytics_dashboard, name='analytics-dashboard'),
+    path('api/categories/', api_views.waste_categories, name='api-categories'),
+    path('api/collection-points/', api_views.collection_points, name='api-collection-points'),
+    path('api/dashboard/', api_views.user_dashboard, name='api-user-dashboard'),
+    path('api/products/', api_views.products_list, name='api-products'),
+
+    # Original endpoints
     path('categories/', views.WasteCategoryListView.as_view(), name='category-list'),
     
     # Collection Points
