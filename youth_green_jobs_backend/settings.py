@@ -31,6 +31,28 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-uhsi35+^f&t6liju3%4qr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Enable detailed logging for debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
@@ -102,13 +124,13 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
     }
-    # Override engine to use PostGIS for spatial support
-    DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+    # Override engine to use PostGIS for spatial support (temporarily disabled)
+    # DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 else:
     # Development database configuration (SpatiaLite for GIS support)
     DATABASES = {
         'default': {
-            'ENGINE': config('DB_ENGINE', default='django.contrib.gis.db.backends.spatialite'),
+            'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
             'NAME': config('DB_NAME', default=str(BASE_DIR / 'db.sqlite3')),
             'USER': config('DB_USER', default=''),
             'PASSWORD': config('DB_PASSWORD', default=''),
