@@ -698,7 +698,8 @@ def user_analytics_summary(request):
     Get basic analytics summary for regular users
     Uses data they already have access to
     """
-    from waste_collection.models import WasteReport, CollectionPoint, CreditTransaction
+    from waste_collection.models import WasteReport, CollectionPoint
+    from gamification.models import PointTransaction
 
     try:
         user = request.user
@@ -707,7 +708,7 @@ def user_analytics_summary(request):
         # Get user's waste reports
         user_reports = WasteReport.objects.filter(reporter=user)
         total_waste = user_reports.aggregate(total=Sum('actual_weight'))['total'] or 0
-        total_credits = CreditTransaction.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
+        total_credits = PointTransaction.objects.filter(user_profile__user=user).aggregate(total=Sum('points'))['total'] or 0
 
         # Get collection points count (public data)
         collection_points_count = CollectionPoint.objects.filter(is_active=True).count()
