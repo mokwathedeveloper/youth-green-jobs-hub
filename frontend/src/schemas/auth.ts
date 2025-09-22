@@ -8,8 +8,7 @@ export const loginSchema = z.object({
     .min(3, 'Username must be at least 3 characters'),
   password: z
     .string()
-    .min(1, 'Password is required')
-    .min(8, 'Password must be at least 8 characters'),
+    .min(1, 'Password is required'),
 });
 
 // Register validation schema
@@ -68,7 +67,7 @@ export const registerSchema = z.object({
     .string()
     .optional(),
   education_level: z
-    .enum(['none', 'primary', 'secondary', 'tertiary', 'university', 'postgraduate'])
+    .enum(['primary', 'secondary', 'tertiary', 'university', 'vocational', 'other'])
     .optional(),
   employment_status: z
     .enum(['employed', 'unemployed', 'seeking_work', 'student', 'self_employed'])
@@ -130,7 +129,7 @@ export const profileUpdateSchema = z.object({
     .string()
     .optional(),
   education_level: z
-    .enum(['none', 'primary', 'secondary', 'tertiary', 'university', 'postgraduate'])
+    .enum(['primary', 'secondary', 'tertiary', 'university', 'vocational', 'other'])
     .optional(),
   skills: z
     .string()
