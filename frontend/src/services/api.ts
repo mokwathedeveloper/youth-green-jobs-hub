@@ -280,11 +280,13 @@ export const authApi = {
 
   // User login
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    console.log('Login credentials being sent:', credentials);
     // Transform username to username_or_email for backend compatibility
     const loginData = {
       username_or_email: credentials.username,
       password: credentials.password
     };
+    console.log('Login data being sent to backend:', loginData);
     const response: AxiosResponse<AuthResponse> = await apiClient.post('/auth/login/', loginData);
     return response.data;
   },
