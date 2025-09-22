@@ -209,6 +209,17 @@ def validate_configuration_on_startup():
         logger.error(f"Error during configuration validation: {e}")
 
 
+# Upload path functions for models
+def profile_picture_upload_path(instance, filename):
+    """Upload path for profile pictures"""
+    return get_upload_path('profile_pictures') + filename
+
+
+def verification_document_upload_path(instance, filename):
+    """Upload path for verification documents"""
+    return get_upload_path('verification_docs') + filename
+
+
 # Run validation when module is imported
 if hasattr(settings, 'PLATFORM_CONFIG'):
     validate_configuration_on_startup()
