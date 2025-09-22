@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { wasteApi } from '../services/api';
+import { wasteApi, analyticsApi } from '../services/api';
 import { useApi, usePaginatedApi } from './useApi';
 import type {
 
@@ -11,12 +11,17 @@ import type {
 
 } from '../types/waste';
 
+
 export const useWaste = () => {
   // Dashboard stats
   const dashboardStatsApi = useApi(wasteApi.getDashboardStats);
 
   // Waste categories
   const categoriesApi = useApi(wasteApi.getCategories, { immediate: true });
+
+  // Analytics data for trends
+  const wasteCollectionTrendsApi = useApi(analyticsApi.getWasteCollectionTrends);
+  const userGrowthTrendsApi = useApi(analyticsApi.getUserGrowthTrends);
 
   // Collection points
   const collectionPointsApi = useApi(wasteApi.getCollectionPoints);
@@ -88,6 +93,16 @@ export const useWaste = () => {
   const loadDashboardStats = useCallback(() => {
     return dashboardStatsApi.execute();
   }, [dashboardStatsApi]);
+
+  // Load waste collection trends
+  const loadWasteCollectionTrends = useCallback((days: number = 30) => {
+    return wasteCollectionTrendsApi.execute(days);
+  }, [wasteCollectionTrendsApi]);
+
+  // Load user growth trends
+  const loadUserGrowthTrends = useCallback((days: number = 30) => {
+    return userGrowthTrendsApi.execute(days);
+  }, [userGrowthTrendsApi]);
 
   const loadCollectionPoints = useCallback((filters?: any) => {
     return collectionPointsApi.execute(filters);
@@ -180,6 +195,8 @@ export const useWaste = () => {
     wasteReports: reportsApi.data,
     collectionEvents: eventsApi.data,
     creditTransactions: transactionsApi.data,
+    wasteCollectionTrends: wasteCollectionTrendsApi.data,
+    userGrowthTrends: userGrowthTrendsApi.data,
 
     // Loading states
     dashboardLoading: dashboardStatsApi.loading,
@@ -193,6 +210,8 @@ export const useWaste = () => {
     createEventLoading: createEventApi.loading,
     joinEventLoading: joinEventApi.loading,
     leaveEventLoading: leaveEventApi.loading,
+    wasteCollectionTrendsLoading: wasteCollectionTrendsApi.loading,
+    userGrowthTrendsLoading: userGrowthTrendsApi.loading,
 
     // Error states
     dashboardError: dashboardStatsApi.error,
@@ -206,6 +225,8 @@ export const useWaste = () => {
     createEventError: createEventApi.error,
     joinEventError: joinEventApi.error,
     leaveEventError: leaveEventApi.error,
+    wasteCollectionTrendsError: wasteCollectionTrendsApi.error,
+    userGrowthTrendsError: userGrowthTrendsApi.error,
 
     // Pagination
     hasMoreReports: reportsApi.hasMore,
@@ -229,6 +250,8 @@ export const useWaste = () => {
     loadMoreReports,
     loadMoreEvents,
     loadMoreTransactions,
+    loadWasteCollectionTrends,
+    loadUserGrowthTrends,
 
     // Utility methods
     getTotalCredits,

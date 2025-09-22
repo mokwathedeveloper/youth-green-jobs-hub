@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, Leaf } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema } from '../../schemas/auth';
@@ -19,14 +19,34 @@ const LoginForm: React.FC = () => {
     clearError
   } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string>('');
   
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  // Handle registration success message and pre-fill username
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      // Clear the message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
+    }
+    if (state?.username) {
+      setValue('username', state.username);
+    }
+    // Clear location state to prevent showing message on refresh
+    if (state) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, setValue, navigate]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -71,6 +91,15 @@ const LoginForm: React.FC = () => {
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+            {/* Success Alert */}
+            {successMessage && (
+              <Alert
+                type="success"
+                message={successMessage}
+                onClose={() => setSuccessMessage('')}
+              />
+            )}
+
             {/* Error Alert */}
             {error && (
               <Alert

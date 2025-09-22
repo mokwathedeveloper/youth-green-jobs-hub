@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, List, Filter, Search, Loader2 } from 'lucide-react';
+import { Grid, List, Filter, Search } from 'lucide-react';
 import ProductCard from './ProductCard';
 import ProductFilters from './ProductFilters';
 import { useProducts } from '../../hooks/useProducts';
 
+import { useUserPreferences } from '../../hooks/useLocalStorage';
+import { ProductGridSkeleton } from '../ui/LoadingSkeleton';
+import ErrorState from '../ui/ErrorState';
 import type { ProductSearchParams } from '../../types/products';
 
 interface ProductListProps {
@@ -46,18 +49,26 @@ export const ProductList: React.FC<ProductListProps> = ({
     productsLoading,
     productsError,
     searchProducts,
-
   } = useProducts();
+
+  const { preferences, updatePreference } = useUserPreferences();
 
   // Use props if provided, otherwise use hook data
   const products = propProducts || hookProducts || [];
   const isLoading = propIsLoading !== undefined ? propIsLoading : productsLoading;
   const error = propError !== undefined ? propError : productsError;
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(preferences.dashboardLayout);
   const [showFiltersPanel, setShowFiltersPanel] = useState(propShowFiltersPanel || false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
+
+  // Update preferences when view mode changes
+  useEffect(() => {
+    if (viewMode !== preferences.dashboardLayout) {
+      updatePreference('dashboardLayout', viewMode);
+    }
+  }, [viewMode, preferences.dashboardLayout, updatePreference]);
 
   useEffect(() => {
     if (!propProducts) {
@@ -153,28 +164,23 @@ export const ProductList: React.FC<ProductListProps> = ({
   );
 
   const renderLoadingState = () => (
-    <div className="flex items-center justify-center py-12">
-      <Loader2 className="w-8 h-8 animate-spin text-green-600" />
-      <span className="ml-2 text-gray-600">Loading products...</span>
-    </div>
+    <ProductGridSkeleton items={preferences.defaultPageSize || 8} />
   );
 
   const renderErrorState = () => (
-    <div className="text-center py-12">
-      <div className="w-24 h-24 mx-auto mb-4 text-red-300">
-        <Search className="w-full h-full" />
-      </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading products</h3>
-      <p className="text-gray-500 mb-4">
-        {typeof error === 'string' ? error : error?.message || 'An error occurred'}
-      </p>
-      <button
-        onClick={() => window.location.reload()}
-        className="text-green-600 hover:text-green-700 font-medium"
-      >
-        Try again
-      </button>
-    </div>
+    <ErrorState
+      error={error}
+      title="Error loading products"
+      variant="card"
+      showRetry={true}
+      onRetry={() => {
+        if (onFiltersChange) {
+          onFiltersChange({ q: searchQuery, ordering: sortBy });
+        } else {
+          window.location.reload();
+        }
+      }}
+    />
   );
 
   return (

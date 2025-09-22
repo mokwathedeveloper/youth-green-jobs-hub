@@ -49,10 +49,19 @@ const RegisterForm: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      await registerUser(data);
-      setRegistrationSuccess(true);
-      // After successful registration, user will be automatically logged in
-      // and redirected via the useEffect above
+      const result = await registerUser(data);
+      if (result?.success) {
+        setRegistrationSuccess(true);
+        // Redirect to login form after successful registration
+        setTimeout(() => {
+          navigate('/login', {
+            state: {
+              message: 'Registration successful! Please log in with your credentials.',
+              username: data.username
+            }
+          });
+        }, 2000); // Show success message for 2 seconds before redirecting
+      }
     } catch (err) {
       // Error is handled by the auth context
       setRegistrationSuccess(false);
@@ -67,12 +76,12 @@ const RegisterForm: React.FC = () => {
   ];
 
   const educationOptions = [
-    { value: 'none', label: 'No formal education' },
     { value: 'primary', label: 'Primary education' },
     { value: 'secondary', label: 'Secondary education' },
-    { value: 'tertiary', label: 'Tertiary education' },
+    { value: 'tertiary', label: 'Tertiary/College' },
     { value: 'university', label: 'University degree' },
-    { value: 'postgraduate', label: 'Postgraduate degree' },
+    { value: 'vocational', label: 'Vocational training' },
+    { value: 'other', label: 'Other' },
   ];
 
   const employmentOptions = [

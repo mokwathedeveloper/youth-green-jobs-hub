@@ -34,9 +34,12 @@ urlpatterns = [
     path('charts/waste-trends/', views.waste_collection_trends, name='waste-trends'),
     path('charts/user-growth/', views.user_growth_trends, name='user-growth'),
     path('charts/marketplace-trends/', views.marketplace_trends, name='marketplace-trends'),
-    
+
     # Rankings and Breakdowns
     path('rankings/counties/', views.county_rankings, name='county-rankings'),
     path('breakdown/waste-categories/', views.waste_category_breakdown, name='waste-category-breakdown'),
     path('top-performers/', views.top_performers, name='top-performers'),
+
+    # User Analytics (no admin required)
+    path('user/summary/', views.user_analytics_summary, name='user-analytics-summary'),
 ]
