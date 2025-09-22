@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Package,
   Coins,
@@ -8,11 +8,15 @@ import {
   Weight,
   Clock,
   AlertCircle,
-  Users
+  Users,
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useWaste } from '../../hooks/useWaste';
+import { useUserPreferences } from '../../hooks/useLocalStorage';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import type { TimeSeriesData } from '../../types/analytics';
 
 
 interface WasteDashboardProps {
@@ -25,12 +29,61 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
     dashboardLoading,
     dashboardError,
     loadDashboardStats,
-
+    wasteCollectionTrends,
+    wasteCollectionTrendsLoading,
+    wasteCollectionTrendsError,
+    loadWasteCollectionTrends,
+    userGrowthTrends,
+    userGrowthTrendsLoading,
+    loadUserGrowthTrends,
   } = useWaste();
 
+  const { preferences, updatePreference } = useUserPreferences();
+  const [refreshing, setRefreshing] = useState(false);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+
+  // Convert time range to days
+  const getDaysFromTimeRange = useCallback((range: '7d' | '30d' | '90d') => {
+    switch (range) {
+      case '7d': return 7;
+      case '30d': return 30;
+      case '90d': return 90;
+      default: return 30;
+    }
+  }, []);
+
+  // Load all dashboard data
+  const loadAllData = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const days = getDaysFromTimeRange(timeRange);
+      await Promise.all([
+        loadDashboardStats(),
+        loadWasteCollectionTrends(days),
+        loadUserGrowthTrends(days),
+      ]);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadDashboardStats, loadWasteCollectionTrends, loadUserGrowthTrends, timeRange, getDaysFromTimeRange]);
+
+  // Load dashboard data on component mount and when time range changes
   useEffect(() => {
-    loadDashboardStats();
-  }, [loadDashboardStats, userId]);
+    loadAllData();
+  }, [loadAllData, userId]);
+
+  // Auto-refresh based on user preferences
+  useEffect(() => {
+    if (preferences.autoRefreshInterval > 0) {
+      const interval = setInterval(() => {
+        loadAllData();
+      }, preferences.autoRefreshInterval);
+
+      return () => clearInterval(interval);
+    }
+  }, [preferences.autoRefreshInterval, loadAllData]);
 
   if (dashboardLoading) {
     return <LoadingSpinner size="lg" text="Loading dashboard..." className="py-12" />;
@@ -66,15 +119,28 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
     { name: 'Bonus', value: dashboardStats.credits.total_bonus, color: '#8B5CF6' }
   ];
 
-  // Mock monthly data for trends (in a real app, this would come from the API)
-  const monthlyData = [
-    { month: 'Jan', reports: 12, weight: 45, credits: 180 },
-    { month: 'Feb', reports: 19, weight: 67, credits: 268 },
-    { month: 'Mar', reports: 15, weight: 52, credits: 208 },
-    { month: 'Apr', reports: 22, weight: 78, credits: 312 },
-    { month: 'May', reports: 28, weight: 95, credits: 380 },
-    { month: 'Jun', reports: 31, weight: 112, credits: 448 }
-  ];
+  // Transform API data for charts
+  const transformTimeSeriesData = useCallback((data: TimeSeriesData | null, dataKey: string) => {
+    if (!data || !data.labels || !data.datasets) return [];
+
+    return data.labels.map((label, index) => {
+      const result: any = {
+        date: new Date(label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+
+      data.datasets.forEach((dataset, datasetIndex) => {
+        if (dataset.data && dataset.data[index] !== undefined) {
+          result[dataset.label || `dataset_${datasetIndex}`] = dataset.data[index];
+        }
+      });
+
+      return result;
+    });
+  }, []);
+
+  // Prepare trend data from API
+  const wasteCollectionChartData = transformTimeSeriesData(wasteCollectionTrends, 'waste');
+  const userGrowthChartData = transformTimeSeriesData(userGrowthTrends, 'users');
 
   const StatCard: React.FC<{
     title: string;
@@ -116,7 +182,29 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
             Track your environmental impact and waste collection activities
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+          {/* Time Range Selector */}
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value as '7d' | '30d' | '90d')}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="90d">Last 90 days</option>
+          </select>
+
+          {/* Refresh Button */}
+          <button
+            onClick={loadAllData}
+            disabled={refreshing}
+            className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 flex items-center disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+
+          {/* Report Waste Button */}
           <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center">
             <Package className="w-4 h-4 mr-2" />
             Report Waste
@@ -218,43 +306,97 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
         </div>
       </div>
 
-      {/* Monthly Trends */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trends</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <Tooltip />
-              <Line 
-                yAxisId="left" 
-                type="monotone" 
-                dataKey="reports" 
-                stroke="#3B82F6" 
-                strokeWidth={2}
-                name="Reports"
-              />
-              <Line 
-                yAxisId="left" 
-                type="monotone" 
-                dataKey="weight" 
-                stroke="#10B981" 
-                strokeWidth={2}
-                name="Weight (kg)"
-              />
-              <Line 
-                yAxisId="right" 
-                type="monotone" 
-                dataKey="credits" 
-                stroke="#F59E0B" 
-                strokeWidth={2}
-                name="Credits"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Trends Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Waste Collection Trends */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Waste Collection Trends</h2>
+            {wasteCollectionTrendsLoading && (
+              <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
+            )}
+          </div>
+          {wasteCollectionTrendsError ? (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="text-center">
+                <AlertCircle className="w-8 h-8 mx-auto mb-2" />
+                <p>Failed to load waste collection trends</p>
+                <button
+                  onClick={() => loadWasteCollectionTrends(getDaysFromTimeRange(timeRange))}
+                  className="mt-2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : wasteCollectionChartData.length > 0 ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={wasteCollectionChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  {wasteCollectionTrends?.datasets.map((dataset, index) => (
+                    <Line
+                      key={index}
+                      type="monotone"
+                      dataKey={dataset.label}
+                      stroke={dataset.borderColor}
+                      strokeWidth={2}
+                      name={dataset.label}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="text-center">
+                <TrendingUp className="w-8 h-8 mx-auto mb-2" />
+                <p>No trend data available</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Growth Trends */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">User Activity Trends</h2>
+            {userGrowthTrendsLoading && (
+              <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
+            )}
+          </div>
+          {userGrowthChartData.length > 0 ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={userGrowthChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  {userGrowthTrends?.datasets.map((dataset, index) => (
+                    <Line
+                      key={index}
+                      type="monotone"
+                      dataKey={dataset.label}
+                      stroke={dataset.borderColor}
+                      strokeWidth={2}
+                      name={dataset.label}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+              <div className="text-center">
+                <Users className="w-8 h-8 mx-auto mb-2" />
+                <p>No user activity data available</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
