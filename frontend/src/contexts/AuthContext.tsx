@@ -177,24 +177,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Auth methods
-  const login = async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     dispatch({ type: 'AUTH_START' });
-    
+
     try {
       const response = await authApi.login(credentials);
       const tokens = {
         access: response.access!,
         refresh: response.refresh!,
       };
-      
+
       // Get user profile
       const user = await authApi.getProfile(tokens.access);
-      
+
       dispatch({
         type: 'AUTH_SUCCESS',
         payload: { user, tokens },
       });
-      
+
       saveToStorage(tokens, user);
     } catch (error: any) {
       const apiError: ApiError = error.message ? error : {
@@ -206,7 +206,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       dispatch({ type: 'AUTH_FAILURE', payload: apiError });
     }
-  };
+  }, []);
 
   const register = async (data: RegisterData) => {
     dispatch({ type: 'AUTH_START' });
@@ -224,20 +224,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       ) as RegisterData;
 
       console.log('Registration data being sent:', cleanedData);
-      const response = await authApi.register(cleanedData);
-      
-      if (response.tokens && response.user) {
-        // Registration includes immediate login
-        dispatch({
-          type: 'AUTH_SUCCESS',
-          payload: { user: response.user, tokens: response.tokens },
-        });
-        
-        saveToStorage(response.tokens, response.user);
-      } else {
-        // Registration successful but need to login
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
+      await authApi.register(cleanedData);
+
+      // Registration successful - do NOT auto-login
+      // User should be redirected to login form to authenticate manually
+      dispatch({ type: 'SET_LOADING', payload: false });
+
+      // Return success to indicate registration completed
+      return { success: true, message: 'Registration successful! Please log in with your credentials.' };
     } catch (error: any) {
       console.error('Registration error:', error);
       console.error('Registration error response:', error.response?.data);
@@ -251,7 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     if (state.tokens?.refresh) {
       try {
         await authApi.logout(state.tokens.refresh);
@@ -259,10 +253,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Logout API call failed:', error);
       }
     }
-    
+
     clearStorage();
     dispatch({ type: 'LOGOUT' });
-  };
+  }, [state.tokens?.refresh]);
 
   const refreshToken = async () => {
     if (!state.tokens?.refresh) {
@@ -308,9 +302,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
   // Utility functions
   const getFullName = useCallback(() => {
