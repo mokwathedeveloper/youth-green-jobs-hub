@@ -3,7 +3,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 from datetime import date
-from youth_green_jobs_backend.config import get_default_county, get_upload_path
+from youth_green_jobs_backend.config import get_default_county, get_upload_path, profile_picture_upload_path, verification_document_upload_path
 
 
 class User(AbstractUser):
@@ -104,7 +104,7 @@ class User(AbstractUser):
 
     # Profile and Verification
     profile_picture = models.ImageField(
-        upload_to=lambda instance, filename: get_upload_path('profile_pictures') + filename,
+        upload_to=profile_picture_upload_path,
         blank=True,
         null=True,
         help_text=_("Profile picture for user identification")
@@ -123,7 +123,7 @@ class User(AbstractUser):
     )
 
     verification_document = models.FileField(
-        upload_to=lambda instance, filename: get_upload_path('verification_docs') + filename,
+        upload_to=verification_document_upload_path,
         blank=True,
         null=True,
         help_text=_("Identity document for verification (ID, passport, etc.)")
