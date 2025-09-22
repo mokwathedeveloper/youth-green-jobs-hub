@@ -14,7 +14,7 @@ export interface User {
   county?: string;
   sub_county?: string;
   address?: string;
-  education_level?: 'none' | 'primary' | 'secondary' | 'tertiary' | 'university' | 'postgraduate';
+  education_level?: 'primary' | 'secondary' | 'tertiary' | 'university' | 'vocational' | 'other';
   skills?: string;
   skills_list?: string[];
   interests?: string;
@@ -53,7 +53,7 @@ export interface RegisterData {
   gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
   county?: string;
   sub_county?: string;
-  education_level?: 'none' | 'primary' | 'secondary' | 'tertiary' | 'university' | 'postgraduate';
+  education_level?: 'primary' | 'secondary' | 'tertiary' | 'university' | 'vocational' | 'other';
   employment_status?: 'employed' | 'unemployed' | 'seeking_work' | 'student' | 'self_employed';
   preferred_language?: 'en' | 'sw';
 }
@@ -83,7 +83,7 @@ export interface AuthState {
 
 export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: RegisterData) => Promise<{ success: boolean; message: string } | void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
