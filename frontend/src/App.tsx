@@ -23,6 +23,7 @@ import PublicLayout from './components/layout/PublicLayout';
 // Page Components
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Waste Collection Pages
@@ -71,6 +72,7 @@ const App: FC = () => {
             }>
               <Route index element={<DashboardPage />} />
               <Route path="profile" element={<ProfileForm />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
 
               {/* Waste Collection Routes */}
               <Route path="waste" element={<WasteDashboardPage />} />
