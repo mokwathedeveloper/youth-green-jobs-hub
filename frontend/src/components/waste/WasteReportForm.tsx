@@ -56,8 +56,6 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
 
   // Handle photo preview
   useEffect(() => {
-    console.log('Photo watchedPhoto:', watchedPhoto, typeof watchedPhoto);
-
     let file: File | null = null;
 
     // Handle different input types
@@ -68,10 +66,8 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     }
 
     if (file) {
-      console.log('Processing photo file:', file.name, file.size, file.type);
       const reader = new FileReader();
       reader.onload = (e) => {
-        console.log('Photo loaded successfully');
         setPhotoPreview(e.target?.result as string);
       };
       reader.onerror = (e) => {
@@ -79,7 +75,6 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
       };
       reader.readAsDataURL(file);
     } else {
-      console.log('No valid photo file');
       setPhotoPreview(null);
     }
   }, [watchedPhoto]);
