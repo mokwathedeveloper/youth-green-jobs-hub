@@ -27,6 +27,8 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import CartPage from './pages/CartPage';
+import OrdersPage from './pages/OrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Waste Collection Pages
@@ -89,6 +91,8 @@ const App: FC = () => {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="checkout" element={<CheckoutPage />} />
+              <Route path="orders" element={<OrdersPage />} />
+              <Route path="orders/:id" element={<OrderDetailPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
 
               {/* Waste Collection Routes */}

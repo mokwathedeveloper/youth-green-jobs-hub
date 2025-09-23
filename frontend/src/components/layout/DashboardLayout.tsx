@@ -80,6 +80,7 @@ const DashboardLayout: React.FC = () => {
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Profile', href: '/dashboard/profile', icon: User },
     { name: 'Eco Products', href: '/dashboard/products', icon: ShoppingBag },
+    { name: 'My Orders', href: '/dashboard/orders', icon: Package },
     { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   ];
 
