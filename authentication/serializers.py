@@ -158,11 +158,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'skills', 'skills_list', 'interests', 'interests_list',
             'employment_status', 'profile_picture', 'is_verified',
             'preferred_language', 'receive_sms_notifications',
-            'receive_email_notifications', 'is_youth',
+            'receive_email_notifications', 'is_youth', 'is_staff', 'is_superuser',
             'profile_completion_percentage', 'date_joined', 'last_activity'
         )
         read_only_fields = (
-            'id', 'username', 'is_verified', 'date_joined', 'last_activity'
+            'id', 'username', 'is_verified', 'is_staff', 'is_superuser', 'date_joined', 'last_activity'
         )
     
     def validate_email(self, value):
