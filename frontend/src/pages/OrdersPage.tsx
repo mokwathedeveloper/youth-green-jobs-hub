@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Package, Eye, Truck, CheckCircle, XCircle, Clock, CreditCard, Phone, MapPin } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { Button } from '@/components/ui/button';
-import type { Order } from '../types/products';
+import type { OrderListItem } from '../types/products';
 
 const OrdersPage: React.FC = () => {
   const { orders, ordersLoading, ordersError, loadOrders } = useProducts();
@@ -87,7 +87,7 @@ const OrdersPage: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders?.results?.filter((order: Order) => 
+  const filteredOrders = orders?.results?.filter((order: OrderListItem) =>
     selectedStatus === 'all' || order.status === selectedStatus
   ) || [];
 
@@ -183,7 +183,7 @@ const OrdersPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredOrders.map((order: Order) => (
+            {filteredOrders.map((order: OrderListItem) => (
               <div key={order.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
                   {/* Order Header */}
@@ -217,43 +217,26 @@ const OrdersPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Order Items Preview */}
+                  {/* Order Items Count */}
                   <div className="mb-4">
-                    <div className="flex items-center space-x-4">
-                      {order.items.slice(0, 3).map((item, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <img
-                            src={item.product?.image || '/placeholder-product.jpg'}
-                            alt={item.product?.name}
-                            className="w-10 h-10 rounded object-cover"
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 truncate max-w-32">
-                              {item.product?.name}
-                            </p>
-                            <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
-                          </div>
-                        </div>
-                      ))}
-                      {order.items.length > 3 && (
-                        <span className="text-sm text-gray-600">
-                          +{order.items.length - 3} more items
-                        </span>
-                      )}
+                    <div className="flex items-center space-x-2">
+                      <Package className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-600">
+                        {order.item_count} {order.item_count === 1 ? 'item' : 'items'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Delivery Info */}
-                  {order.delivery_address && (
-                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  {/* Credits Used Info */}
+                  {order.credits_used > 0 && (
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                       <div className="flex items-start space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+                        <CreditCard className="w-4 h-4 text-blue-500 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Delivery Address</p>
+                          <p className="text-sm font-medium text-gray-900">Credits Used</p>
                           <p className="text-sm text-gray-600">
-                            {order.delivery_address}, {order.delivery_county}
+                            {formatPrice(order.credits_used)} from waste collection activities
                           </p>
-                          <p className="text-sm text-gray-600">{order.delivery_phone}</p>
                         </div>
                       </div>
                     </div>
@@ -262,11 +245,9 @@ const OrdersPage: React.FC = () => {
                   {/* Actions */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div className="flex items-center space-x-4">
-                      {order.tracking_number && (
-                        <span className="text-sm text-gray-600">
-                          Tracking: <span className="font-medium">{order.tracking_number}</span>
-                        </span>
-                      )}
+                      <span className="text-sm text-gray-600">
+                        Order placed on {formatDate(order.created_at)}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button

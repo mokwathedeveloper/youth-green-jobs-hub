@@ -8,20 +8,20 @@ import type { Order } from '../types/products';
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { orderDetail, orderDetailLoading, orderDetailError, loadOrderDetail } = useProducts();
+  const { currentOrder, orderDetailLoading, orderDetailError, loadOrder } = useProducts();
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (id) {
-      loadOrderDetail(id);
+      loadOrder(id);
     }
-  }, [id, loadOrderDetail]);
+  }, [id, loadOrder]);
 
   useEffect(() => {
-    if (orderDetail) {
-      setOrder(orderDetail);
+    if (currentOrder) {
+      setOrder(currentOrder);
     }
-  }, [orderDetail]);
+  }, [currentOrder]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-KE', {
