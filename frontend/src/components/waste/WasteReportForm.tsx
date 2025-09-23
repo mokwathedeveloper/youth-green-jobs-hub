@@ -56,10 +56,22 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
 
   // Handle photo preview
   useEffect(() => {
-    if (watchedPhoto && watchedPhoto instanceof FileList && watchedPhoto.length > 0) {
-      const file = watchedPhoto[0];
+    console.log('Photo watchedPhoto:', watchedPhoto, typeof watchedPhoto);
+
+    let file: File | null = null;
+
+    // Handle different input types
+    if (watchedPhoto instanceof FileList && watchedPhoto.length > 0) {
+      file = watchedPhoto[0];
+    } else if (watchedPhoto instanceof File) {
+      file = watchedPhoto;
+    }
+
+    if (file) {
+      console.log('Processing photo file:', file.name, file.size, file.type);
       const reader = new FileReader();
       reader.onload = (e) => {
+        console.log('Photo loaded successfully');
         setPhotoPreview(e.target?.result as string);
       };
       reader.onerror = (e) => {
@@ -67,6 +79,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
       };
       reader.readAsDataURL(file);
     } else {
+      console.log('No valid photo file');
       setPhotoPreview(null);
     }
   }, [watchedPhoto]);
@@ -342,7 +355,6 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
                     type="file"
                     accept="image/*"
                     className="sr-only"
-
                   />
                 </label>
                 <p className="pl-1">or drag and drop</p>
