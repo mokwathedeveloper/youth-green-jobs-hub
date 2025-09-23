@@ -73,7 +73,7 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
           ...filters,
           page: currentPage,
           page_size: pageSize,
-          ordering: '-created_at',
+          ordering: '-reported_at',
           ...(userId && { reporter: userId })
         };
 
@@ -337,7 +337,7 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
                     <div className="flex items-center text-sm text-gray-500">
                       <Calendar className="w-4 h-4 mr-1" />
                       <span>
-                        Reported {format(new Date(report.created_at), 'MMM d, yyyy')}
+                        Reported {format(new Date(report.reported_at), 'MMM d, yyyy')}
                       </span>
                       <span className="mx-2">•</span>
                       <span>

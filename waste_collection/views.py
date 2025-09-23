@@ -55,10 +55,12 @@ class CollectionPointListView(generics.ListAPIView):
         sub_county = self.request.query_params.get('sub_county')
         point_type = self.request.query_params.get('point_type')
 
+        # Note: CollectionPoint model doesn't have county/sub_county fields
+        # Filtering by address instead for location-based searches
         if county:
-            queryset = queryset.filter(county__icontains=county)
+            queryset = queryset.filter(address__icontains=county)
         if sub_county:
-            queryset = queryset.filter(sub_county__icontains=sub_county)
+            queryset = queryset.filter(address__icontains=sub_county)
         if point_type:
             queryset = queryset.filter(point_type=point_type)
 
@@ -82,7 +84,7 @@ class WasteReportListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = WasteReport.objects.select_related(
-            'reporter', 'category', 'collection_point', 'verified_by', 'collected_by'
+            'reporter', 'category', 'collection_point'
         )
 
         # Filter by user's own reports unless staff
@@ -98,10 +100,12 @@ class WasteReportListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(status=status_filter)
         if category:
             queryset = queryset.filter(category__name__icontains=category)
+        # Note: WasteReport model doesn't have county field
+        # Filtering by location_description instead for location-based searches
         if county:
-            queryset = queryset.filter(county__icontains=county)
+            queryset = queryset.filter(location_description__icontains=county)
 
-        return queryset.order_by('-created_at')
+        return queryset.order_by('-reported_at')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -160,8 +164,7 @@ class WasteReportDetailView(generics.RetrieveUpdateAPIView):
                     transaction_type='earned',
                     amount=instance.actual_credits,
                     waste_report=instance,
-                    description=f"Credits earned for collecting {instance.category.name}",
-                    processed_by=self.request.user
+                    description=f"Credits earned for collecting {instance.category.name}"
                 )
 
 
@@ -174,7 +177,7 @@ class CreditTransactionListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = CreditTransaction.objects.select_related(
-            'user', 'waste_report', 'processed_by'
+            'user', 'waste_report'
         )
 
         # Users can only see their own transactions unless staff
@@ -209,8 +212,10 @@ class CollectionEventListCreateView(generics.ListCreateAPIView):
 
         if status_filter:
             queryset = queryset.filter(status=status_filter)
+        # Note: CollectionEvent model doesn't have county field
+        # Filtering by location instead for location-based searches
         if county:
-            queryset = queryset.filter(county__icontains=county)
+            queryset = queryset.filter(location__icontains=county)
         if event_type:
             queryset = queryset.filter(event_type=event_type)
 
