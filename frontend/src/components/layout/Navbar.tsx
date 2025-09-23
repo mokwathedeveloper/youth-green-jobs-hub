@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Leaf, Bell, ChevronDown } from 'lucide-react';
 import type { SDGTheme, SDGNavItem } from '../../types/sdg';
 import { getSDGTailwindClasses } from '../../config/sdgThemes';
@@ -31,7 +31,14 @@ const Navbar: React.FC<NavbarProps> = ({
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const { user, isAuthenticated, logout, getFullName, getInitials } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const tailwindClasses = getSDGTailwindClasses(theme);
+
+  // Handle logout with redirect to homepage
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   // Navigation items
   const publicNavItems: SDGNavItem[] = [
@@ -293,7 +300,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     <button
                       onClick={() => {
                         setIsUserMenuOpen(false);
-                        logout();
+                        handleLogout();
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
@@ -417,7 +424,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <button
                   onClick={() => {
                     closeMobileMenu();
-                    logout();
+                    handleLogout();
                   }}
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50"
                 >

@@ -123,8 +123,7 @@ const RegisterForm: React.FC = () => {
             {registrationSuccess && (
               <Alert
                 type="success"
-                message="Registration successful! Redirecting to dashboard..."
-
+                message="Registration successful! Redirecting to login page..."
               />
             )}
 

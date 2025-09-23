@@ -63,6 +63,8 @@ const LoginForm: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data);
+      // Show success message briefly before redirect
+      setSuccessMessage('Login successful! Redirecting to dashboard...');
       // Navigation will happen automatically via useEffect
     } catch (err) {
       // Error is handled by the auth context
