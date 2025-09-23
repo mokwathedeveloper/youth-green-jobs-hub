@@ -22,13 +22,14 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   const {
     categories,
     collectionPoints,
-
+    nearbyPoints,
+    categoriesLoading,
+    collectionPointsLoading,
+    nearbyPointsLoading,
+    loadNearbyPoints
   } = useWaste();
 
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [localCategories, setCategories] = useState<WasteCategory[]>([]);
-  const [localCollectionPoints, setCollectionPoints] = useState<CollectionPoint[]>([]);
   const [currentLocation, setCurrentLocation] = useState<MapLocation | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -49,38 +50,9 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
 
   const watchedPhoto = watch('photo');
 
-  // Load waste categories on mount
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await wasteApi.getCategories();
-        setCategories(data.filter((cat: any) => cat.is_active));
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
+  // Categories are now loaded via useWaste hook
 
-    loadCategories();
-  }, []);
-
-  // Load collection points
-  useEffect(() => {
-    const loadCollectionPoints = async () => {
-      try {
-        const response = await wasteApi.getCollectionPoints({
-          is_active: true,
-          page_size: 50
-        });
-        setCollectionPoints(response.results);
-      } catch (error) {
-        console.error('Failed to load collection points:', error);
-      }
-    };
-
-    loadCollectionPoints();
-  }, []);
+  // Collection points are now loaded via useWaste hook
 
   // Handle photo preview
   useEffect(() => {
@@ -104,13 +76,10 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
       setValue('latitude', location.latitude);
       setValue('longitude', location.longitude);
 
-      // Load nearby collection points
-      const nearbyPoints = await wasteApi.getNearbyCollectionPoints(
-        location.latitude,
-        location.longitude,
-        10
-      );
-      setCollectionPoints(nearbyPoints.collection_points);
+      // Load nearby collection points using useWaste hook
+      if (loadNearbyPoints) {
+        loadNearbyPoints(location.latitude, location.longitude, 10);
+      }
     } catch (error) {
       console.error('Failed to get location:', error);
       alert('Failed to get your location. Please ensure location services are enabled.');
@@ -192,7 +161,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
             <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1">
               Waste Category *
             </label>
-            {isLoadingCategories ? (
+            {categoriesLoading ? (
               <div className="flex items-center justify-center py-2">
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Loading categories...
@@ -204,11 +173,18 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">Select category</option>
-                {(localCategories.length > 0 ? localCategories : categories || []).map((category: any) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name} ({category.credit_rate_per_kg} credits/kg)
-                  </option>
-                ))}
+                {(() => {
+                  const categoriesToUse = categories || [];
+                  if (!Array.isArray(categoriesToUse)) {
+                    console.error('Categories is not an array:', categoriesToUse);
+                    return null;
+                  }
+                  return categoriesToUse.map((category: any) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name} ({category.credit_rate || category.credit_rate_per_kg || 0} credits/kg)
+                    </option>
+                  ));
+                })()}
               </select>
             )}
             {errors.category_id && (
@@ -307,26 +283,31 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
 
 
         {/* Collection Point */}
-        {(localCollectionPoints.length > 0 || (Array.isArray(collectionPoints) && collectionPoints.length > 0)) && (
-          <div>
-            <label htmlFor="collection_point_id" className="block text-sm font-medium text-gray-700 mb-1">
-              Preferred Collection Point (Optional)
-            </label>
-            <select
-              {...register('collection_point_id')}
-              id="collection_point_id"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">No preference</option>
-              {(localCollectionPoints.length > 0 ? localCollectionPoints : (Array.isArray(collectionPoints) ? collectionPoints : collectionPoints?.results || [])).map((point: any) => (
-                <option key={point.id} value={point.id}>
-                  {point.name} - {point.address}
-                  {point.distance_km && ` (${point.distance_km.toFixed(1)} km away)`}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {(() => {
+          const pointsToUse = nearbyPoints.length > 0 ? nearbyPoints : (Array.isArray(collectionPoints) ? collectionPoints : collectionPoints?.results || []);
+          if (pointsToUse.length === 0) return null;
+
+          return (
+            <div>
+              <label htmlFor="collection_point_id" className="block text-sm font-medium text-gray-700 mb-1">
+                Preferred Collection Point (Optional)
+              </label>
+              <select
+                {...register('collection_point_id')}
+                id="collection_point_id"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="">No preference</option>
+                {pointsToUse.map((point: any) => (
+                  <option key={point.id} value={point.id}>
+                    {point.name} - {point.address}
+                    {point.distance_km && ` (${point.distance_km.toFixed(1)} km away)`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          );
+        })()}
 
         {/* Photo Upload */}
         <div>
