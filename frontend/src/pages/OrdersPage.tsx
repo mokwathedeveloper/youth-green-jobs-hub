@@ -87,7 +87,7 @@ const OrdersPage: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders?.results?.filter((order: OrderListItem) =>
+  const filteredOrders = orders?.filter((order: OrderListItem) =>
     selectedStatus === 'all' || order.status === selectedStatus
   ) || [];
 

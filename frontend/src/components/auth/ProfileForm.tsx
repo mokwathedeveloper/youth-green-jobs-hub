@@ -21,7 +21,7 @@ const ProfileForm: React.FC = () => {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-    watch,
+
   } = useForm<ProfileUpdateFormData>({
     resolver: zodResolver(profileUpdateSchema),
   });
