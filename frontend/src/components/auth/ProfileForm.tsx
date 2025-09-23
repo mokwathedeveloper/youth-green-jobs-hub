@@ -13,13 +13,15 @@ import Alert from '../ui/Alert';
 const ProfileForm: React.FC = () => {
   const { user, updateProfile, isLoading, error, clearError } = useAuth();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty },
     reset,
-
+    watch,
   } = useForm<ProfileUpdateFormData>({
     resolver: zodResolver(profileUpdateSchema),
   });
@@ -49,6 +51,22 @@ const ProfileForm: React.FC = () => {
     }
   }, [user, reset]);
 
+  // Handle profile picture preview
+  useEffect(() => {
+    if (profilePicture) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePicturePreview(e.target?.result as string);
+      };
+      reader.onerror = (e) => {
+        console.error('Error reading profile picture file:', e);
+      };
+      reader.readAsDataURL(profilePicture);
+    } else {
+      setProfilePicturePreview(null);
+    }
+  }, [profilePicture]);
+
   // Clear messages when component unmounts
   useEffect(() => {
     return () => {
@@ -57,9 +75,36 @@ const ProfileForm: React.FC = () => {
     };
   }, [clearError]);
 
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Profile picture must be smaller than 5MB');
+        return;
+      }
+
+      // Validate file type
+      if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+        alert('Profile picture must be a JPEG, PNG, or WebP image');
+        return;
+      }
+
+      setProfilePicture(file);
+    }
+  };
+
   const onSubmit = async (data: ProfileUpdateFormData) => {
     try {
-      await updateProfile(data);
+      // Include profile picture in the update if one was selected
+      const updateData = { ...data };
+      if (profilePicture) {
+        // Note: This would need to be handled by the backend API
+        // For now, we'll just update the other profile data
+        console.log('Profile picture selected:', profilePicture.name);
+      }
+
+      await updateProfile(updateData);
       setSuccessMessage('Profile updated successfully!');
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
@@ -113,12 +158,30 @@ const ProfileForm: React.FC = () => {
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center space-x-4">
           <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center overflow-hidden">
+              {profilePicturePreview || user?.profile_picture ? (
+                <img
+                  src={profilePicturePreview || user?.profile_picture}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-10 h-10 text-white" />
+              )}
             </div>
-            <button className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md border border-gray-200 hover:bg-gray-50">
+            <label
+              htmlFor="profile-picture-input"
+              className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md border border-gray-200 hover:bg-gray-50 cursor-pointer"
+            >
               <Camera className="w-4 h-4 text-gray-600" />
-            </button>
+            </label>
+            <input
+              id="profile-picture-input"
+              type="file"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
+              className="sr-only"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">

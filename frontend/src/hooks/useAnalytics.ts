@@ -109,31 +109,77 @@ export const useAnalytics = () => {
     await fetchAnalytics();
   }, [fetchAnalytics]);
 
-  const loadChartData = useCallback(async (chartType: string, _timeRange: string) => {
-    // Mock chart data for now - could be enhanced with real API calls
-    if (chartType === 'waste-trends') {
+  const loadChartData = useCallback(async (chartType: string, timeRange: string) => {
+    try {
+      // Get auth token from localStorage
+      const authTokens = localStorage.getItem('auth_tokens');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (authTokens) {
+        const tokens = JSON.parse(authTokens);
+        headers['Authorization'] = `Bearer ${tokens.access}`;
+      }
+
+      if (chartType === 'waste-trends') {
+        // Fetch user-specific waste trends from the analytics API
+        const response = await fetch(`${REAL_API_BASE}/api/v1/analytics/user/summary/`, {
+          method: 'GET',
+          headers,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            labels: data.waste_collection_trends.map((item: any) => item.month),
+            datasets: [{
+              label: 'Waste Collected (kg)',
+              data: data.waste_collection_trends.map((item: any) =>
+                item.plastic + item.paper + item.metal + item.glass + item.organic
+              ),
+              borderColor: '#10B981',
+              backgroundColor: '#10B981'
+            }]
+          };
+        }
+      }
+
+      if (chartType === 'user-growth') {
+        // For user growth, we can show platform-wide data or user engagement
+        const response = await fetch(`${REAL_API_BASE}/api/v1/analytics/user/summary/`, {
+          method: 'GET',
+          headers,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            labels: data.user_growth_trends.map((item: any) => item.month),
+            datasets: [{
+              label: 'Platform Users',
+              data: data.user_growth_trends.map((item: any) => item.users),
+              borderColor: '#3B82F6',
+              backgroundColor: '#3B82F6'
+            }]
+          };
+        }
+      }
+
+      // Fallback to empty data if API fails
       return {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [],
         datasets: [{
-          label: 'Waste Collected',
-          data: [65, 59, 80, 81, 56, 55],
-          borderColor: '#10B981',
-          backgroundColor: '#10B981'
+          label: chartType === 'waste-trends' ? 'Waste Collected' : 'Active Users',
+          data: [],
+          borderColor: chartType === 'waste-trends' ? '#10B981' : '#3B82F6',
+          backgroundColor: chartType === 'waste-trends' ? '#10B981' : '#3B82F6'
         }]
       };
+    } catch (error) {
+      console.error(`Error loading ${chartType} chart data:`, error);
+      return null;
     }
-    if (chartType === 'user-growth') {
-      return {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Active Users',
-          data: [28, 48, 40, 19, 86, 27],
-          borderColor: '#3B82F6',
-          backgroundColor: '#3B82F6'
-        }]
-      };
-    }
-    return null;
   }, []);
 
   // Create dashboard metrics from current stats
@@ -142,10 +188,19 @@ export const useAnalytics = () => {
     total_waste_collected: analyticsData.current_stats.total_waste_collected,
     total_credits_earned: analyticsData.current_stats.credits_distributed,
     active_reports: analyticsData.current_stats.collection_points,
-    previous_total_users: analyticsData.current_stats.active_users * 0.9, // Mock previous data
-    previous_waste_collected: analyticsData.current_stats.total_waste_collected * 0.85,
-    previous_credits_earned: analyticsData.current_stats.credits_distributed * 0.92,
-    previous_active_reports: analyticsData.current_stats.collection_points * 0.88,
+    // Calculate previous period data from trends if available
+    previous_total_users: analyticsData.user_growth_trends?.length > 1
+      ? analyticsData.user_growth_trends[analyticsData.user_growth_trends.length - 2]?.users || 0
+      : analyticsData.current_stats.active_users * 0.9,
+    previous_waste_collected: analyticsData.waste_collection_trends?.length > 1
+      ? (analyticsData.waste_collection_trends[analyticsData.waste_collection_trends.length - 2]?.plastic || 0) +
+        (analyticsData.waste_collection_trends[analyticsData.waste_collection_trends.length - 2]?.paper || 0) +
+        (analyticsData.waste_collection_trends[analyticsData.waste_collection_trends.length - 2]?.metal || 0) +
+        (analyticsData.waste_collection_trends[analyticsData.waste_collection_trends.length - 2]?.glass || 0) +
+        (analyticsData.waste_collection_trends[analyticsData.waste_collection_trends.length - 2]?.organic || 0)
+      : analyticsData.current_stats.total_waste_collected * 0.85,
+    previous_credits_earned: analyticsData.current_stats.credits_distributed * 0.92, // Could be enhanced with historical data
+    previous_active_reports: analyticsData.current_stats.collection_points * 0.88, // Could be enhanced with historical data
   } : null;
 
   // Transform data to Chart.js format

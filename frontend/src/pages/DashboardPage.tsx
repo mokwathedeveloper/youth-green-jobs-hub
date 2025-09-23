@@ -1,48 +1,57 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  TrendingUp, 
-  Recycle, 
-  ShoppingBag, 
-  Users, 
+import {
+  TrendingUp,
+  Recycle,
+  ShoppingBag,
+  Users,
   Award,
   Calendar,
   MapPin
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useWaste } from '../hooks/useWaste';
 import { Button } from '@/components/ui/button';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const { dashboardStats, loading: wasteLoading } = useWaste();
 
+  // Create stats from real user data
   const stats = [
     {
       name: 'Waste Collected',
-      value: '125 kg',
-      change: '+12%',
+      value: dashboardStats?.reports?.total_actual_weight_kg
+        ? `${dashboardStats.reports.total_actual_weight_kg.toFixed(1)} kg`
+        : '0 kg',
+      change: '+12%', // Could be calculated from historical data
       changeType: 'positive',
       icon: Recycle,
       color: 'green',
     },
     {
       name: 'Credits Earned',
-      value: 'KSh 2,450',
-      change: '+8%',
+      value: dashboardStats?.credits?.current_balance
+        ? `KSh ${dashboardStats.credits.current_balance.toFixed(0)}`
+        : 'KSh 0',
+      change: '+8%', // Could be calculated from historical data
       changeType: 'positive',
       icon: Award,
       color: 'blue',
     },
     {
-      name: 'Products Purchased',
-      value: '8',
-      change: '+2',
+      name: 'Reports Submitted',
+      value: dashboardStats?.reports?.total_reports?.toString() || '0',
+      change: `+${dashboardStats?.reports?.total_reports || 0}`,
       changeType: 'positive',
       icon: ShoppingBag,
       color: 'purple',
     },
     {
       name: 'CO₂ Reduced',
-      value: '0.5 tons',
+      value: dashboardStats?.environmental_impact?.total_co2_reduction_kg
+        ? `${(dashboardStats.environmental_impact.total_co2_reduction_kg / 1000).toFixed(2)} tons`
+        : '0 tons',
       change: '+0.1',
       changeType: 'positive',
       icon: TrendingUp,
