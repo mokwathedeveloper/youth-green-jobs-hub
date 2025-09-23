@@ -13,6 +13,7 @@ import Alert from '../ui/Alert';
 const LoginForm: React.FC = () => {
   const {
     login,
+    user,
     isAuthenticated,
     isLoading,
     error,
