@@ -150,9 +150,14 @@ const Navbar: React.FC<NavbarProps> = ({
             {isAuthenticated && showNotifications && (
               <div className="relative notification-menu-container">
                 <button
-                  onClick={toggleNotificationMenu}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Notification button clicked!');
+                    toggleNotificationMenu();
+                  }}
                   className={clsx(
-                    'relative p-2 rounded-full transition-colors cursor-pointer',
+                    'relative p-2 rounded-full transition-colors cursor-pointer z-10',
                     'text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500',
                     isNotificationMenuOpen && 'bg-gray-100'
                   )}
@@ -240,9 +245,14 @@ const Navbar: React.FC<NavbarProps> = ({
             {isAuthenticated ? (
               <div className="relative user-menu-container">
                 <button
-                  onClick={toggleUserMenu}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('User menu button clicked!');
+                    toggleUserMenu();
+                  }}
                   className={clsx(
-                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium cursor-pointer',
+                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium cursor-pointer z-10',
                     'text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500',
                     isUserMenuOpen && 'bg-gray-100'
                   )}
@@ -379,11 +389,14 @@ const Navbar: React.FC<NavbarProps> = ({
                 {showNotifications && notificationCount > 0 && (
                   <div className="ml-auto">
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Mobile notification button clicked!');
                         toggleNotificationMenu();
                         closeMobileMenu();
                       }}
-                      className="relative p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      className="relative p-2 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 z-10"
                     >
                       <Bell className="w-6 h-6" />
                       <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
