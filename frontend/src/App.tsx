@@ -38,6 +38,9 @@ import { CreditTransactionsPage } from './pages/CreditTransactionsPage';
 // Product Pages
 import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products';
 
+// Admin Pages
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+
 const App: FC = () => {
   return (
     <HelmetProvider>
@@ -64,6 +67,13 @@ const App: FC = () => {
               <GuestGuard>
                 <RegisterForm />
               </GuestGuard>
+            } />
+
+            {/* Admin Dashboard Route */}
+            <Route path="/admin-dashboard" element={
+              <AuthGuard>
+                <AdminDashboardPage />
+              </AuthGuard>
             } />
 
             {/* Protected Routes (require authentication) */}

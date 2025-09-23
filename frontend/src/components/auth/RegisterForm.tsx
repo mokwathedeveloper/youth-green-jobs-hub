@@ -21,6 +21,7 @@ const RegisterForm: React.FC = () => {
   } = useAuth();
   const navigate = useNavigate();
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [isAdminRegistration, setIsAdminRegistration] = useState(false);
   
   const {
     register,
@@ -49,15 +50,25 @@ const RegisterForm: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const result = await registerUser(data);
+      // Add admin flags if admin registration is selected
+      const registrationData = {
+        ...data,
+        ...(isAdminRegistration && {
+          is_staff: true,
+          is_superuser: true
+        })
+      };
+
+      const result = await registerUser(registrationData);
       if (result?.success) {
         setRegistrationSuccess(true);
         // Redirect to login form after successful registration
         setTimeout(() => {
           navigate('/login', {
             state: {
-              message: 'Registration successful! Please log in with your credentials.',
-              username: data.username
+              message: `${isAdminRegistration ? 'Admin account' : 'Registration'} successful! Please log in with your credentials.`,
+              username: data.username,
+              isAdmin: isAdminRegistration
             }
           });
         }, 2000); // Show success message for 2 seconds before redirecting
@@ -123,7 +134,7 @@ const RegisterForm: React.FC = () => {
             {registrationSuccess && (
               <Alert
                 type="success"
-                message="Registration successful! Redirecting to login page..."
+                message={`${isAdminRegistration ? 'Admin account' : 'Registration'} successful! Redirecting to login page...`}
               />
             )}
 
@@ -272,6 +283,20 @@ const RegisterForm: React.FC = () => {
               </div>
             </div>
 
+            {/* Admin Registration Toggle */}
+            <div className="flex items-center">
+              <input
+                id="admin-registration"
+                type="checkbox"
+                checked={isAdminRegistration}
+                onChange={(e) => setIsAdminRegistration(e.target.checked)}
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              />
+              <label htmlFor="admin-registration" className="ml-2 block text-sm text-gray-900">
+                Register as Administrator
+              </label>
+            </div>
+
             {/* Submit Button */}
             <Button
               type="submit"
@@ -280,7 +305,7 @@ const RegisterForm: React.FC = () => {
               disabled={isLoading}
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Create Account
+              {isAdminRegistration ? 'Create Admin Account' : 'Create Account'}
             </Button>
           </div>
 

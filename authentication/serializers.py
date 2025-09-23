@@ -31,7 +31,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'username', 'email', 'password', 'password_confirm',
             'first_name', 'last_name', 'phone_number',
             'date_of_birth', 'gender', 'county', 'sub_county',
-            'education_level', 'employment_status', 'preferred_language'
+            'education_level', 'employment_status', 'preferred_language',
+            'is_staff', 'is_superuser'
         )
         extra_kwargs = {
             'first_name': {'required': True},
@@ -67,11 +68,30 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """Create new user with validated data"""
         validated_data.pop('password_confirm', None)
         password = validated_data.pop('password')
-        
-        user = User.objects.create_user(
-            password=password,
-            **validated_data
-        )
+
+        # Check if this should be a superuser
+        is_superuser = validated_data.pop('is_superuser', False)
+        is_staff = validated_data.pop('is_staff', False)
+
+        if is_superuser:
+            # Create superuser
+            user = User.objects.create_superuser(
+                password=password,
+                **validated_data
+            )
+        elif is_staff:
+            # Create staff user
+            user = User.objects.create_user(
+                password=password,
+                is_staff=True,
+                **validated_data
+            )
+        else:
+            # Create regular user
+            user = User.objects.create_user(
+                password=password,
+                **validated_data
+            )
         return user
 
 
