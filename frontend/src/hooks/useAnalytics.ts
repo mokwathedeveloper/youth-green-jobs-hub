@@ -109,7 +109,7 @@ export const useAnalytics = () => {
     await fetchAnalytics();
   }, [fetchAnalytics]);
 
-  const loadChartData = useCallback(async (chartType: string, timeRange: string) => {
+  const loadChartData = useCallback(async (chartType: string, _timeRange: string) => {
     try {
       // Get auth token from localStorage
       const authTokens = localStorage.getItem('auth_tokens');

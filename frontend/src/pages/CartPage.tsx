@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 
 const CartPage: React.FC = () => {
   const {
-    cart,
     cartItems,
     cartLoading,
     updateCartItem,
@@ -138,7 +137,7 @@ const CartPage: React.FC = () => {
                         {/* Product Image */}
                         <div className="flex-shrink-0">
                           <img
-                            src={item.product?.image || '/placeholder-product.jpg'}
+                            src={item.product?.featured_image || '/placeholder-product.jpg'}
                             alt={item.product?.name}
                             className="w-16 h-16 rounded-lg object-cover"
                           />
@@ -150,7 +149,7 @@ const CartPage: React.FC = () => {
                             {item.product?.name}
                           </h3>
                           <p className="text-sm text-gray-500 mt-1">
-                            {item.product?.category}
+                            {typeof item.product?.category === 'string' ? item.product.category : item.product?.category?.name}
                           </p>
                           <p className="text-sm font-medium text-gray-900 mt-1">
                             {formatPrice(item.price)}

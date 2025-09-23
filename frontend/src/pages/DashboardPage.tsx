@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const { dashboardStats, loading: wasteLoading } = useWaste();
+  const { dashboardStats } = useWaste();
 
   // Create stats from real user data
   const stats = [

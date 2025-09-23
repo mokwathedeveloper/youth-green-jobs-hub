@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock, CreditCard, Phone, MapPin, User, Calendar } from 'lucide-react';
+import { ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock, CreditCard, Phone, MapPin, Calendar } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import type { Order } from '../types/products';
@@ -166,7 +166,7 @@ const OrderDetailPage: React.FC = () => {
                   <div key={index} className="p-6">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={item.product?.image || '/placeholder-product.jpg'}
+                        src={item.product?.featured_image || '/placeholder-product.jpg'}
                         alt={item.product?.name}
                         className="w-16 h-16 rounded-lg object-cover"
                       />
@@ -175,14 +175,14 @@ const OrderDetailPage: React.FC = () => {
                           {item.product?.name}
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">
-                          {item.product?.category}
+                          {typeof item.product?.category === 'string' ? item.product.category : item.product?.category?.name}
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm text-gray-600">
                             Quantity: {item.quantity}
                           </span>
                           <span className="text-sm font-medium text-gray-900">
-                            {formatPrice(item.price * item.quantity)}
+                            {formatPrice(item.unit_price * item.quantity)}
                           </span>
                         </div>
                       </div>

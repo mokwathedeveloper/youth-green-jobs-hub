@@ -5,7 +5,7 @@ import {
   User, 
   Bell, 
   Shield, 
-  Globe, 
+
   Palette,
   Database,
   Save,

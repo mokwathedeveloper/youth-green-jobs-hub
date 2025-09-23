@@ -26,6 +26,8 @@ export interface User {
   receive_sms_notifications?: boolean;
   receive_email_notifications?: boolean;
   is_youth?: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
   profile_completion_percentage?: number;
   date_joined?: string;
   last_activity?: string;
