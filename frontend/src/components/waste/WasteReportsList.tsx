@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { 
-  Eye, 
-  Filter, 
-  Search, 
-  ChevronLeft, 
+import {
+  Eye,
+  Filter,
+  Search,
+  ChevronLeft,
   ChevronRight,
   MapPin,
   Calendar,
@@ -13,7 +13,8 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Package
+  Package,
+  Download
 } from 'lucide-react';
 import { wasteApi } from '../../services/api';
 import type {
@@ -103,6 +104,40 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
     // and add search to the API call
   };
 
+  const handleExport = () => {
+    if (reports.length === 0) {
+      alert('No reports to export');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Title', 'Category', 'Status', 'Weight (kg)', 'Credits', 'Location', 'Reporter', 'Date'];
+    const csvContent = [
+      headers.join(','),
+      ...reports.map(report => [
+        `"${report.title.replace(/"/g, '""')}"`, // Escape quotes
+        report.category.name,
+        report.status,
+        report.actual_weight || report.estimated_weight,
+        report.credits_awarded,
+        `"${report.location_description?.replace(/"/g, '""') || ''}"`,
+        `${report.reporter.first_name} ${report.reporter.last_name}`,
+        format(new Date(report.reported_at), 'yyyy-MM-dd HH:mm:ss')
+      ].join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `waste-reports-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'reported': return 'bg-blue-100 text-blue-800';
@@ -178,8 +213,8 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
           </p>
         </div>
 
-        {showFilters && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          {showFilters && (
             <button
               onClick={() => setShowFilterPanel(!showFilterPanel)}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center"
@@ -187,8 +222,17 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={handleExport}
+            disabled={loading || reports.length === 0}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            title={reports.length === 0 ? "No reports to export" : "Export reports to CSV"}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </button>
+        </div>
       </div>
 
       {/* Search */}

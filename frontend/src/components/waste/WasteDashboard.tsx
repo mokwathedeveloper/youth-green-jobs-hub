@@ -18,9 +18,10 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 
 interface WasteDashboardProps {
   userId?: string; // If provided, shows personal dashboard
+  onReportWaste?: () => void; // Callback for report waste button
 }
 
-export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
+export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId, onReportWaste }) => {
   // Use real analytics data - NO MOCK DATA
   const {
     wasteCollectionTrends,
@@ -190,7 +191,12 @@ export const WasteDashboard: React.FC<WasteDashboardProps> = ({ userId }) => {
           </button>
 
           {/* Report Waste Button */}
-          <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center">
+          <button
+            onClick={onReportWaste}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!onReportWaste}
+            title={onReportWaste ? "Create a new waste report" : "Report waste functionality not available"}
+          >
             <Package className="w-4 h-4 mr-2" />
             Report Waste
           </button>

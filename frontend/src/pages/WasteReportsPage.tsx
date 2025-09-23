@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { WasteReportsList } from '../components/waste/WasteReportsList';
 import { WasteReportForm } from '../components/waste/WasteReportForm';
@@ -9,8 +10,19 @@ type ViewMode = 'list' | 'create' | 'detail';
 
 export const WasteReportsPage: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+
+  // Check URL parameters on component mount
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'create') {
+      setViewMode('create');
+      // Clear the action parameter
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleViewReport = (reportId: string) => {
     setSelectedReportId(reportId);

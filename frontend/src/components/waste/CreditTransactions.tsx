@@ -119,6 +119,37 @@ export const CreditTransactions: React.FC<CreditTransactionsProps> = ({
     return `${sign}${amount}`;
   };
 
+  const handleExport = () => {
+    if (transactions.length === 0) {
+      alert('No transactions to export');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Date', 'Type', 'Amount', 'Description', 'Reference'];
+    const csvContent = [
+      headers.join(','),
+      ...transactions.map(transaction => [
+        format(new Date(transaction.created_at), 'yyyy-MM-dd HH:mm:ss'),
+        transaction.transaction_type,
+        transaction.amount,
+        `"${transaction.description.replace(/"/g, '""')}"`, // Escape quotes
+        transaction.reference_id || ''
+      ].join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `credit-transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -166,7 +197,12 @@ export const CreditTransactions: React.FC<CreditTransactionsProps> = ({
               Filters
             </button>
           )}
-          <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center">
+          <button
+            onClick={handleExport}
+            disabled={loading || transactions.length === 0}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            title={transactions.length === 0 ? "No transactions to export" : "Export transactions to CSV"}
+          >
             <Download className="w-4 h-4 mr-2" />
             Export
           </button>
