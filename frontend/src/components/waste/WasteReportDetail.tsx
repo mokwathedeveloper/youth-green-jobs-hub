@@ -178,12 +178,8 @@ export const WasteReportDetail: React.FC<WasteReportDetailProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span className="font-medium text-gray-700">County:</span>
-                  <p className="text-gray-600">{report.county}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-700">Sub-county:</span>
-                  <p className="text-gray-600">{report.sub_county || 'Not specified'}</p>
+                  <span className="font-medium text-gray-700">Location:</span>
+                  <p className="text-gray-600">{report.location_description}</p>
                 </div>
               </div>
               {report.latitude && report.longitude && (
@@ -339,7 +335,7 @@ export const WasteReportDetail: React.FC<WasteReportDetailProps> = ({
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-900">Reported</p>
                   <p className="text-sm text-gray-600">
-                    {format(new Date(report.created_at), 'MMM d, yyyy h:mm a')}
+                    {format(new Date(report.reported_at), 'MMM d, yyyy h:mm a')}
                   </p>
                 </div>
               </div>
@@ -352,11 +348,7 @@ export const WasteReportDetail: React.FC<WasteReportDetailProps> = ({
                     <p className="text-sm text-gray-600">
                       {format(new Date(report.verified_at), 'MMM d, yyyy h:mm a')}
                     </p>
-                    {report.verified_by && (
-                      <p className="text-sm text-gray-500">
-                        by {report.verified_by.first_name} {report.verified_by.last_name}
-                      </p>
-                    )}
+
                   </div>
                 </div>
               )}
@@ -369,11 +361,7 @@ export const WasteReportDetail: React.FC<WasteReportDetailProps> = ({
                     <p className="text-sm text-gray-600">
                       {format(new Date(report.collected_at), 'MMM d, yyyy h:mm a')}
                     </p>
-                    {report.collected_by && (
-                      <p className="text-sm text-gray-500">
-                        by {report.collected_by.first_name} {report.collected_by.last_name}
-                      </p>
-                    )}
+
                   </div>
                 </div>
               )}

@@ -16,7 +16,7 @@ export const wasteReportSchema = z.object({
     .string()
     .uuid('Please select a valid waste category'),
   
-  estimated_weight_kg: z
+  estimated_weight: z
     .number()
     .min(0.01, 'Weight must be at least 0.01 kg')
     .max(10000, 'Weight must not exceed 10,000 kg'),
@@ -26,15 +26,7 @@ export const wasteReportSchema = z.object({
     .min(10, 'Location description must be at least 10 characters')
     .max(500, 'Location description must not exceed 500 characters'),
   
-  county: z
-    .string()
-    .min(2, 'County is required')
-    .max(100, 'County name too long'),
-  
-  sub_county: z
-    .string()
-    .max(100, 'Sub-county name too long')
-    .optional(),
+
   
   latitude: z
     .number()
@@ -48,9 +40,7 @@ export const wasteReportSchema = z.object({
     .max(180, 'Invalid longitude')
     .optional(),
   
-  priority: z.enum(['low', 'medium', 'high', 'urgent'], {
-    message: 'Please select a valid priority level'
-  }),
+
   
   collection_point_id: z
     .string()
@@ -84,40 +74,40 @@ export const collectionEventSchema = z.object({
   
   event_type: z.enum([
     'community_cleanup',
-    'school_program',
     'beach_cleanup',
-    'market_cleanup',
-    'special_drive'
+    'park_cleanup',
+    'school_program',
+    'corporate_event'
   ], {
     message: 'Please select a valid event type'
   }),
-  
-  location: z
+
+  location_name: z
     .string()
-    .min(10, 'Location must be at least 10 characters')
-    .max(500, 'Location must not exceed 500 characters'),
-  
-  county: z
+    .min(10, 'Location name must be at least 10 characters')
+    .max(200, 'Location name must not exceed 200 characters'),
+
+  address: z
     .string()
-    .min(2, 'County is required')
-    .max(100, 'County name too long'),
+    .min(10, 'Address must be at least 10 characters')
+    .max(255, 'Address must not exceed 255 characters'),
   
-  sub_county: z
-    .string()
-    .max(100, 'Sub-county name too long')
-    .optional(),
-  
-  start_date: z
+  start_datetime: z
     .string()
     .datetime('Please select a valid start date and time')
     .refine(
       (date) => new Date(date) > new Date(),
       'Start date must be in the future'
     ),
-  
-  end_date: z
+
+  end_datetime: z
     .string()
     .datetime('Please select a valid end date and time'),
+
+  registration_deadline: z
+    .string()
+    .datetime('Please provide a valid registration deadline')
+    .optional(),
   
   max_participants: z
     .number()
@@ -126,21 +116,11 @@ export const collectionEventSchema = z.object({
     .max(1000, 'Maximum participants cannot exceed 1000')
     .optional(),
   
-  target_category_ids: z
-    .array(z.string().uuid('Invalid category ID'))
-    .min(1, 'Please select at least one waste category')
-    .max(10, 'Cannot select more than 10 categories'),
-  
-  bonus_multiplier: z
-    .number()
-    .min(1.0, 'Bonus multiplier must be at least 1.0')
-    .max(5.0, 'Bonus multiplier cannot exceed 5.0')
-    .default(1.0)
 }).refine(
-  (data) => new Date(data.end_date) > new Date(data.start_date),
+  (data) => new Date(data.end_datetime) > new Date(data.start_datetime),
   {
     message: 'End date must be after start date',
-    path: ['end_date']
+    path: ['end_datetime']
   }
 );
 
@@ -186,13 +166,12 @@ export const wasteReportFiltersSchema = z.object({
 
 export const collectionEventFiltersSchema = z.object({
   status: z.enum(['planned', 'active', 'completed', 'cancelled']).optional(),
-  county: z.string().optional(),
   event_type: z.enum([
     'community_cleanup',
+    'beach_cleanup',
+    'park_cleanup',
     'school_program',
-    'beach_cleanup', 
-    'market_cleanup',
-    'special_drive'
+    'corporate_event'
   ]).optional(),
   date_from: z.string().date().optional(),
   date_to: z.string().date().optional()

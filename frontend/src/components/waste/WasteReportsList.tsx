@@ -314,16 +314,15 @@ export const WasteReportsList: React.FC<WasteReportsListProps> = ({
                     <div className="flex items-center">
                       <Weight className="w-4 h-4 mr-2 text-gray-400" />
                       <span>
-                        {report.actual_weight_kg || report.estimated_weight_kg} kg
-                        {!report.actual_weight_kg && ' (est.)'}
+                        {report.actual_weight || report.estimated_weight} kg
+                        {!report.actual_weight && ' (est.)'}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center">
                       <Coins className="w-4 h-4 mr-2 text-gray-400" />
                       <span>
-                        {report.actual_credits || report.estimated_credits} credits
-                        {!report.actual_credits && ' (est.)'}
+                        {report.credits_awarded} credits
                       </span>
                     </div>
                     

@@ -63,7 +63,7 @@ export const CollectionEventsList: React.FC<CollectionEventsListProps> = ({
           ...filters,
           page: currentPage,
           page_size: pageSize,
-          ordering: 'start_date',
+          ordering: 'start_datetime',
           ...(userId && { participant: userId })
         };
 
@@ -357,8 +357,8 @@ export const CollectionEventsList: React.FC<CollectionEventsListProps> = ({
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                       <div>
-                        <p className="font-medium">{event.location}</p>
-                        <p className="text-xs">{event.county}</p>
+                        <p className="font-medium">{event.location_name}</p>
+                        <p className="text-xs">{event.address}</p>
                       </div>
                     </div>
                     

@@ -43,14 +43,11 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   } = useForm<WasteReportFormData>({
     resolver: zodResolver(wasteReportSchema),
     defaultValues: {
-      priority: 'medium',
-      county: 'Kisumu',
       ...initialData
     }
   });
 
   const watchedPhoto = watch('photo');
-  const watchedCounty = watch('county');
 
   // Load waste categories on mount
   useEffect(() => {
@@ -68,14 +65,11 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     loadCategories();
   }, []);
 
-  // Load collection points when county changes
+  // Load collection points
   useEffect(() => {
     const loadCollectionPoints = async () => {
-      if (!watchedCounty) return;
-      
       try {
         const response = await wasteApi.getCollectionPoints({
-          county: watchedCounty,
           is_active: true,
           page_size: 50
         });
@@ -86,7 +80,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     };
 
     loadCollectionPoints();
-  }, [watchedCounty]);
+  }, []);
 
   // Handle photo preview
   useEffect(() => {
@@ -127,10 +121,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
 
   const onSubmit = async (data: WasteReportFormData) => {
     try {
-      const report = await wasteApi.createWasteReport({
-        ...data,
-        sub_county: data.sub_county || 'Kisumu Central' // Default sub_county
-      });
+      const report = await wasteApi.createWasteReport(data);
       reset();
       setPhotoPreview(null);
       onSuccess?.(report.id);
@@ -229,22 +220,22 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
           </div>
 
           <div>
-            <label htmlFor="estimated_weight_kg" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="estimated_weight" className="block text-sm font-medium text-gray-700 mb-1">
               Estimated Weight (kg) *
             </label>
             <input
-              {...register('estimated_weight_kg', { valueAsNumber: true })}
+              {...register('estimated_weight', { valueAsNumber: true })}
               type="number"
               step="0.01"
               min="0.01"
-              id="estimated_weight_kg"
+              id="estimated_weight"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="0.00"
             />
-            {errors.estimated_weight_kg && (
+            {errors.estimated_weight && (
               <p className="mt-1 text-sm text-red-600 flex items-center">
                 <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.estimated_weight_kg.message}
+                {errors.estimated_weight.message}
               </p>
             )}
           </div>
@@ -313,40 +304,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
           )}
         </div>
 
-        {/* County and Sub-county */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="county" className="block text-sm font-medium text-gray-700 mb-1">
-              County *
-            </label>
-            <input
-              {...register('county')}
-              type="text"
-              id="county"
-              value="Kisumu"
-              readOnly
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
-            />
-          </div>
 
-          <div>
-            <label htmlFor="sub_county" className="block text-sm font-medium text-gray-700 mb-1">
-              Sub-county
-            </label>
-            <select
-              {...register('sub_county')}
-              id="sub_county"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">Select sub-county</option>
-              {kisumuSubCounties.map((subCounty) => (
-                <option key={subCounty} value={subCounty}>
-                  {subCounty}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
 
         {/* Collection Point */}
         {(localCollectionPoints.length > 0 || (Array.isArray(collectionPoints) && collectionPoints.length > 0)) && (

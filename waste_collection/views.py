@@ -213,13 +213,15 @@ class CollectionEventListCreateView(generics.ListCreateAPIView):
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         # Note: CollectionEvent model doesn't have county field
-        # Filtering by location instead for location-based searches
+        # Filtering by location_name and address instead for location-based searches
         if county:
-            queryset = queryset.filter(location__icontains=county)
+            queryset = queryset.filter(
+                Q(location_name__icontains=county) | Q(address__icontains=county)
+            )
         if event_type:
             queryset = queryset.filter(event_type=event_type)
 
-        return queryset.order_by('-start_date')
+        return queryset.order_by('-start_datetime')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

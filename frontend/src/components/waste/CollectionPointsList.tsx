@@ -35,8 +35,7 @@ export const CollectionPointsList: React.FC<CollectionPointsListProps> = ({
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    point_type: '',
-    county: 'Kisumu'
+    point_type: ''
   });
   const [showFilterPanel, setShowFilterPanel] = useState(false);
 
@@ -48,7 +47,6 @@ export const CollectionPointsList: React.FC<CollectionPointsListProps> = ({
       
       try {
         const response = await wasteApi.getCollectionPoints({
-          county: filters.county,
           point_type: filters.point_type || undefined,
           is_active: true,
           page_size: 100
@@ -63,7 +61,7 @@ export const CollectionPointsList: React.FC<CollectionPointsListProps> = ({
     };
 
     loadCollectionPoints();
-  }, [filters.county, filters.point_type]);
+  }, [filters.point_type]);
 
   // Filter and search points
   useEffect(() => {
@@ -219,7 +217,7 @@ export const CollectionPointsList: React.FC<CollectionPointsListProps> = ({
 
             <div className="flex items-end">
               <button
-                onClick={() => setFilters({ point_type: '', county: 'Kisumu' })}
+                onClick={() => setFilters({ point_type: '' })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
               >
                 Clear Filters

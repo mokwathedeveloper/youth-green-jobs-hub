@@ -15,10 +15,8 @@ export interface WasteCategory {
 export interface CollectionPoint {
   id: string;
   name: string;
-  point_type: 'drop_off' | 'collection' | 'recycling_center' | 'community_center';
+  point_type: 'drop_off' | 'collection_center' | 'recycling_facility';
   address: string;
-  county: string;
-  sub_county: string;
   latitude: string | null;
   longitude: string | null;
   contact_phone: string;
@@ -43,40 +41,19 @@ export interface WasteReport {
     email: string;
   };
   category: WasteCategory;
-  status: 'reported' | 'verified' | 'collected' | 'processed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  estimated_weight_kg: string;
-  actual_weight_kg: string | null;
+  status: 'reported' | 'verified' | 'collected' | 'processed' | 'rejected';
+  estimated_weight: string;
+  actual_weight: string | null;
   location_description: string;
-  county: string;
-  sub_county: string;
   latitude: string | null;
   longitude: string | null;
   photo: string | null;
   collection_point: CollectionPoint | null;
-  verified_by: {
-    id: string;
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-  } | null;
   verified_at: string | null;
-  collected_by: {
-    id: string;
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-  } | null;
   collected_at: string | null;
-  notes: string;
-  estimated_credits: string;
-  actual_credits: string;
-  estimated_co2_reduction: string;
-  actual_co2_reduction: string;
-  created_at: string;
-  updated_at: string;
+  processed_at: string | null;
+  credits_awarded: string;
+  reported_at: string;
 }
 
 export interface WasteReportListItem {
@@ -90,15 +67,11 @@ export interface WasteReportListItem {
     email: string;
   };
   category: WasteCategory;
-  status: 'reported' | 'verified' | 'collected' | 'processed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  estimated_weight_kg: string;
-  actual_weight_kg: string | null;
-  estimated_credits: string;
-  actual_credits: string;
-  county: string;
-  sub_county: string;
-  created_at: string;
+  status: 'reported' | 'verified' | 'collected' | 'processed' | 'rejected';
+  estimated_weight: string;
+  actual_weight: string | null;
+  credits_awarded: string;
+  reported_at: string;
 }
 
 export interface CreditTransaction {
@@ -110,18 +83,12 @@ export interface CreditTransaction {
     last_name: string;
     email: string;
   };
-  transaction_type: 'earned' | 'spent' | 'bonus' | 'penalty' | 'adjustment';
+  transaction_type: 'earned' | 'redeemed' | 'bonus' | 'penalty' | 'adjustment';
   amount: string;
   waste_report: WasteReportListItem | null;
   description: string;
-  reference_id: string;
-  processed_by: {
-    id: string;
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-  } | null;
+  balance_before: string;
+  balance_after: string;
   created_at: string;
 }
 
@@ -129,7 +96,7 @@ export interface CollectionEvent {
   id: string;
   title: string;
   description: string;
-  event_type: 'community_cleanup' | 'school_program' | 'beach_cleanup' | 'market_cleanup' | 'special_drive';
+  event_type: 'community_cleanup' | 'beach_cleanup' | 'park_cleanup' | 'school_program' | 'corporate_event';
   organizer: {
     id: string;
     username: string;
@@ -137,21 +104,17 @@ export interface CollectionEvent {
     last_name: string;
     email: string;
   };
-  location: string;
-  county: string;
-  sub_county: string;
-  start_date: string;
-  end_date: string;
+  location_name: string;
+  address: string;
+  latitude: string | null;
+  longitude: string | null;
+  start_datetime: string;
+  end_datetime: string;
+  registration_deadline: string | null;
   max_participants: number | null;
   participant_count: number;
-  target_categories: WasteCategory[];
-  bonus_multiplier: string;
   status: 'planned' | 'active' | 'completed' | 'cancelled';
-  total_weight_collected: string;
-  total_credits_awarded: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  total_waste_collected: string;
 }
 
 export interface EventParticipation {
@@ -213,29 +176,26 @@ export interface WasteReportFormData {
   title: string;
   description: string;
   category_id: string;
-  estimated_weight_kg: number;
+  estimated_weight: number;
   location_description: string;
-  county: string;
-  sub_county: string;
   latitude?: number;
   longitude?: number;
   photo?: File;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
   collection_point_id?: string;
 }
 
 export interface CollectionEventFormData {
   title: string;
   description: string;
-  event_type: 'community_cleanup' | 'school_program' | 'beach_cleanup' | 'market_cleanup' | 'special_drive';
-  location: string;
-  county: string;
-  sub_county: string;
-  start_date: string;
-  end_date: string;
+  event_type: 'community_cleanup' | 'beach_cleanup' | 'park_cleanup' | 'school_program' | 'corporate_event';
+  location_name: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  start_datetime: string;
+  end_datetime: string;
+  registration_deadline?: string;
   max_participants?: number;
-  target_category_ids: string[];
-  bonus_multiplier: number;
 }
 
 // API Response Types
@@ -264,15 +224,12 @@ export interface CollectionEventListResponse {
 export interface WasteReportFilters {
   status?: string;
   category?: string;
-  county?: string;
-  priority?: string;
   date_from?: string;
   date_to?: string;
 }
 
 export interface CollectionEventFilters {
   status?: string;
-  county?: string;
   event_type?: string;
   date_from?: string;
   date_to?: string;
@@ -317,7 +274,7 @@ export type EventStatusColor = 'blue' | 'green' | 'gray' | 'red';
 
 // Utility Types
 export type SortDirection = 'asc' | 'desc';
-export type SortField = 'created_at' | 'title' | 'status' | 'priority' | 'estimated_weight_kg' | 'actual_weight_kg';
+export type SortField = 'reported_at' | 'title' | 'status' | 'estimated_weight' | 'actual_weight';
 
 export interface SortConfig {
   field: SortField;
