@@ -223,7 +223,6 @@ const DashboardLayout: React.FC = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Dashboard notification clicked!');
                     toggleNotificationMenu();
                   }}
                   className="p-2 text-gray-400 hover:text-gray-500 transition-colors relative"
@@ -294,7 +293,6 @@ const DashboardLayout: React.FC = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Dashboard user menu clicked!');
                     toggleUserMenu();
                   }}
                   className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors"

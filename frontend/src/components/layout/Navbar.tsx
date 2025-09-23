@@ -153,7 +153,6 @@ const Navbar: React.FC<NavbarProps> = ({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Notification button clicked!');
                     toggleNotificationMenu();
                   }}
                   className={clsx(
@@ -248,7 +247,6 @@ const Navbar: React.FC<NavbarProps> = ({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('User menu button clicked!');
                     toggleUserMenu();
                   }}
                   className={clsx(
@@ -392,7 +390,6 @@ const Navbar: React.FC<NavbarProps> = ({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Mobile notification button clicked!');
                         toggleNotificationMenu();
                         closeMobileMenu();
                       }}

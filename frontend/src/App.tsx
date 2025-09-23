@@ -25,7 +25,6 @@ import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
-import { TestPage } from './pages/TestPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Waste Collection Pages
@@ -75,7 +74,6 @@ const App: FC = () => {
               <Route index element={<DashboardPage />} />
               <Route path="profile" element={<ProfileForm />} />
               <Route path="settings" element={<SettingsPage />} />
-              <Route path="test" element={<TestPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
 
               {/* Waste Collection Routes */}
