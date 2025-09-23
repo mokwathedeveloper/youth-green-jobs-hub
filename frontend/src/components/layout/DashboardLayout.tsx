@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Leaf,
@@ -30,11 +30,39 @@ const DashboardLayout: React.FC = () => {
   };
 
   const [wasteMenuOpen, setWasteMenuOpen] = useState(isWastePathActive());
+  const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  const toggleNotificationMenu = () => {
+    setIsNotificationMenuOpen(!isNotificationMenuOpen);
+    setIsUserMenuOpen(false);
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+    setIsNotificationMenuOpen(false);
+  };
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.dashboard-notification-menu') && !target.closest('.dashboard-user-menu')) {
+        setIsNotificationMenuOpen(false);
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -189,11 +217,142 @@ const DashboardLayout: React.FC = () => {
         <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-end h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-400 hover:text-gray-500 transition-colors">
-                <Bell className="h-6 w-6" />
-              </button>
-              <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+              {/* Notifications */}
+              <div className="relative dashboard-notification-menu">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Dashboard notification clicked!');
+                    toggleNotificationMenu();
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-500 transition-colors relative"
+                >
+                  <Bell className="h-6 w-6" />
+                  <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                    3
+                  </span>
+                </button>
+
+                {/* Notification dropdown */}
+                {isNotificationMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                          </div>
+                          <div className="ml-3 flex-1">
+                            <p className="text-sm text-gray-900">Your waste report has been processed</p>
+                            <p className="text-xs text-gray-500 mt-1">2 minutes ago</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                          </div>
+                          <div className="ml-3 flex-1">
+                            <p className="text-sm text-gray-900">New collection event near you</p>
+                            <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="px-4 py-3 hover:bg-gray-50">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                          </div>
+                          <div className="ml-3 flex-1">
+                            <p className="text-sm text-gray-900">Credits earned: 50 points</p>
+                            <p className="text-xs text-gray-500 mt-1">3 hours ago</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-4 py-2 border-t border-gray-100">
+                      <Link
+                        to="/dashboard/notifications"
+                        className="text-sm text-green-600 hover:text-green-500"
+                        onClick={() => setIsNotificationMenuOpen(false)}
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Menu */}
+              <div className="relative dashboard-user-menu">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Dashboard user menu clicked!');
+                    toggleUserMenu();
+                  }}
+                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                  )}
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* User dropdown */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{user?.first_name} {user?.last_name}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                    <Link
+                      to="/dashboard/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/dashboard/settings"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <Link
+                      to="/help"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Help
+                    </Link>
+                    <hr className="my-1" />
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
