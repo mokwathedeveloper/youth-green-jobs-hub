@@ -5,7 +5,7 @@ import { Camera, MapPin, Upload, Loader2, AlertCircle, CheckCircle } from 'lucid
 import { wasteReportSchema, type WasteReportFormData } from '../../schemas/wasteSchemas';
 import { useWaste } from '../../hooks/useWaste';
 import { wasteApi } from '../../services/api';
-import type { MapLocation, WasteCategory, CollectionPoint } from '../../types/waste';
+import type { MapLocation } from '../../types/waste';
 
 
 interface WasteReportFormProps {
@@ -24,8 +24,6 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     collectionPoints,
     nearbyPoints,
     categoriesLoading,
-    collectionPointsLoading,
-    nearbyPointsLoading,
     loadNearbyPoints
   } = useWaste();
 
@@ -44,6 +42,14 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
   } = useForm<WasteReportFormData>({
     resolver: zodResolver(wasteReportSchema),
     defaultValues: {
+      title: '',
+      description: '',
+      category_id: '',
+      estimated_weight: 0,
+      location_description: '',
+      priority: 'low',
+      county: 'Kisumu',
+      sub_county: 'Kisumu Central',
       ...initialData
     }
   });
@@ -99,6 +105,11 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     }
   };
 
+  const kisumuSubCounties = [
+    'Kisumu Central', 'Kisumu East', 'Kisumu West', 'Seme', 
+    'Nyando', 'Muhoroni', 'Nyakach'
+  ];
+
   const onSubmit = async (data: WasteReportFormData) => {
     try {
       const report = await wasteApi.createWasteReport(data);
@@ -111,10 +122,7 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
     }
   };
 
-  const kisumuSubCounties = [
-    'Kisumu Central', 'Kisumu East', 'Kisumu West', 'Seme', 
-    'Nyando', 'Muhoroni', 'Nyakach'
-  ];
+
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -250,6 +258,38 @@ export const WasteReportForm: React.FC<WasteReportFormProps> = ({
             </p>
           )}
         </div>
+
+        {/* County and Sub-county */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="county" className="block text-sm font-medium text-gray-700 mb-1">
+              County *
+            </label>
+            <select
+              {...register('county')}
+              id="county"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="Kisumu">Kisumu</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="sub_county" className="block text-sm font-medium text-gray-700 mb-1">
+              Sub-county *
+            </label>
+            <select
+              {...register('sub_county')}
+              id="sub_county"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              {kisumuSubCounties.map(subCounty => (
+                <option key={subCounty} value={subCounty}>{subCounty}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+
 
         {/* Location */}
         <div>

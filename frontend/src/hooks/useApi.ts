@@ -187,7 +187,7 @@ export function usePaginatedApi<T, P extends any[] = []>(
   const hasMore = Boolean(api.data?.next);
   const totalCount = api.data?.count || 0;
 
-  return {
+  return useMemo(() => ({
     ...api,
     data: allData,
     currentPage,
@@ -195,7 +195,7 @@ export function usePaginatedApi<T, P extends any[] = []>(
     totalCount,
     loadMore,
     refresh,
-  };
+  }), [api, allData, currentPage, hasMore, totalCount, loadMore, refresh]);
 }
 
 // Hook for optimistic updates

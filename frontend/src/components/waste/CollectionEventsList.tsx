@@ -357,7 +357,7 @@ export const CollectionEventsList: React.FC<CollectionEventsListProps> = ({
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                       <div>
-                        <p className="font-medium">{event.location_name}</p>
+                        <p className="font-medium">{event.location}</p>
                         <p className="text-xs">{event.address}</p>
                       </div>
                     </div>
@@ -400,7 +400,7 @@ export const CollectionEventsList: React.FC<CollectionEventsListProps> = ({
                   {event.status === 'completed' && (
                     <div className="mt-4 p-3 bg-green-50 rounded-lg">
                       <p className="text-sm text-green-800">
-                        <strong>Event Completed!</strong> Collected {event.total_weight_collected} kg of waste, 
+                        <strong>Event Completed!</strong> Collected {event.total_waste_collected} kg of waste, 
                         awarded {event.total_credits_awarded} credits to participants.
                       </p>
                     </div>

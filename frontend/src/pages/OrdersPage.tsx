@@ -12,7 +12,7 @@ const OrdersPage: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
-  }, [loadOrders]);
+  }, []);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-KE', {

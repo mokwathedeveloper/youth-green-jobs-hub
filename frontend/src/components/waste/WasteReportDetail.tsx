@@ -267,8 +267,8 @@ export const WasteReportDetail: React.FC<WasteReportDetailProps> = ({
                   Weight
                 </span>
                 <span className="font-medium">
-                  {report.actual_weight_kg || report.estimated_weight_kg} kg
-                  {!report.actual_weight_kg && (
+                  {report.actual_weight || report.estimated_weight} kg
+                  {!report.actual_weight && (
                     <span className="text-sm text-gray-500 ml-1">(estimated)</span>
                   )}
                 </span>
