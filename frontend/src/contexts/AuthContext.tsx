@@ -197,10 +197,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       saveToStorage(tokens, user);
     } catch (error: any) {
-      const apiError: ApiError = error.message ? error : {
-        message: error.response?.data?.non_field_errors?.[0] ||
-                error.response?.data?.detail ||
-                'Login failed. Please try again.',
+      // Parse login-specific errors
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+
+        if (errorData.non_field_errors?.[0]) {
+          errorMessage = errorData.non_field_errors[0];
+        }
+        else if (errorData.detail) {
+          errorMessage = errorData.detail;
+        }
+        else if (errorData.username?.[0]) {
+          errorMessage = `Username: ${errorData.username[0]}`;
+        }
+        else if (errorData.password?.[0]) {
+          errorMessage = `Password: ${errorData.password[0]}`;
+        }
+      }
+
+      const apiError: ApiError = {
+        message: errorMessage,
         status: error.response?.status,
         code: error.response?.data?.code,
       };
@@ -235,9 +253,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       console.error('Registration error:', error);
       console.error('Registration error response:', error.response?.data);
-      const apiError: ApiError = error.message ? error : {
-        message: error.response?.data?.non_field_errors?.[0] ||
-                'Registration failed. Please try again.',
+
+      // Parse field-specific validation errors
+      let errorMessage = 'Registration failed. Please try again.';
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+
+        // Check for non-field errors first
+        if (errorData.non_field_errors?.[0]) {
+          errorMessage = errorData.non_field_errors[0];
+        }
+        // Check for field-specific errors
+        else if (errorData.username?.[0]) {
+          errorMessage = `Username: ${errorData.username[0]}`;
+        }
+        else if (errorData.email?.[0]) {
+          errorMessage = `Email: ${errorData.email[0]}`;
+        }
+        else if (errorData.password?.[0]) {
+          errorMessage = `Password: ${errorData.password[0]}`;
+        }
+        // Handle multiple field errors
+        else {
+          const fieldErrors = [];
+          if (errorData.username?.[0]) fieldErrors.push(`Username: ${errorData.username[0]}`);
+          if (errorData.email?.[0]) fieldErrors.push(`Email: ${errorData.email[0]}`);
+          if (errorData.password?.[0]) fieldErrors.push(`Password: ${errorData.password[0]}`);
+          if (errorData.password_confirm?.[0]) fieldErrors.push(`Password confirmation: ${errorData.password_confirm[0]}`);
+          if (errorData.first_name?.[0]) fieldErrors.push(`First name: ${errorData.first_name[0]}`);
+          if (errorData.last_name?.[0]) fieldErrors.push(`Last name: ${errorData.last_name[0]}`);
+
+          if (fieldErrors.length > 0) {
+            errorMessage = fieldErrors.join('. ');
+          }
+        }
+      }
+
+      const apiError: ApiError = {
+        message: errorMessage,
         status: error.response?.status,
         code: error.response?.data?.code,
       };

@@ -58,6 +58,8 @@ export interface RegisterData {
   education_level?: 'primary' | 'secondary' | 'tertiary' | 'university' | 'vocational' | 'other';
   employment_status?: 'employed' | 'unemployed' | 'seeking_work' | 'student' | 'self_employed';
   preferred_language?: 'en' | 'sw';
+  is_staff?: boolean;
+  is_superuser?: boolean;
 }
 
 export interface ChangePasswordData {
