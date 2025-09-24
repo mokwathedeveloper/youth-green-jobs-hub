@@ -291,7 +291,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                 : 'space-y-4'
             }
           >
-            {products.map((product) => (
+            {products.map((product: any) => (
               <ProductCard
                 key={product.id}
                 product={product}

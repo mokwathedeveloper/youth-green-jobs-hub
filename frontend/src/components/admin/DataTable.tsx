@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  ChevronUp, 
-  ChevronDown, 
-  Search, 
+import {
+  ChevronUp,
+  ChevronDown,
+  Search,
   Filter,
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle
+  MoreHorizontal
 } from 'lucide-react';
 
 export interface TableColumn<T = any> {

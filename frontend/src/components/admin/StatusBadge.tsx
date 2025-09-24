@@ -193,7 +193,11 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   };
 
   const getSizeClasses = (size: string) => {
-    const sizes = {
+    const sizes: Record<string, {
+      padding: string;
+      text: string;
+      iconSize: string;
+    }> = {
       sm: {
         padding: 'px-2 py-1',
         text: 'text-xs',
