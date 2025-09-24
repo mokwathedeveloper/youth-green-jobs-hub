@@ -552,7 +552,7 @@ export const wasteApi = {
     formData.append('title', data.title);
     formData.append('description', data.description);
     formData.append('category_id', data.category_id);
-    formData.append('estimated_weight_kg', data.estimated_weight_kg.toString());
+    formData.append('estimated_weight', data.estimated_weight.toString());
     formData.append('location_description', data.location_description);
     formData.append('county', data.county);
     formData.append('priority', data.priority);
@@ -562,7 +562,13 @@ export const wasteApi = {
     if (data.latitude) formData.append('latitude', data.latitude.toString());
     if (data.longitude) formData.append('longitude', data.longitude.toString());
     if (data.collection_point_id) formData.append('collection_point_id', data.collection_point_id);
-    if (data.photo) formData.append('photo', data.photo);
+    if (data.photo) {
+      if (data.photo instanceof File) {
+        formData.append('photo', data.photo);
+      } else if (data.photo instanceof FileList && data.photo.length > 0) {
+        formData.append('photo', data.photo[0]);
+      }
+    }
 
     const response = await apiClient.post('/waste/reports/', formData, {
       headers: {
