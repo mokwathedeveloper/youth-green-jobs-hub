@@ -45,6 +45,7 @@ import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products'
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
+import WasteManagementPage from './pages/admin/WasteManagementPage';
 
 const App: FC = () => {
   return (
@@ -83,6 +84,11 @@ const App: FC = () => {
             <Route path="/admin/users" element={
               <AdminGuard>
                 <UserManagementPage />
+              </AdminGuard>
+            } />
+            <Route path="/admin/waste" element={
+              <AdminGuard>
+                <WasteManagementPage />
               </AdminGuard>
             } />
 
