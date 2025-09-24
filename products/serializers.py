@@ -62,11 +62,20 @@ class ProductCategorySerializer(serializers.ModelSerializer):
         ]
     
     def get_subcategories(self, obj):
+        # Check for recursion depth to prevent infinite loops
+        depth = self.context.get('depth', 0)
+        if depth > 5:  # Arbitrary depth limit to prevent deep recursion
+            return []
+
         if obj.subcategories.exists():
+            # Create a new context with incremented depth
+            new_context = self.context.copy()
+            new_context['depth'] = depth + 1
+            
             return ProductCategorySerializer(
-                obj.subcategories.filter(is_active=True), 
-                many=True, 
-                context=self.context
+                obj.subcategories.filter(is_active=True),
+                many=True,
+                context=new_context
             ).data
         return []
     
