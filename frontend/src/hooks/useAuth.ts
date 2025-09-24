@@ -94,6 +94,18 @@ export const useAuth = () => {
     return authContext.user?.is_verified || false;
   }, [authContext.user]);
 
+  const isAdmin = useCallback(() => {
+    return authContext.user?.is_staff || authContext.user?.is_superuser || false;
+  }, [authContext.user]);
+
+  const isSuperuser = useCallback(() => {
+    return authContext.user?.is_superuser || false;
+  }, [authContext.user]);
+
+  const isStaff = useCallback(() => {
+    return authContext.user?.is_staff || false;
+  }, [authContext.user]);
+
   return {
     // Core auth state from context
     ...authContext,
@@ -108,6 +120,9 @@ export const useAuth = () => {
     hasRole,
     isYouth,
     isVerified,
+    isAdmin,
+    isSuperuser,
+    isStaff,
 
     // Additional loading states
     updateProfileLoading: updateProfileApi.loading,
