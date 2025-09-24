@@ -7,7 +7,8 @@ import {
   Users,
   Award,
   Calendar,
-  MapPin
+  MapPin,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWaste } from '../hooks/useWaste';
@@ -99,6 +100,13 @@ const DashboardPage: React.FC = () => {
       description: 'Shop eco-friendly products',
       href: '/dashboard/products',
       icon: ShoppingBag,
+      color: 'blue',
+    },
+    {
+      name: 'My Wallet',
+      description: 'Manage credits and rewards',
+      href: '/dashboard/wallet',
+      icon: Wallet,
       color: 'blue',
     },
     {
