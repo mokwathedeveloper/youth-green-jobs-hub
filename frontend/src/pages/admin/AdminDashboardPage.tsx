@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  Recycle, 
-  ShoppingCart, 
-  TrendingUp, 
-  Leaf, 
+import {
+  Users,
+  Recycle,
+  ShoppingCart,
+  TrendingUp,
+  Leaf,
   DollarSign,
   Activity,
-  AlertCircle
+  AlertCircle,
+  UserCheck,
+  Package
 } from 'lucide-react';
+import { AdminLayout } from '../../components/admin';
 import { KPICard, ChartCard, AlertCard, SystemHealthCard } from '../../components/analytics';
 import { analyticsApi } from '../../services/api';
-import type { 
-  DashboardSummary, 
-  TimeSeriesData, 
-  DashboardAlert, 
-  SystemHealth 
+import type {
+  DashboardSummary,
+  TimeSeriesData,
+  DashboardAlert,
+  SystemHealth
 } from '../../types/analytics';
 
 const AdminDashboardPage: React.FC = () => {
@@ -92,54 +95,88 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={loadDashboardData}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const navigateToPage = (path: string) => {
+    window.location.href = path;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Admin Dashboard
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Youth Green Jobs & Waste Recycling Hub Analytics
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={loadDashboardData}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Refresh Data
-                </button>
-              </div>
+    <AdminLayout
+      title="Admin Dashboard"
+      subtitle="Youth Green Jobs & Waste Recycling Hub Analytics"
+      actions={
+        <button
+          onClick={loadDashboardData}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Refresh Data
+        </button>
+      }
+    >
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <AlertCircle className="w-5 h-5 text-red-400" />
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Dashboard Error</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <button
+                onClick={loadDashboardData}
+                className="mt-2 bg-red-600 text-white px-3 py-1 text-sm rounded-md hover:bg-red-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Navigation Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div
+          onClick={() => navigateToPage('/admin/users')}
+          className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <UserCheck className="w-8 h-8 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900">User Management</h3>
+              <p className="text-sm text-gray-500">Manage youth and SME accounts</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          onClick={() => navigateToPage('/admin/waste')}
+          className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Recycle className="w-8 h-8 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900">Waste Management</h3>
+              <p className="text-sm text-gray-500">Approve waste collection reports</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          onClick={() => navigateToPage('/admin/products')}
+          className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+        >
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Package className="w-8 h-8 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900">Product Management</h3>
+              <p className="text-sm text-gray-500">Manage SME vendor products</p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <KPICard
@@ -283,8 +320,7 @@ const AdminDashboardPage: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 };
 
