@@ -24,7 +24,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validators=[validate_password]
     )
     password_confirm = serializers.CharField(write_only=True, required=True)
-    
+    user_type = serializers.ChoiceField(
+        choices=[('youth', 'Youth'), ('sme', 'SME'), ('admin', 'Admin')],
+        default='youth',
+        required=False
+    )
+
     class Meta:
         model = User
         fields = (
@@ -32,7 +37,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'phone_number',
             'date_of_birth', 'gender', 'county', 'sub_county',
             'education_level', 'employment_status', 'preferred_language',
-            'is_staff', 'is_superuser'
+            'user_type', 'is_staff', 'is_superuser'
         )
         extra_kwargs = {
             'first_name': {'required': True},
@@ -65,33 +70,76 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
     
     def create(self, validated_data):
-        """Create new user with validated data"""
+        """Create new user with validated data using raw SQL to handle user_type"""
         validated_data.pop('password_confirm', None)
         password = validated_data.pop('password')
+        user_type = validated_data.pop('user_type', 'youth')
 
         # Check if this should be a superuser
         is_superuser = validated_data.pop('is_superuser', False)
         is_staff = validated_data.pop('is_staff', False)
 
-        if is_superuser:
-            # Create superuser
-            user = User.objects.create_superuser(
-                password=password,
-                **validated_data
-            )
-        elif is_staff:
-            # Create staff user
-            user = User.objects.create_user(
-                password=password,
-                is_staff=True,
-                **validated_data
-            )
-        else:
-            # Create regular user
-            user = User.objects.create_user(
-                password=password,
-                **validated_data
-            )
+        # Hash the password
+        from django.contrib.auth.hashers import make_password
+        hashed_password = make_password(password)
+
+        # Create user with raw SQL to include user_type
+        from django.db import connection
+        from django.utils import timezone
+
+        cursor = connection.cursor()
+
+        # Prepare default values
+        now = timezone.now()
+        defaults = {
+            'username': validated_data.get('username', ''),
+            'first_name': validated_data.get('first_name', ''),
+            'last_name': validated_data.get('last_name', ''),
+            'email': validated_data.get('email', ''),
+            'phone_number': validated_data.get('phone_number'),
+            'date_of_birth': validated_data.get('date_of_birth'),
+            'gender': validated_data.get('gender'),
+            'county': validated_data.get('county', 'Kisumu'),
+            'sub_county': validated_data.get('sub_county'),
+            'address': validated_data.get('address'),
+            'education_level': validated_data.get('education_level'),
+            'skills': validated_data.get('skills'),
+            'interests': validated_data.get('interests'),
+            'employment_status': validated_data.get('employment_status', 'seeking_work'),
+            'profile_picture': validated_data.get('profile_picture', ''),
+            'bio': validated_data.get('bio'),
+            'preferred_language': validated_data.get('preferred_language', 'en'),
+            'receive_sms_notifications': validated_data.get('receive_sms_notifications', True),
+            'receive_email_notifications': validated_data.get('receive_email_notifications', True),
+            'profile_completed_at': validated_data.get('profile_completed_at'),
+            'verification_document': validated_data.get('verification_document', ''),
+        }
+
+        # Insert user with all required fields including user_type
+        cursor.execute("""
+            INSERT INTO authentication_user
+            (password, username, first_name, last_name, email, is_active, is_staff, is_superuser,
+             date_joined, last_activity, phone_number, date_of_birth, gender, county, sub_county,
+             address, education_level, skills, interests, employment_status, profile_picture, bio,
+             is_verified, verification_document, preferred_language, receive_sms_notifications,
+             receive_email_notifications, profile_completed_at, user_type)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, [
+            hashed_password, defaults['username'], defaults['first_name'], defaults['last_name'],
+            defaults['email'], True, is_staff, is_superuser, now, now,
+            defaults['phone_number'], defaults['date_of_birth'], defaults['gender'],
+            defaults['county'], defaults['sub_county'], defaults['address'],
+            defaults['education_level'], defaults['skills'], defaults['interests'],
+            defaults['employment_status'], defaults['profile_picture'], defaults['bio'],
+            False, defaults['verification_document'], defaults['preferred_language'],
+            defaults['receive_sms_notifications'], defaults['receive_email_notifications'],
+            defaults['profile_completed_at'], user_type
+        ])
+
+        user_id = cursor.fetchone()[0]
+        user = User.objects.get(id=user_id)
+
         return user
 
 
