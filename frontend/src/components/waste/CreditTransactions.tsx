@@ -338,7 +338,7 @@ export const CreditTransactions: React.FC<CreditTransactionsProps> = ({
                           <div>
                             <p className="text-sm text-gray-900">{transaction.waste_report.title}</p>
                             <p className="text-xs text-gray-500">
-                              {transaction.waste_report.category.name} • {transaction.waste_report.estimated_weight_kg} kg
+                              {transaction.waste_report.category.name} • {transaction.waste_report.estimated_weight} kg
                             </p>
                           </div>
                         </div>
