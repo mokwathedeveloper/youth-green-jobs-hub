@@ -28,6 +28,12 @@ export interface User {
   is_youth?: boolean;
   is_staff?: boolean;
   is_superuser?: boolean;
+
+  // Role-based properties for wallet system
+  user_type?: 'youth' | 'sme' | 'admin';
+  is_youth_user?: boolean;
+  is_sme_user?: boolean;
+  is_admin_user?: boolean;
   profile_completion_percentage?: number;
   date_joined?: string;
   last_activity?: string;

@@ -31,6 +31,7 @@ import CartPage from './pages/CartPage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
+import WalletPage from './pages/WalletPage';
 
 // Waste Collection Pages
 import { WasteDashboardPage } from './pages/WasteDashboardPage';
@@ -125,6 +126,9 @@ const App: FC = () => {
               <Route path="products" element={<ProductsPage />} />
               <Route path="products/:id" element={<ProductDetailPage />} />
               <Route path="checkout" element={<CheckoutPage />} />
+
+              {/* Wallet Routes */}
+              <Route path="wallet" element={<WalletPage />} />
             </Route>
 
             {/* Youth-specific Routes (age 18-35) */}
