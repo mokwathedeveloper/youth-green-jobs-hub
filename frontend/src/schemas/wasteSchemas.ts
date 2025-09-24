@@ -50,17 +50,23 @@ export const wasteReportSchema = z.object({
   photo: z
     .union([
       z.instanceof(File),
-      z.instanceof(FileList).transform((fileList) => fileList.length > 0 ? fileList[0] : undefined)
+      z.instanceof(FileList)
     ])
     .optional()
     .refine(
-      (file) => !file || file.size <= 5 * 1024 * 1024, // 5MB
+      (file) => !file || (file instanceof File && file.size <= 5 * 1024 * 1024) || (file instanceof FileList && file.length > 0 && file[0].size <= 5 * 1024 * 1024), // 5MB
       'Photo must be smaller than 5MB'
     )
     .refine(
-      (file) => !file || ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type),
+      (file) => !file || (file instanceof File && ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) || (file instanceof FileList && file.length > 0 && ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file[0].type)),
       'Photo must be a JPEG, PNG, or WebP image'
-    )
+    ),
+
+  priority: z.enum(['low', 'medium', 'high', 'urgent']),
+
+  county: z.string(),
+
+  sub_county: z.string()
 });
 
 // Collection Event Form Schema
