@@ -34,6 +34,7 @@ class SMEVendorListView(generics.ListAPIView):
     queryset = SMEVendor.objects.filter(is_active=True, is_verified=True)
     serializer_class = SMEVendorListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['county', 'business_type']
     search_fields = ['business_name', 'description', 'eco_certifications']
@@ -47,6 +48,7 @@ class SMEVendorDetailView(generics.RetrieveAPIView):
     """
     queryset = SMEVendor.objects.filter(is_active=True, is_verified=True)
     serializer_class = SMEVendorDetailSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'id'
 
 
@@ -56,6 +58,7 @@ class ProductCategoryListView(generics.ListAPIView):
     """
     queryset = ProductCategory.objects.filter(is_active=True, parent=None)
     serializer_class = ProductCategorySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     ordering = ['sort_order', 'name']
 
 
@@ -65,6 +68,7 @@ class ProductListView(generics.ListAPIView):
     """
     serializer_class = ProductListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'vendor', 'recyclable', 'biodegradable']
     search_fields = ['name', 'description', 'tags', 'eco_friendly_features']
@@ -106,6 +110,7 @@ class ProductDetailView(generics.RetrieveAPIView):
     Retrieve detailed information about a specific product
     """
     serializer_class = ProductDetailSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -129,6 +134,7 @@ class FeaturedProductsView(generics.ListAPIView):
     """
     serializer_class = ProductListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return Product.objects.filter(
@@ -145,6 +151,7 @@ class ProductsByVendorView(generics.ListAPIView):
     """
     serializer_class = ProductListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         vendor_id = self.kwargs['vendor_id']
@@ -162,6 +169,7 @@ class ProductsByCategoryView(generics.ListAPIView):
     """
     serializer_class = ProductListSerializer
     pagination_class = StandardResultsSetPagination
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description', 'tags']
     ordering_fields = ['name', 'price', 'average_rating', 'created_at']
