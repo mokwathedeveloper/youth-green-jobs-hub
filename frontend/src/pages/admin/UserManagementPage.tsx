@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Users,
   UserPlus,
@@ -11,67 +11,15 @@ import {
 } from 'lucide-react';
 import { AdminLayout, DataTable, StatusBadge, KPICard } from '../../components/admin';
 import type { TableColumn, TableAction } from '../../components/admin';
-import { authApi } from '../../services/api';
+import { useAdminUsers, useDataExport } from '../../hooks/useAdminData';
 import type { User } from '../../types/auth';
 
-interface UserStats {
-  total_users: number;
-  youth_users: number;
-  verified_users: number;
-  staff_users: number;
-  new_users_today: number;
-}
-
 const UserManagementPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [stats, setStats] = useState<UserStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filters] = useState({
-    county: '',
-    employment_status: '',
-    youth_only: false
-  });
+  const { data, loading, error } = useAdminUsers();
+  const { exportToCSV } = useDataExport();
 
-  useEffect(() => {
-    loadData();
-  }, [filters]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load users with filters
-      const usersResponse = await authApi.getUsers({
-        county: filters.county || undefined,
-        employment_status: filters.employment_status || undefined,
-        youth_only: filters.youth_only || undefined,
-        page_size: 100 // Load more users for admin view
-      });
-
-      // Calculate stats from users data
-      const allUsers = usersResponse.results || usersResponse;
-      const stats: UserStats = {
-        total_users: allUsers.length,
-        youth_users: allUsers.filter((u: User) => u.is_youth).length,
-        verified_users: allUsers.filter((u: User) => u.is_verified).length,
-        staff_users: allUsers.filter((u: User) => u.is_staff || u.is_superuser).length,
-        new_users_today: allUsers.filter((u: User) => {
-          const today = new Date().toDateString();
-          return new Date(u.date_joined || '').toDateString() === today;
-        }).length
-      };
-
-      setUsers(allUsers);
-      setStats(stats);
-    } catch (err: any) {
-      console.error('Failed to load user data:', err);
-      setError('Failed to load user data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const users = data?.users || [];
+  const stats = data?.stats;
 
   const handleViewUser = (user: User) => {
     // Navigate to user detail view
@@ -106,30 +54,20 @@ const UserManagementPage: React.FC = () => {
   };
 
   const exportUsers = () => {
-    // Export users to CSV
-    const csvContent = [
-      ['ID', 'Username', 'Name', 'Email', 'County', 'Age', 'Employment Status', 'Verified', 'Staff', 'Date Joined'].join(','),
-      ...users.map(user => [
-        user.id,
-        user.username,
-        `${user.first_name} ${user.last_name}`,
-        user.email,
-        user.county || '',
-        user.age || '',
-        user.employment_status || '',
-        user.is_verified ? 'Yes' : 'No',
-        user.is_staff || user.is_superuser ? 'Yes' : 'No',
-        new Date(user.date_joined || '').toLocaleDateString()
-      ].join(','))
-    ].join('\n');
+    const userData = users.map(user => ({
+      id: user.id,
+      username: user.username,
+      name: `${user.first_name} ${user.last_name}`,
+      email: user.email,
+      county: user.county || '',
+      age: user.age || '',
+      employment_status: user.employment_status || '',
+      verified: user.is_verified ? 'Yes' : 'No',
+      staff: user.is_staff || user.is_superuser ? 'Yes' : 'No',
+      date_joined: new Date(user.date_joined || '').toLocaleDateString()
+    }));
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    exportToCSV(userData, 'users_export', ['ID', 'Username', 'Name', 'Email', 'County', 'Age', 'Employment Status', 'Verified', 'Staff', 'Date Joined']);
   };
 
   const columns: TableColumn<User>[] = [

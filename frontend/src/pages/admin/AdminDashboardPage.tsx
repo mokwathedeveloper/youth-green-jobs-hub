@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Users,
   Recycle,
@@ -15,164 +15,52 @@ import {
 } from 'lucide-react';
 import { AdminLayout } from '../../components/admin';
 import { KPICard, ChartCard, AlertCard, SystemHealthCard } from '../../components/analytics';
-import { analyticsApi } from '../../services/api';
-import type {
-  DashboardSummary,
-  TimeSeriesData,
-  DashboardAlert,
-  SystemHealth
-} from '../../types/analytics';
+import { useAdminDashboard } from '../../hooks/useAdminData';
 
 const AdminDashboardPage: React.FC = () => {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [wasteChartData, setWasteChartData] = useState<TimeSeriesData | null>(null);
-  const [userChartData, setUserChartData] = useState<TimeSeriesData | null>(null);
-  const [marketplaceChartData, setMarketplaceChartData] = useState<TimeSeriesData | null>(null);
-  const [alerts, setAlerts] = useState<DashboardAlert[]>([]);
-  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+    exportAnalyticsData,
+    exportSystemReport,
+    performAction
+  } = useAdminDashboard();
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load all dashboard data in parallel
-      const [
-        summaryData,
-        wasteData,
-        userData,
-        marketplaceData,
-        alertsData,
-        healthData
-      ] = await Promise.all([
-        analyticsApi.getDashboardSummary(),
-        analyticsApi.getWasteCollectionTrends(30),
-        analyticsApi.getUserGrowthTrends(30),
-        analyticsApi.getMarketplaceTrends(30),
-        analyticsApi.getDashboardAlerts({ is_active: 'true' } as any),
-        analyticsApi.getSystemHealth()
-      ]);
-
-      setSummary(summaryData);
-      setWasteChartData(wasteData);
-      setUserChartData(userData);
-      setMarketplaceChartData(marketplaceData);
-      setAlerts(alertsData.results);
-      setSystemHealth(healthData);
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const summary = data?.summary;
+  const wasteChartData = data?.wasteChartData;
+  const userChartData = data?.userChartData;
+  const marketplaceChartData = data?.marketplaceChartData;
+  const alerts = data?.alerts || [];
+  const systemHealth = data?.systemHealth;
 
   const handleAcknowledgeAlert = async (alertId: string) => {
-    try {
-      await analyticsApi.acknowledgeDashboardAlert(alertId);
-      // Update the alert in the local state
-      setAlerts(alerts.map(alert => 
-        alert.id === alertId 
-          ? { ...alert, is_acknowledged: true }
-          : alert
-      ));
-    } catch (err) {
-      console.error('Failed to acknowledge alert:', err);
-    }
+    await performAction(
+      `acknowledge-${alertId}`,
+      async () => {
+        const { analyticsApi } = await import('../../services/api');
+        await analyticsApi.acknowledgeDashboardAlert(alertId);
+      },
+      () => refetch(),
+      (error) => console.error('Failed to acknowledge alert:', error)
+    );
   };
 
   const handleDismissAlert = async (alertId: string) => {
-    try {
-      await analyticsApi.deleteDashboardAlert(alertId);
-      // Remove the alert from local state
-      setAlerts(alerts.filter(alert => alert.id !== alertId));
-    } catch (err) {
-      console.error('Failed to dismiss alert:', err);
-    }
+    await performAction(
+      `dismiss-${alertId}`,
+      async () => {
+        const { analyticsApi } = await import('../../services/api');
+        await analyticsApi.deleteDashboardAlert(alertId);
+      },
+      () => refetch(),
+      (error) => console.error('Failed to dismiss alert:', error)
+    );
   };
 
   const navigateToPage = (path: string) => {
     window.location.href = path;
-  };
-
-  const exportAnalyticsData = () => {
-    if (!summary) return;
-
-    // Export analytics summary to CSV
-    const csvContent = [
-      ['Metric', 'Value', 'Growth', 'Date'].join(','),
-      ['Total Users', summary.total_users, summary.user_growth || 'N/A', new Date().toLocaleDateString()].join(','),
-      ['Waste Collected (kg)', summary.total_waste_collected, summary.waste_growth || 'N/A', new Date().toLocaleDateString()].join(','),
-      ['Total Sales (KSh)', summary.total_sales, summary.sales_growth || 'N/A', new Date().toLocaleDateString()].join(','),
-      ['CO2 Reduced (kg)', summary.total_co2_reduced, 'N/A', new Date().toLocaleDateString()].join(','),
-      ['New Users Today', summary.users_today, 'N/A', new Date().toLocaleDateString()].join(','),
-      ['Waste Today (kg)', summary.waste_collected_today, 'N/A', new Date().toLocaleDateString()].join(','),
-      ['Orders Today', summary.orders_today, 'N/A', new Date().toLocaleDateString()].join(','),
-      ['Credits Earned Today', summary.credits_earned_today, 'N/A', new Date().toLocaleDateString()].join(',')
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `analytics_summary_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const exportSystemReport = () => {
-    if (!summary || !systemHealth) return;
-
-    // Generate comprehensive system report
-    const reportContent = `
-YOUTH GREEN JOBS & WASTE RECYCLING HUB
-SYSTEM ANALYTICS REPORT
-Generated: ${new Date().toLocaleString()}
-
-=== PLATFORM OVERVIEW ===
-Total Users: ${summary.total_users}
-User Growth: ${summary.user_growth || 'N/A'}
-New Users Today: ${summary.users_today}
-
-=== WASTE MANAGEMENT ===
-Total Waste Collected: ${summary.total_waste_collected} kg
-Waste Growth: ${summary.waste_growth || 'N/A'}
-Waste Collected Today: ${summary.waste_collected_today} kg
-CO2 Reduced: ${summary.total_co2_reduced} kg
-
-=== MARKETPLACE ===
-Total Sales: KSh ${summary.total_sales}
-Sales Growth: ${summary.sales_growth || 'N/A'}
-Orders Today: ${summary.orders_today}
-Credits Earned Today: ${summary.credits_earned_today}
-
-=== SYSTEM HEALTH ===
-Overall Status: ${systemHealth.status}
-CPU Usage: ${systemHealth.cpu_usage}%
-Memory Usage: ${systemHealth.memory_usage}%
-Disk Usage: ${systemHealth.disk_usage}%
-Response Time: ${systemHealth.response_time}ms
-Active Alerts: ${systemHealth.active_alerts}
-
-=== ACTIVE ALERTS ===
-${alerts.length > 0 ? alerts.map(alert => `- ${alert.title}: ${alert.message}`).join('\n') : 'No active alerts'}
-
-Report generated by Youth Green Jobs Hub Admin Dashboard
-    `.trim();
-
-    const blob = new Blob([reportContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `system_report_${new Date().toISOString().split('T')[0]}.txt`;
-    a.click();
-    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -198,7 +86,7 @@ Report generated by Youth Green Jobs Hub Admin Dashboard
             <span>System Report</span>
           </button>
           <button
-            onClick={loadDashboardData}
+            onClick={refetch}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
             Refresh Data
@@ -214,7 +102,7 @@ Report generated by Youth Green Jobs Hub Admin Dashboard
               <h3 className="text-sm font-medium text-red-800">Dashboard Error</h3>
               <p className="mt-1 text-sm text-red-700">{error}</p>
               <button
-                onClick={loadDashboardData}
+                onClick={refetch}
                 className="mt-2 bg-red-600 text-white px-3 py-1 text-sm rounded-md hover:bg-red-700 transition-colors"
               >
                 Retry
