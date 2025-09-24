@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestGuard from './components/routing/GuestGuard';
 import AuthGuard from './components/routing/AuthGuard';
+import AdminGuard from './components/routing/AdminGuard';
 
 // Auth Components
 import LoginForm from './components/auth/LoginForm';
@@ -74,9 +75,9 @@ const App: FC = () => {
 
             {/* Admin Dashboard Route */}
             <Route path="/admin-dashboard" element={
-              <AuthGuard>
+              <AdminGuard>
                 <AdminDashboardPage />
-              </AuthGuard>
+              </AdminGuard>
             } />
 
             {/* Protected Routes (require authentication) */}
