@@ -54,6 +54,12 @@ export interface WasteReport {
   processed_at: string | null;
   credits_awarded: string;
   reported_at: string;
+  priority: string;
+  notes: string;
+  estimated_credits: string;
+  actual_credits: string;
+  estimated_co2_reduction: string;
+  actual_co2_reduction: string;
 }
 
 export interface WasteReportListItem {
@@ -72,6 +78,10 @@ export interface WasteReportListItem {
   actual_weight: string | null;
   credits_awarded: string;
   reported_at: string;
+  location_description: string;
+  county: string;
+  sub_county: string;
+  priority: string;
 }
 
 export interface CreditTransaction {
@@ -90,6 +100,7 @@ export interface CreditTransaction {
   balance_before: string;
   balance_after: string;
   created_at: string;
+  reference_id: string;
 }
 
 export interface CollectionEvent {
@@ -104,17 +115,22 @@ export interface CollectionEvent {
     last_name: string;
     email: string;
   };
-  location_name: string;
+  location: string;
+  county: string;
+  sub_county: string;
   address: string;
   latitude: string | null;
   longitude: string | null;
-  start_datetime: string;
-  end_datetime: string;
+  start_date: string;
+  end_date: string;
   registration_deadline: string | null;
   max_participants: number | null;
   participant_count: number;
   status: 'planned' | 'active' | 'completed' | 'cancelled';
   total_waste_collected: string;
+  bonus_multiplier: string;
+  target_categories: WasteCategory[];
+  total_credits_awarded: string;
 }
 
 export interface EventParticipation {
@@ -133,6 +149,7 @@ export interface EventParticipation {
 
 export interface CollectionEventDetailType extends CollectionEvent {
   participants: EventParticipation[];
+  total_weight_collected: string;
 }
 
 export interface DashboardStats {
@@ -180,8 +197,11 @@ export interface WasteReportFormData {
   location_description: string;
   latitude?: number;
   longitude?: number;
-  photo?: File;
+  photo?: File | FileList;
   collection_point_id?: string;
+  county: string;
+  sub_county: string;
+  priority: string;
 }
 
 export interface CollectionEventFormData {
@@ -226,6 +246,7 @@ export interface WasteReportFilters {
   category?: string;
   date_from?: string;
   date_to?: string;
+  priority?: string;
 }
 
 export interface CollectionEventFilters {
