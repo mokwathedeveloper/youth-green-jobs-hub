@@ -215,7 +215,7 @@ apiClient.interceptors.response.use(
     }
 
     // Handle retry logic for network errors and 5xx errors
-    if (shouldRetry(error, originalRequest)) {
+    if (originalRequest && shouldRetry(error, originalRequest)) {
       return retryRequest(originalRequest);
     }
 
@@ -249,25 +249,44 @@ const createApiError = (error: any): ApiError => {
 };
 
 const shouldRetry = (error: AxiosError, config: any): boolean => {
-  const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
-  const retryCount = config.__retryCount || 0;
+  try {
+    if (!config) return false;
 
-  return (
-    retryCount < retryConfig.retries &&
-    retryConfig.retryCondition(error)
-  );
+    const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
+    if (!retryConfig) return false;
+
+    const retryCount = config.__retryCount || 0;
+
+    return (
+      retryCount < retryConfig.retries &&
+      typeof retryConfig.retryCondition === 'function' &&
+      retryConfig.retryCondition(error)
+    );
+  } catch (err) {
+    console.error('Error in shouldRetry:', err);
+    return false;
+  }
 };
 
 const retryRequest = async (config: any): Promise<any> => {
-  const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
-  config.__retryCount = (config.__retryCount || 0) + 1;
+  try {
+    if (!config) return Promise.reject(new Error('No config provided for retry'));
 
-  // Exponential backoff
-  const delay = retryConfig.retryDelay * Math.pow(2, config.__retryCount - 1);
+    const retryConfig = config.retryConfig || DEFAULT_RETRY_CONFIG;
+    if (!retryConfig) return Promise.reject(new Error('No retry config available'));
 
-  await new Promise(resolve => setTimeout(resolve, delay));
+    config.__retryCount = (config.__retryCount || 0) + 1;
 
-  return apiClient(config);
+    // Exponential backoff
+    const delay = retryConfig.retryDelay * Math.pow(2, config.__retryCount - 1);
+
+    await new Promise(resolve => setTimeout(resolve, delay));
+
+    return apiClient(config);
+  } catch (err) {
+    console.error('Error in retryRequest:', err);
+    return Promise.reject(err);
+  }
 };
 
 // Authentication API

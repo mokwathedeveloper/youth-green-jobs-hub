@@ -36,29 +36,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | string) => {
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    const safePrice = isNaN(numericPrice) ? 0 : numericPrice;
+
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(safePrice);
   };
 
-  const renderRating = (rating: number) => {
+  const renderRating = (rating: number | string) => {
+    const numericRating = typeof rating === 'string' ? parseFloat(rating) : rating;
+    const safeRating = isNaN(numericRating) ? 0 : numericRating;
+
     return (
       <div className="flex items-center space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
             className={`w-4 h-4 ${
-              star <= rating
+              star <= safeRating
                 ? 'text-yellow-400 fill-current'
                 : 'text-gray-300'
             }`}
           />
         ))}
         <span className="text-sm text-gray-600 ml-1">
-          ({rating.toFixed(1)})
+          ({safeRating.toFixed(1)})
         </span>
       </div>
     );
@@ -83,9 +89,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 Featured
               </span>
             )}
-            {product.discount_percentage > 0 && (
+            {parseFloat(product.discount_percentage.toString()) > 0 && (
               <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                -{product.discount_percentage}%
+                -{parseFloat(product.discount_percentage.toString()).toFixed(0)}%
               </span>
             )}
             {!product.is_in_stock && (
@@ -152,7 +158,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Price */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              {product.discount_percentage > 0 ? (
+              {parseFloat(product.discount_percentage.toString()) > 0 ? (
                 <>
                   <span className="text-lg font-bold text-green-600">
                     {formatPrice(product.discounted_price)}
@@ -178,7 +184,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Category */}
           <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
             <span>{product.category.name}</span>
-            <span>{product.total_sales} sold</span>
+            <span>{parseInt(product.total_sales.toString()) || 0} sold</span>
           </div>
         </div>
       </Link>

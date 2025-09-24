@@ -40,12 +40,15 @@ export const ShoppingCartComponent: React.FC<ShoppingCartProps> = ({
 
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | string) => {
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    const safePrice = isNaN(numericPrice) ? 0 : numericPrice;
+
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(safePrice);
   };
 
   const handleQuantityUpdate = async (itemId: string, newQuantity: number) => {
