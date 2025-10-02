@@ -135,21 +135,23 @@ class UserProfile(models.Model):
     def add_points(self, points, source=None):
         """Add points and check for level up"""
         self.total_points += points
-        
+        original_points = points
+
         # Check for level up
         while self.points_to_next_level <= points:
-            points -= self.points_to_next_level
+            points_to_next_level_up = self.points_to_next_level
+            points -= points_to_next_level_up
             self.current_level += 1
-            next_level_points = self.get_points_for_level(self.current_level + 1) - self.get_points_for_level(self.current_level)
-            self.points_to_next_level = next_level_points - points
-        
+            next_level_points_required = self.get_points_for_level(self.current_level + 1) - self.get_points_for_level(self.current_level)
+            self.points_to_next_level = next_level_points_required
+
         self.points_to_next_level -= points
         self.save()
-        
+
         # Create point transaction record
         PointTransaction.objects.create(
-            user=self.user,
-            points=points,
+            user_profile=self,
+            points=original_points,
             transaction_type='earned',
             source=source or 'manual',
             description=f"Points earned from {source or 'manual action'}"
@@ -161,13 +163,13 @@ class UserBadge(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
-    
+
     earned_at = models.DateTimeField(auto_now_add=True)
     points_earned = models.PositiveIntegerField(
         default=0,
         help_text="Points earned when this badge was awarded"
     )
-    
+
     # Context of earning
     source_type = models.CharField(
         max_length=50,
@@ -178,24 +180,24 @@ class UserBadge(models.Model):
         blank=True,
         help_text="ID of the specific action/object that earned this badge"
     )
-    
+
     class Meta:
         unique_together = ['user_profile', 'badge']
         ordering = ['-earned_at']
         verbose_name = 'User Badge'
         verbose_name_plural = 'User Badges'
-    
+
     def __str__(self):
-        return f"{self.user.username} - {self.badge.name}"
+        return f"{self.user_profile.user.username} - {self.badge.name}"
 
 
 class PointTransaction(models.Model):
     """Record of all point transactions"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='point_transactions')
-    
+
     points = models.IntegerField(help_text="Points gained (positive) or lost (negative)")
-    
+
     TRANSACTION_TYPES = [
         ('earned', 'Earned'),
         ('spent', 'Spent'),
@@ -204,7 +206,7 @@ class PointTransaction(models.Model):
         ('adjustment', 'Adjustment'),
     ]
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
-    
+
     source = models.CharField(
         max_length=100,
         help_text="Source of the points (waste_report, order, event, etc.)"
@@ -214,18 +216,18 @@ class PointTransaction(models.Model):
         blank=True,
         help_text="ID of the specific source object"
     )
-    
+
     description = models.TextField()
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Point Transaction'
         verbose_name_plural = 'Point Transactions'
-    
+
     def __str__(self):
-        return f"{self.user.username}: {self.points:+d} points ({self.source})"
+        return f"{self.user_profile.user.username}: {self.points:+d} points ({self.source})"
 
 
 class Challenge(models.Model):
@@ -356,3 +358,55 @@ class Leaderboard(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.get_period_display()})"
+
+    def update_snapshot(self):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        end_date = timezone.now()
+        if self.period == 'yearly':
+            start_date = end_date - timedelta(days=365)
+        elif self.period == 'monthly':
+            start_date = end_date - timedelta(days=30)
+        elif self.period == 'weekly':
+            start_date = end_date - timedelta(days=7)
+        elif self.period == 'daily':
+            start_date = end_date - timedelta(days=1)
+        else:
+            start_date = None
+
+        if self.leaderboard_type == 'points':
+            if start_date:
+                qs = UserProfile.objects.filter(point_transactions__created_at__gte=start_date).annotate(score=models.Sum('point_transactions__points')).order_by('-score')
+            else:
+                qs = UserProfile.objects.annotate(score=models.Sum('point_transactions__points')).order_by('-score')
+        elif self.leaderboard_type == 'waste_collected':
+            if start_date:
+                qs = UserProfile.objects.filter(user__waste_reports__reported_at__gte=start_date).annotate(score=models.Sum('user__waste_reports__actual_weight')).order_by('-score')
+            else:
+                qs = UserProfile.objects.annotate(score=models.Sum('user__waste_reports__actual_weight')).order_by('-score')
+        elif self.leaderboard_type == 'orders':
+            if start_date:
+                qs = UserProfile.objects.filter(user__orders__created_at__gte=start_date).annotate(score=models.Count('user__orders')).order_by('-score')
+            else:
+                qs = UserProfile.objects.annotate(score=models.Count('user__orders')).order_by('-score')
+        elif self.leaderboard_type == 'events':
+            if start_date:
+                qs = UserProfile.objects.filter(user__eventparticipation__registered_at__gte=start_date).annotate(score=models.Count('user__eventparticipation')).order_by('-score')
+            else:
+                qs = UserProfile.objects.annotate(score=models.Count('user__eventparticipation')).order_by('-score')
+        elif self.leaderboard_type == 'streak':
+            qs = UserProfile.objects.order_by('-current_streak_days')
+        elif self.leaderboard_type == 'badges':
+            qs = UserProfile.objects.annotate(score=models.Count('badges_earned')).order_by('-score')
+
+        self.snapshot_data = [
+            {
+                'rank': i + 1,
+                'user_id': up.user.id,
+                'username': up.user.username,
+                'score': up.score if hasattr(up, 'score') else 0,
+            }
+            for i, up in enumerate(qs[:self.max_entries])
+        ]
+        self.save()

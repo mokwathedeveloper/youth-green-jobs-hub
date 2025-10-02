@@ -20,11 +20,11 @@ class SMEVendorModelTest(TestCase):
             password='testpass123'
         )
         self.vendor = SMEVendor.objects.create(
-            user=self.user,
+            owner=self.user,
             business_name="Green Products Kenya",
-            business_description="Eco-friendly products for sustainable living",
+            description="Eco-friendly products for sustainable living",
             business_registration_number="BN123456",
-            phone_number="+254712345678",
+            contact_phone="+254712345678",
             county="Kisumu",
             is_verified=True
         )
@@ -32,12 +32,12 @@ class SMEVendorModelTest(TestCase):
     def test_sme_vendor_creation(self):
         """Test creating an SME vendor"""
         self.assertEqual(self.vendor.business_name, "Green Products Kenya")
-        self.assertEqual(self.vendor.user, self.user)
+        self.assertEqual(self.vendor.owner, self.user)
         self.assertTrue(self.vendor.is_verified)
 
     def test_sme_vendor_str(self):
         """Test string representation"""
-        expected_str = f"{self.vendor.business_name} ({self.vendor.user.username})"
+        expected_str = f"{self.vendor.business_name} ({self.vendor.county})"
         self.assertEqual(str(self.vendor), expected_str)
 
 
@@ -51,7 +51,7 @@ class ProductModelTest(TestCase):
             password='testpass123'
         )
         self.vendor = SMEVendor.objects.create(
-            user=self.user,
+            owner=self.user,
             business_name="Green Products Kenya",
             is_verified=True
         )
@@ -60,7 +60,6 @@ class ProductModelTest(TestCase):
             name="Eco-friendly Water Bottle",
             description="Reusable water bottle made from recycled materials",
             price=Decimal('15.99'),
-            category="household",
             stock_quantity=50,
             is_active=True
         )
@@ -74,7 +73,7 @@ class ProductModelTest(TestCase):
 
     def test_product_str(self):
         """Test string representation"""
-        expected_str = f"{self.product.name} - KES {self.product.price}"
+        expected_str = f"{self.product.name} - {self.vendor.business_name}"
         self.assertEqual(str(self.product), expected_str)
 
     def test_product_in_stock(self):
@@ -102,7 +101,7 @@ class ShoppingCartModelTest(TestCase):
             password='testpass123'
         )
         self.vendor = SMEVendor.objects.create(
-            user=self.vendor_user,
+            owner=self.vendor_user,
             business_name="Green Products Kenya",
             is_verified=True
         )
@@ -115,19 +114,21 @@ class ShoppingCartModelTest(TestCase):
 
     def test_shopping_cart_creation(self):
         """Test creating a shopping cart item"""
-        cart_item = ShoppingCart.objects.create(
-            user=self.user,
+        cart = ShoppingCart.objects.create(customer=self.user)
+        cart_item = CartItem.objects.create(
+            cart=cart,
             product=self.product,
             quantity=2
         )
-        self.assertEqual(cart_item.user, self.user)
+        self.assertEqual(cart_item.cart, cart)
         self.assertEqual(cart_item.product, self.product)
         self.assertEqual(cart_item.quantity, 2)
 
     def test_cart_item_total_price(self):
         """Test total price calculation for cart item"""
-        cart_item = ShoppingCart.objects.create(
-            user=self.user,
+        cart = ShoppingCart.objects.create(customer=self.user)
+        cart_item = CartItem.objects.create(
+            cart=cart,
             product=self.product,
             quantity=3
         )
@@ -150,7 +151,7 @@ class OrderModelTest(TestCase):
             password='testpass123'
         )
         self.vendor = SMEVendor.objects.create(
-            user=self.vendor_user,
+            owner=self.vendor_user,
             business_name="Green Products Kenya",
             is_verified=True
         )
@@ -164,18 +165,18 @@ class OrderModelTest(TestCase):
     def test_order_creation(self):
         """Test creating an order"""
         order = Order.objects.create(
-            user=self.user,
+            customer=self.user,
             total_amount=Decimal('31.98'),
             status='pending',
             delivery_address="123 Main St, Kisumu",
             delivery_phone="+254712345678"
         )
-        order.products.add(self.product)
+        OrderItem.objects.create(order=order, product=self.product, quantity=2, unit_price=self.product.price)
 
-        self.assertEqual(order.user, self.user)
+        self.assertEqual(order.customer, self.user)
         self.assertEqual(order.total_amount, Decimal('31.98'))
         self.assertEqual(order.status, 'pending')
-        self.assertIn(self.product, order.products.all())
+        self.assertEqual(order.items.first().product, self.product)
 
 
 class ProductAPITest(APITestCase):
@@ -194,7 +195,7 @@ class ProductAPITest(APITestCase):
             password='testpass123'
         )
         self.vendor = SMEVendor.objects.create(
-            user=self.vendor_user,
+            owner=self.vendor_user,
             business_name="Green Products Kenya",
             is_verified=True
         )

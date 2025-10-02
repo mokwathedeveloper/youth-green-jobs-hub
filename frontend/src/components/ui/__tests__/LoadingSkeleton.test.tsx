@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import LoadingSkeleton, {
   CardSkeleton,
@@ -12,25 +11,25 @@ import LoadingSkeleton, {
 describe('LoadingSkeleton', () => {
   it('should render basic skeleton with default props', () => {
     render(<LoadingSkeleton />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveClass('bg-gray-200', 'rounded', 'animate-pulse');
   });
 
   it('should render with custom className', () => {
     render(<LoadingSkeleton className="custom-class" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveClass('custom-class');
   });
 
   it('should render circular variant', () => {
     render(<LoadingSkeleton variant="circular" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveClass('rounded-full');
   });
 
   it('should render card variant', () => {
     render(<LoadingSkeleton variant="card" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveClass('rounded-lg');
   });
 
@@ -46,7 +45,7 @@ describe('LoadingSkeleton', () => {
 
   it('should render with custom dimensions', () => {
     render(<LoadingSkeleton width="200px" height="100px" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveStyle({
       width: '200px',
       height: '100px',
@@ -55,13 +54,13 @@ describe('LoadingSkeleton', () => {
 
   it('should render with wave animation', () => {
     render(<LoadingSkeleton animation="wave" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).toHaveClass('bg-gradient-to-r');
   });
 
   it('should render with no animation', () => {
     render(<LoadingSkeleton animation="none" />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     expect(skeleton).not.toHaveClass('animate-pulse');
   });
 });
@@ -71,7 +70,7 @@ describe('CardSkeleton', () => {
     render(<CardSkeleton />);
     
     // Should have card container
-    const cardContainer = screen.getByRole('generic');
+    const cardContainer = screen.getAllByRole('generic')[0];
     expect(cardContainer).toHaveClass('bg-white', 'rounded-lg', 'border', 'p-6');
     
     // Should have multiple skeleton elements
@@ -81,7 +80,7 @@ describe('CardSkeleton', () => {
 
   it('should render with custom className', () => {
     render(<CardSkeleton className="custom-card" />);
-    const cardContainer = screen.getByRole('generic');
+    const cardContainer = screen.getAllByRole('generic')[0];
     expect(cardContainer).toHaveClass('custom-card');
   });
 });
@@ -108,7 +107,7 @@ describe('ListSkeleton', () => {
 
   it('should render with custom className', () => {
     render(<ListSkeleton className="custom-list" />);
-    const container = screen.getByRole('generic');
+    const container = screen.getAllByRole('generic')[0];
     expect(container).toHaveClass('custom-list');
   });
 });
@@ -118,11 +117,11 @@ describe('TableSkeleton', () => {
     render(<TableSkeleton />);
     
     // Should have table container
-    const tableContainer = screen.getByRole('generic');
+    const tableContainer = screen.getAllByRole('generic')[0];
     expect(tableContainer).toHaveClass('bg-white', 'rounded-lg', 'border');
     
     // Should have header and rows
-    const headerSection = screen.getByRole('generic', { name: /header/i }) || 
+    const headerSection = screen.getAllByRole('generic', { name: /header/i })[0] || 
                           tableContainer.querySelector('.bg-gray-50');
     expect(headerSection).toBeInTheDocument();
   });
@@ -139,7 +138,7 @@ describe('TableSkeleton', () => {
 
   it('should render with custom className', () => {
     render(<TableSkeleton className="custom-table" />);
-    const tableContainer = screen.getByRole('generic');
+    const tableContainer = screen.getAllByRole('generic')[0];
     expect(tableContainer).toHaveClass('custom-table');
   });
 });
@@ -149,17 +148,17 @@ describe('DashboardSkeleton', () => {
     render(<DashboardSkeleton />);
     
     // Should have main container
-    const container = screen.getByRole('generic');
+    const container = screen.getAllByRole('generic')[0];
     expect(container).toHaveClass('space-y-6');
     
-    // Should have multiple sections (header, KPI cards, charts)
+    // Should have multiple skeleton elements
     const skeletons = screen.getAllByRole('generic');
     expect(skeletons.length).toBeGreaterThan(10); // Multiple skeleton elements
   });
 
   it('should render with custom className', () => {
     render(<DashboardSkeleton className="custom-dashboard" />);
-    const container = screen.getByRole('generic');
+    const container = screen.getAllByRole('generic')[0];
     expect(container).toHaveClass('custom-dashboard');
   });
 });
@@ -169,7 +168,7 @@ describe('ProductGridSkeleton', () => {
     render(<ProductGridSkeleton />);
     
     // Should render 8 items by default
-    const gridContainer = screen.getByRole('generic');
+    const gridContainer = screen.getAllByRole('generic')[0];
     expect(gridContainer).toHaveClass('grid');
     
     const productCards = screen.getAllByRole('generic').filter(el => 
@@ -189,7 +188,7 @@ describe('ProductGridSkeleton', () => {
 
   it('should render with custom className', () => {
     render(<ProductGridSkeleton className="custom-grid" />);
-    const gridContainer = screen.getByRole('generic');
+    const gridContainer = screen.getAllByRole('generic')[0];
     expect(gridContainer).toHaveClass('custom-grid');
   });
 });
@@ -198,7 +197,7 @@ describe('ChartSkeleton', () => {
   it('should render chart skeleton with default height', () => {
     render(<ChartSkeleton />);
     
-    const container = screen.getByRole('generic');
+    const container = screen.getAllByRole('generic')[0];
     expect(container).toHaveClass('bg-white', 'rounded-lg', 'border', 'p-6');
     
     // Should have chart area skeleton
@@ -227,7 +226,7 @@ describe('ChartSkeleton', () => {
 
   it('should render with custom className', () => {
     render(<ChartSkeleton className="custom-chart" />);
-    const container = screen.getByRole('generic');
+    const container = screen.getAllByRole('generic')[0];
     expect(container).toHaveClass('custom-chart');
   });
 });
@@ -235,7 +234,7 @@ describe('ChartSkeleton', () => {
 describe('LoadingSkeleton accessibility', () => {
   it('should have proper ARIA attributes', () => {
     render(<LoadingSkeleton />);
-    const skeleton = screen.getByRole('generic');
+    const skeleton = screen.getAllByRole('generic')[0];
     
     // Should be focusable for screen readers
     expect(skeleton).toBeInTheDocument();

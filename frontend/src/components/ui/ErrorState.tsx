@@ -217,7 +217,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
     }
   };
 
-  const containerClasses = `${getVariantClasses()} ${config.container} ${className}`;
+  const containerClasses = `${getVariantClasses()} ${className}`;
 
   return (
     <div className={containerClasses}>
@@ -253,6 +253,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           {showRetry && onRetry && (
             <button
+              type="button"
               onClick={onRetry}
               className={`inline-flex items-center ${config.button} bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors`}
             >
@@ -263,8 +264,9 @@ const ErrorState: React.FC<ErrorStateProps> = ({
 
           {showHome && onHome && (
             <button
+              type="button"
               onClick={onHome}
-              className={`inline-flex items-center ${config.button} bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors`}
+              className={`inline-flex items-center ${config.button} bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus::ring-gray-500 transition-colors`}
             >
               <Home className="w-4 h-4 mr-2" />
               Go Home

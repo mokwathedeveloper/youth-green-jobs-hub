@@ -163,6 +163,25 @@ class User(AbstractUser):
         help_text=_("Last time the user was active on the platform")
     )
 
+    # Gamification and Rewards
+    credits = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text=_("User's current credit balance")
+    )
+
+    user_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('youth', _('Youth')),
+            ('sme', _('SME')),
+            ('admin', _('Admin')),
+        ],
+        default='youth',
+        help_text=_("User type")
+    )
+
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")

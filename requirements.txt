@@ -27,6 +27,7 @@ django-redis==5.4.0
 # Additional packages added during setup
 requests==2.32.3
 django-filter==24.3
+python-dateutil==2.8.2
 
 # Development and Testing (optional)
 # pytest-django==4.8.0

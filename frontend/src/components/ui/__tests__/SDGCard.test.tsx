@@ -5,10 +5,9 @@
  * rendering, props handling, theming, interactions, and accessibility.
  */
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Heart, Star } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import SDGCard from '../SDGCard';
 import { SDGTheme } from '../../../types/sdg';
 
@@ -59,7 +58,7 @@ describe('SDGCard Component', () => {
   });
 
   describe('SDG Theming', () => {
-    const themes: SDGTheme[] = ['climate', 'cities', 'work', 'default'];
+    const themes: SDGTheme[] = ['climate-action', 'sustainable-cities', 'decent-work', 'default'];
 
     themes.forEach(theme => {
       it(`renders with ${theme} theme`, () => {
@@ -70,7 +69,7 @@ describe('SDGCard Component', () => {
         
         // Check for SDG badge (except default theme)
         if (theme !== 'default') {
-          const expectedGoal = theme === 'climate' ? 13 : theme === 'cities' ? 11 : 8;
+          const expectedGoal = theme === 'climate-action' ? 13 : theme === 'sustainable-cities' ? 11 : 8;
           expect(screen.getByText(`SDG ${expectedGoal}`)).toBeInTheDocument();
         }
       });

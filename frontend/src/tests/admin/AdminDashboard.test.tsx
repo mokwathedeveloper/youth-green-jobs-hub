@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../../contexts/AuthContext';
-import { AdminGuard } from '../../components/routing/AdminGuard';
-import { AdminLayout } from '../../components/admin/AdminLayout';
+import AdminGuard from '../../components/routing/AdminGuard';
+import AdminLayout from '../../components/admin/AdminLayout';
 import AdminDashboardPage from '../../pages/admin/AdminDashboardPage';
 import UserManagementPage from '../../pages/admin/UserManagementPage';
 import WasteManagementPage from '../../pages/admin/WasteManagementPage';
 import ProductManagementPage from '../../pages/admin/ProductManagementPage';
+import { AuthContext } from '../../contexts/AuthContext';
 
 // Mock API calls
 jest.mock('../../services/api', () => ({
@@ -120,12 +120,14 @@ const mockAuthContext = {
   isSuperuser: () => false
 };
 
+import { AuthContext } from '../../contexts/AuthContext';
+
 // Test wrapper component
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <BrowserRouter>
-    <AuthProvider value={mockAuthContext as any}>
+    <AuthContext.Provider value={mockAuthContext as any}>
       {children}
-    </AuthProvider>
+    </AuthContext.Provider>
   </BrowserRouter>
 );
 
@@ -157,11 +159,11 @@ describe('Admin Dashboard Components', () => {
 
       render(
         <BrowserRouter>
-          <AuthProvider value={nonStaffContext as any}>
+          <AuthContext.Provider value={nonStaffContext as any}>
             <AdminGuard>
               <div>Admin Content</div>
             </AdminGuard>
-          </AuthProvider>
+          </AuthContext.Provider>
         </BrowserRouter>
       );
 

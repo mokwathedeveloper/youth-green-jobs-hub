@@ -5,8 +5,7 @@
  * covering rendering, theming, interactions, and auto-dismiss functionality.
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Toast from '../Toast';
 import { NotificationType, SDGTheme } from '../../../types/sdg';
@@ -74,7 +73,7 @@ describe('Toast Component', () => {
   });
 
   describe('SDG Theming', () => {
-    const themes: SDGTheme[] = ['climate', 'cities', 'work', 'default'];
+    const themes: SDGTheme[] = ['climate-action', 'sustainable-cities', 'decent-work', 'default'];
 
     themes.forEach(theme => {
       it(`renders with ${theme} theme`, () => {

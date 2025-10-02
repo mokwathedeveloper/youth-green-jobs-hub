@@ -25,7 +25,6 @@ class UserModelTest(TestCase):
             'gender': 'male',
             'county': 'Kisumu',
             'sub_county': 'Kisumu Central',
-            'ward': 'Kondele',
             'education_level': 'secondary',
             'employment_status': 'unemployed',
         }
@@ -85,6 +84,7 @@ class AuthenticationAPITest(APITestCase):
             'date_of_birth': '2000-01-01',
             'gender': 'male',
             'county': 'Kisumu',
+            'sub_county': 'Kisumu Central',
             'education_level': 'secondary',
             'employment_status': 'unemployed',
         }

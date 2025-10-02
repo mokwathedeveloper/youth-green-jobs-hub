@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useWebSocket, useRealTimeData, usePolling, useLiveDashboard } from '../useRealTime';
+import { useWebSocket, usePolling, useLiveDashboard } from '../useRealTime';
 
 // Mock WebSocket
 class MockWebSocket {
@@ -14,14 +14,19 @@ class MockWebSocket {
   onerror: ((event: Event) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
 
-  constructor(public url: string, public protocols?: string | string[]) {
+  url: string;
+  protocols?: string | string[];
+
+  constructor(url: string, protocols?: string | string[]) {
+    this.url = url;
+    this.protocols = protocols;
     setTimeout(() => {
       this.readyState = MockWebSocket.OPEN;
       this.onopen?.(new Event('open'));
     }, 10);
   }
 
-  send(data: string) {
+  send(_data: string) {
     if (this.readyState === MockWebSocket.OPEN) {
       // Mock successful send
     }

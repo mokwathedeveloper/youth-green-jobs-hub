@@ -19,7 +19,9 @@ from .services.achievement_service import achievement_service
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=User)
+from django.conf import settings
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_gamification_profile(sender, instance, created, **kwargs):
     """Create gamification profile when user is created"""
     if created:

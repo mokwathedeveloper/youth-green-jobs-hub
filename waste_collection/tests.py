@@ -18,7 +18,6 @@ class WasteCategoryModelTest(TestCase):
             name="Plastic Bottles",
             description="PET plastic bottles",
             credit_rate=Decimal('2.50'),
-            co2_reduction_rate=Decimal('0.75'),
             is_active=True
         )
 
@@ -68,7 +67,6 @@ class WasteReportModelTest(TestCase):
         self.category = WasteCategory.objects.create(
             name="Plastic Bottles",
             credit_rate=Decimal('2.50'),
-            co2_reduction_rate=Decimal('0.75')
         )
         self.collection_point = CollectionPoint.objects.create(
             name="Test Collection Point",
@@ -79,28 +77,29 @@ class WasteReportModelTest(TestCase):
     def test_waste_report_creation(self):
         """Test creating a waste report"""
         report = WasteReport.objects.create(
-            user=self.user,
+            reporter=self.user,
             category=self.category,
             collection_point=self.collection_point,
-            weight_kg=Decimal('5.0'),
+            estimated_weight=Decimal('5.0'),
             description="5kg of plastic bottles collected",
             status='pending'
         )
-        self.assertEqual(report.user, self.user)
-        self.assertEqual(report.weight_kg, Decimal('5.0'))
+        self.assertEqual(report.reporter, self.user)
+        self.assertEqual(report.estimated_weight, Decimal('5.0'))
         self.assertEqual(report.status, 'pending')
 
     def test_waste_report_credits_calculation(self):
         """Test credits calculation based on weight and category rate"""
         report = WasteReport.objects.create(
-            user=self.user,
+            reporter=self.user,
             category=self.category,
             collection_point=self.collection_point,
-            weight_kg=Decimal('5.0'),
+            estimated_weight=Decimal('5.0'),
+            actual_weight=Decimal('5.0'),
             status='approved'
         )
         expected_credits = Decimal('5.0') * self.category.credit_rate
-        self.assertEqual(report.credits_earned, expected_credits)
+        self.assertEqual(report.credits_awarded, expected_credits)
 
 
 class CreditTransactionModelTest(TestCase):
@@ -151,27 +150,27 @@ class WasteCollectionAPITest(APITestCase):
 
     def test_create_waste_report(self):
         """Test creating a waste report via API"""
-        url = reverse('waste_collection:waste-reports-list')
+        url = reverse('waste_collection:waste-report-list-create')
         data = {
             'category': self.category.id,
             'collection_point': self.collection_point.id,
-            'weight_kg': '3.5',
+            'estimated_weight': '3.5',
             'description': 'Test waste report'
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(WasteReport.objects.filter(user=self.user).exists())
+        self.assertTrue(WasteReport.objects.filter(reporter=self.user).exists())
 
     def test_list_waste_categories(self):
         """Test listing waste categories"""
-        url = reverse('waste_collection:waste-categories-list')
+        url = reverse('waste_collection:category-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_collection_points(self):
         """Test listing collection points"""
-        url = reverse('waste_collection:collection-points-list')
+        url = reverse('waste_collection:collection-point-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

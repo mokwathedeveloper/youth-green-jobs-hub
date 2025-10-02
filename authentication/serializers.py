@@ -287,13 +287,15 @@ class ChangePasswordSerializer(serializers.Serializer):
         return user
 
 
+from django.contrib.auth.forms import PasswordResetForm
+
 class PasswordResetRequestSerializer(serializers.Serializer):
     """
     Serializer for password reset request
     Accepts email and initiates password reset process
     """
     email = serializers.EmailField(required=True)
-    
+
     def validate_email(self, value):
         """Validate that email exists in the system"""
         try:
@@ -302,6 +304,29 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError(_("No active user found with this email address."))
         return value
 
+class PasswordResetFormSerializer(serializers.Serializer):
+    """
+    Serializer for the password reset form.
+    """
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        self.reset_form = PasswordResetForm(data=self.initial_data)
+        if not self.reset_form.is_valid():
+            raise serializers.ValidationError(self.reset_form.errors)
+
+        return value
+
+    def save(self):
+        self.reset_form.save(
+            request=self.context.get('request'),
+            use_https=self.context.get('use_https', True),
+            email_template_name='registration/password_reset_email.html',
+            subject_template_name='registration/password_reset_subject.txt'
+        )
+
+
+from django.contrib.auth.forms import SetPasswordForm
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     """
@@ -314,14 +339,33 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         validators=[validate_password]
     )
     new_password_confirm = serializers.CharField(write_only=True, required=True)
-    
+    uidb64 = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+
     def validate(self, attrs):
         """Validate new password confirmation"""
         if attrs['new_password'] != attrs['new_password_confirm']:
             raise serializers.ValidationError({
                 "new_password": _("Password fields didn't match.")
             })
+        
+        try:
+            from django.utils.http import urlsafe_base64_decode as uid_decoder
+            from django.contrib.auth.tokens import default_token_generator
+            uid = uid_decoder(attrs['uidb64'])
+            self.user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise serializers.ValidationError({'uidb64': _('Invalid token')})
+
+        if not default_token_generator.check_token(self.user, attrs['token']):
+            raise serializers.ValidationError({'token': _('Invalid token')})
+
         return attrs
+
+    def save(self):
+        self.user.set_password(self.validated_data['new_password'])
+        self.user.save()
+        return self.user
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -438,11 +482,24 @@ class EmailVerificationSerializer(serializers.Serializer):
     Handles email verification token validation
     """
     token = serializers.CharField()
+    uidb64 = serializers.CharField()
 
-    def validate_token(self, value):
+    def validate(self, attrs):
         """Validate email verification token"""
-        # This would integrate with your email verification system
-        # For now, we'll just validate that it's not empty
-        if not value:
-            raise serializers.ValidationError(_("Token is required."))
-        return value
+        try:
+            from django.utils.http import urlsafe_base64_decode as uid_decoder
+            from django.contrib.auth.tokens import default_token_generator
+            uid = uid_decoder(attrs['uidb64'])
+            self.user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise serializers.ValidationError({'uidb64': _('Invalid token')})
+
+        if not default_token_generator.check_token(self.user, attrs['token']):
+            raise serializers.ValidationError({'token': _('Invalid token')})
+
+        return attrs
+
+    def save(self):
+        self.user.is_verified = True
+        self.user.save()
+        return self.user

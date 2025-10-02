@@ -184,6 +184,8 @@ class SMEVendor(models.Model):
         return []
 
 
+from django.utils.text import slugify
+
 class ProductCategory(models.Model):
     """
     Product Category model for organizing eco-friendly products
@@ -255,6 +257,11 @@ class ProductCategory(models.Model):
         if self.parent:
             return f"{self.parent.name} > {self.name}"
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -463,6 +470,11 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} - {self.vendor.business_name}"
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
     @property
     def discounted_price(self):
         """Calculate discounted price"""
@@ -531,6 +543,8 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"{self.product.name} - Image {self.sort_order}"
 
+
+from django.utils import timezone
 
 class Order(models.Model):
     """
@@ -668,13 +682,7 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if not self.order_number:
             # Generate unique order number
-            import random
-            import string
-            while True:
-                order_number = 'YGJ' + ''.join(random.choices(string.digits, k=8))
-                if not Order.objects.filter(order_number=order_number).exists():
-                    self.order_number = order_number
-                    break
+            self.order_number = f"YGJ-{timezone.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
         super().save(*args, **kwargs)
 
 
@@ -1104,13 +1112,7 @@ class PaymentTransaction(models.Model):
     def save(self, *args, **kwargs):
         if not self.transaction_id:
             # Generate unique transaction ID
-            import random
-            import string
-            while True:
-                transaction_id = 'PAY' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
-                if not PaymentTransaction.objects.filter(transaction_id=transaction_id).exists():
-                    self.transaction_id = transaction_id
-                    break
+            self.transaction_id = f"PAY-{timezone.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
         super().save(*args, **kwargs)
 
     @property

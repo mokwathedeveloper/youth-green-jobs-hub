@@ -143,6 +143,8 @@ apiClient.interceptors.request.use(
       try {
         const parsedTokens = JSON.parse(tokens);
         if (parsedTokens.access) {
+          // Ensure config.headers exists before setting Authorization
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${parsedTokens.access}`;
         }
       } catch (error) {

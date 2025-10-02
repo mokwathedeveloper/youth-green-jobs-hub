@@ -137,6 +137,11 @@ class WasteReport(models.Model):
     def __str__(self):
         return f"{self.category.name} - {self.estimated_weight}kg by {self.reporter.username}"
 
+    def save(self, *args, **kwargs):
+        if self.actual_weight and self.category:
+            self.credits_awarded = self.actual_weight * self.category.credit_rate
+        super().save(*args, **kwargs)
+
 
 class CreditTransaction(models.Model):
     """Track credit transactions for users"""

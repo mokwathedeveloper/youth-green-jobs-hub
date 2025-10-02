@@ -1,4 +1,4 @@
-# 🌍 Youth Green Jobs & Waste Recycling Hub - Codebase Index
+# 🌍 Youth Green Jobs & Waste Recycling Hub - Codebase Index (Updated)
 
 ## 📋 Project Overview
 
@@ -284,7 +284,12 @@ components/
 
 ---
 
-**Last Updated**: 2025-01-19  
+**Last Updated**: 2025-09-24  
 **Codebase Status**: ✅ MVP Complete, Ready for Testing & Deployment  
-**Total Files**: 200+ files across backend and frontend  
-**Lines of Code**: ~15,000+ lines (estimated)
+**Backend**: Django 5.2.6, DRF 3.16.1, SimpleJWT 5.3.0  
+**Frontend**: React 19.1.1, TypeScript 5.8.3, Vite 7.x, Tailwind 3.4  
+**Key Backend Apps**: authentication, waste_collection, products, analytics, gamification, partnerships  
+**API Roots (from `youth_green_jobs_backend/urls.py`)**: `/api/v1/auth/`, `/api/v1/waste/`, `/api/v1/products/`, `/api/v1/analytics/`, `/api/v1/gamification/`, `/api/v1/partnerships/`  
+**Frontend Entry**: `frontend/src/main.tsx` → `App.tsx` with React Router v7  
+**Frontend Scripts**: dev, build, preview, test, lint  
+**Quickstart**: `pip install -r requirements.txt && python3 manage.py migrate && python3 manage.py runserver` | `cd frontend && npm i --legacy-peer-deps && npm run dev`

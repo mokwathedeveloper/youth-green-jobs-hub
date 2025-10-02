@@ -142,6 +142,8 @@ class LogoutView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+from dateutil.relativedelta import relativedelta
+
 class UserListView(generics.ListAPIView):
     """
     API view for listing users
@@ -174,11 +176,11 @@ class UserListView(generics.ListAPIView):
         youth_only = self.request.query_params.get('youth_only')
         if youth_only and youth_only.lower() == 'true':
             # Filter by configurable youth age range
-            from datetime import date, timedelta
+            from datetime import date
             today = date.today()
             min_age, max_age = get_youth_age_range()
-            min_birth_date = today - timedelta(days=max_age*365)  # max_age years ago
-            max_birth_date = today - timedelta(days=min_age*365)  # min_age years ago
+            min_birth_date = today - relativedelta(years=max_age)
+            max_birth_date = today - relativedelta(years=min_age)
             queryset = queryset.filter(
                 date_of_birth__gte=min_birth_date,
                 date_of_birth__lte=max_birth_date
@@ -213,29 +215,13 @@ class PasswordResetRequestView(APIView):
 
     def post(self, request):
         """Request password reset"""
-        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer = PasswordResetFormSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        email = serializer.validated_data['email']
-
-        try:
-            user = User.objects.get(email=email, is_active=True)
-
-            # Here you would typically:
-            # 1. Generate a password reset token
-            # 2. Send email with reset link
-            # 3. Store token with expiration
-
-            # For now, we'll just return a success message
-            return Response({
-                'message': _('If an account with this email exists, you will receive password reset instructions.')
-            }, status=status.HTTP_200_OK)
-
-        except User.DoesNotExist:
-            # Don't reveal whether email exists or not for security
-            return Response({
-                'message': _('If an account with this email exists, you will receive password reset instructions.')
-            }, status=status.HTTP_200_OK)
+        return Response({
+            'message': _('If an account with this email exists, you will receive password reset instructions.')
+        }, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(APIView):
@@ -249,14 +235,8 @@ class PasswordResetConfirmView(APIView):
         """Confirm password reset with token"""
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        # Here you would typically:
-        # 1. Validate the reset token
-        # 2. Find the associated user
-        # 3. Update the password
-        # 4. Invalidate the token
-
-        # For now, we'll return a placeholder response
         return Response({
             'message': _('Password reset successful. You can now login with your new password.')
         }, status=status.HTTP_200_OK)
@@ -273,14 +253,8 @@ class EmailVerificationView(APIView):
         """Verify email with token"""
         serializer = EmailVerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        # Here you would typically:
-        # 1. Validate the verification token
-        # 2. Find the associated user
-        # 3. Mark email as verified
-        # 4. Update user status if needed
-
-        # For now, we'll return a placeholder response
         return Response({
             'message': _('Email verified successfully.')
         }, status=status.HTTP_200_OK)
@@ -302,10 +276,9 @@ class ResendEmailVerificationView(APIView):
                 'message': _('Your email is already verified.')
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Here you would typically:
-        # 1. Generate new verification token
-        # 2. Send verification email
-        # 3. Store token with expiration
+        serializer = PasswordResetFormSerializer(data={'email': user.email}, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response({
             'message': _('Verification email sent. Please check your inbox.')
@@ -336,11 +309,12 @@ def user_stats_view(request):
     youth_users = User.objects.filter(is_active=True).exclude(date_of_birth__isnull=True)
 
     # Calculate youth count using configurable age range
-    from datetime import date, timedelta
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
     today = date.today()
     min_age, max_age = get_youth_age_range()
-    min_birth_date = today - timedelta(days=max_age*365)  # max_age years ago
-    max_birth_date = today - timedelta(days=min_age*365)  # min_age years ago
+    min_birth_date = today - relativedelta(years=max_age)
+    max_birth_date = today - relativedelta(years=min_age)
 
     youth_count = youth_users.filter(
         date_of_birth__gte=min_birth_date,
@@ -380,6 +354,15 @@ def deactivate_account_view(request):
     # Deactivate account
     user.is_active = False
     user.save()
+
+    # Blacklist the refresh token
+    refresh_token = request.data.get('refresh')
+    if refresh_token:
+        try:
+            RefreshToken(refresh_token).blacklist()
+        except Exception as e:
+            # Log the error, but don't prevent deactivation
+            print(e)
 
     return Response({
         'message': _('Account deactivated successfully. We\'re sorry to see you go!')

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ErrorState, {
   NetworkError,
@@ -137,26 +136,26 @@ describe('ErrorState', () => {
   });
 
   it('should render different variants correctly', () => {
-    const { rerender } = render(<ErrorState variant="card" />);
-    let container = screen.getByText('Something went wrong').closest('div');
-    expect(container).toHaveClass('bg-white', 'rounded-lg', 'border');
+    const { container, rerender } = render(<ErrorState variant="card" />);
+    let cardContainer = container.querySelector('.bg-white.rounded-lg.border');
+    expect(cardContainer).toBeInTheDocument();
     
     rerender(<ErrorState variant="inline" />);
-    container = screen.getByText('Something went wrong').closest('div');
-    expect(container).toHaveClass('bg-gray-50', 'rounded-md');
+    let inlineContainer = container.querySelector('.bg-gray-50.rounded-md.border');
+    expect(inlineContainer).toBeInTheDocument();
     
     rerender(<ErrorState variant="page" />);
-    container = screen.getByText('Something went wrong').closest('div');
-    expect(container).toHaveClass('min-h-screen', 'flex', 'items-center', 'justify-center');
+    let pageContainer = container.querySelector('.min-h-screen.flex');
+    expect(pageContainer).toBeInTheDocument();
   });
 
   it('should render different sizes correctly', () => {
-    const { rerender } = render(<ErrorState size="sm" />);
-    let icon = screen.getByText('Something went wrong').closest('div')?.querySelector('svg');
+    const { container, rerender } = render(<ErrorState size="sm" />);
+    let icon = container.querySelector('svg');
     expect(icon).toHaveClass('w-8', 'h-8');
     
     rerender(<ErrorState size="lg" />);
-    icon = screen.getByText('Something went wrong').closest('div')?.querySelector('svg');
+    icon = container.querySelector('svg');
     expect(icon).toHaveClass('w-16', 'h-16');
   });
 
@@ -172,10 +171,10 @@ describe('ErrorState', () => {
   });
 
   it('should apply custom className', () => {
-    render(<ErrorState className="custom-error-class" />);
+    const { container } = render(<ErrorState className="custom-error-class" />);
     
-    const container = screen.getByText('Something went wrong').closest('div');
-    expect(container).toHaveClass('custom-error-class');
+    const errorStateContainer = container.firstChild;
+    expect(errorStateContainer).toHaveClass('custom-error-class');
   });
 });
 
@@ -308,4 +307,3 @@ describe('ErrorState error handling', () => {
     
     expect(screen.getByText('Error Details')).toBeInTheDocument();
   });
-});
