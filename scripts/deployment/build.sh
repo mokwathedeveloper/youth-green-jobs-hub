@@ -22,7 +22,14 @@ with connection.cursor() as cursor:
 
 # Run migrations
 echo "🔄 Running database migrations..."
-python manage.py migrate
+echo "📋 Checking migration status..."
+python manage.py showmigrations
+
+echo "🔄 Running migrations with verbose output..."
+python manage.py migrate --verbosity=2
+
+echo "✅ Migration status after running migrations:"
+python manage.py showmigrations
 
 # Create superuser if it doesn't exist
 echo "👨‍💼 Creating superuser account..."
