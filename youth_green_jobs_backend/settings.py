@@ -233,10 +233,16 @@ CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=True, cast=boo
 # Additional CORS settings for development
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
 
-# Ensure CORS is properly configured
-if not CORS_ALLOWED_ORIGINS and not CORS_ALLOW_ALL_ORIGINS:
-    # Fallback to allow all origins in development
-    CORS_ALLOW_ALL_ORIGINS = DEBUG
+# Ensure CORS is properly configured - only allow all origins in DEBUG mode
+if DEBUG and not CORS_ALLOWED_ORIGINS:
+    CORS_ALLOW_ALL_ORIGINS = True
+    print("⚠️  WARNING: CORS_ALLOW_ALL_ORIGINS is enabled for development")
+
+# Debug CORS configuration
+if DEBUG:
+    print(f"🔧 CORS_ALLOWED_ORIGINS: {CORS_ALLOWED_ORIGINS}")
+    print(f"🔧 CORS_ALLOW_ALL_ORIGINS: {CORS_ALLOW_ALL_ORIGINS}")
+    print(f"🔧 CORS_ALLOW_CREDENTIALS: {CORS_ALLOW_CREDENTIALS}")
 CORS_ALLOWED_HEADERS = [
     'accept',
     'accept-encoding',

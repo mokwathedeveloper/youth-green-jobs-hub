@@ -48,7 +48,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    # Vercel deployment URLs
+    "https://frontend-1aygxoocr-moracios-projects.vercel.app",
+    "https://frontend-jjlupadi3-moracios-projects.vercel.app",
+    "https://frontend-three-ashy-66.vercel.app",
 ]
+
+# Add environment-based CORS origins
+CORS_ORIGINS_FROM_ENV = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if CORS_ORIGINS_FROM_ENV:
+    additional_origins = [origin.strip() for origin in CORS_ORIGINS_FROM_ENV.split(',') if origin.strip()]
+    CORS_ALLOWED_ORIGINS.extend(additional_origins)
 
 # Add Render frontend URL when available
 RENDER_FRONTEND_URL = os.environ.get('RENDER_FRONTEND_URL')
@@ -59,6 +69,9 @@ if RENDER_FRONTEND_URL:
 VERCEL_URL = os.environ.get('VERCEL_URL')
 if VERCEL_URL:
     CORS_ALLOWED_ORIGINS.append(f"https://{VERCEL_URL}")
+
+# Remove duplicates
+CORS_ALLOWED_ORIGINS = list(set(CORS_ALLOWED_ORIGINS))
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS.copy()
@@ -160,3 +173,4 @@ print(f"   Debug: {DEBUG}")
 print(f"   Allowed Hosts: {ALLOWED_HOSTS}")
 print(f"   Database: {'Configured' if DATABASE_URL else 'Not configured'}")
 print(f"   Site URL: {SITE_URL}")
+print(f"   CORS Allowed Origins: {CORS_ALLOWED_ORIGINS}")
