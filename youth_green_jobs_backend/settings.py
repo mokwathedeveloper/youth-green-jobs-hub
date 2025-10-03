@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-development-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -53,7 +53,7 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -422,16 +422,16 @@ ANALYTICS_CONFIG = {
 SITE_URL = config('SITE_URL', default='http://localhost:3000')
 
 # M-Pesa Configuration
-MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY')
-MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET')
-MPESA_BUSINESS_SHORT_CODE = config('MPESA_BUSINESS_SHORT_CODE')
-MPESA_PASSKEY = config('MPESA_PASSKEY')
-MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL')
+MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
+MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
+MPESA_BUSINESS_SHORT_CODE = config('MPESA_BUSINESS_SHORT_CODE', default='')
+MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
+MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='')
 MPESA_SANDBOX = config('MPESA_SANDBOX', default=True, cast=bool)
 
 # Paystack Configuration
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='')
 PAYSTACK_SANDBOX = config('PAYSTACK_SANDBOX', default=True, cast=bool)
 
 # ===== GOOGLE MAPS CONFIGURATION =====
