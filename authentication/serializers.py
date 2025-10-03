@@ -71,9 +71,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """Create new user with validated data using raw SQL to handle user_type"""
-        validated_data.pop('password_confirm', None)
-        password = validated_data.pop('password')
-        user_type = validated_data.pop('user_type', 'youth')
+        import logging
+        logger = logging.getLogger(__name__)
+
+        try:
+            logger.info(f"Creating user with validated_data: {validated_data}")
+            validated_data.pop('password_confirm', None)
+            password = validated_data.pop('password')
+            user_type = validated_data.pop('user_type', 'youth')
+            logger.info(f"User type: {user_type}")
 
         # Check if this should be a superuser
         is_superuser = validated_data.pop('is_superuser', False)
@@ -138,9 +144,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         ])
 
         user_id = cursor.fetchone()[0]
-        user = User.objects.get(id=user_id)
+        logger.info(f"User inserted with ID: {user_id}")
 
-        return user
+        user = User.objects.get(id=user_id)
+        logger.info(f"User retrieved: {user.username}")
+
+            return user
+
+        except Exception as e:
+            logger.error(f"Error in user creation: {str(e)}")
+            logger.error(f"Error type: {type(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            raise
 
 
 class UserLoginSerializer(serializers.Serializer):
