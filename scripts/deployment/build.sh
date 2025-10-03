@@ -27,14 +27,19 @@ python manage.py migrate
 # Create superuser if it doesn't exist
 echo "👨‍💼 Creating superuser account..."
 python manage.py shell -c "
-from django.contrib.auth.models import User
+from authentication.models import User
 import os
 if not User.objects.filter(username='admin').exists():
     try:
         User.objects.create_superuser(
             username='admin',
             email='moffatmokwa12@gmail.com',
-            password='YouthGreenJobs2024!'
+            password='YouthGreenJobs2024!',
+            first_name='Admin',
+            last_name='User',
+            phone_number='+254700000000',
+            county='Nairobi',
+            user_type='youth'
         )
         print('✅ Superuser created successfully')
     except Exception as e:
@@ -54,7 +59,7 @@ python manage.py collectstatic --no-input --clear
 # Verify database setup
 echo "🧪 Verifying database setup..."
 python manage.py shell -c "
-from django.contrib.auth.models import User
+from authentication.models import User
 print(f'✅ Database working - Users in database: {User.objects.count()}')
 "
 
