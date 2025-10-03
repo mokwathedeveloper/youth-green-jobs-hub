@@ -26,10 +26,27 @@ echo "📋 Checking migration status..."
 python manage.py showmigrations
 
 echo "🔄 Running migrations with verbose output..."
-python manage.py migrate --verbosity=2
+python manage.py migrate --verbosity=2 || {
+    echo "❌ Migration failed! Trying to create tables manually..."
+    python manage.py migrate --run-syncdb --verbosity=2
+}
 
 echo "✅ Migration status after running migrations:"
 python manage.py showmigrations
+
+echo "🔍 Checking if authentication_user table exists..."
+python manage.py shell -c "
+from django.db import connection
+cursor = connection.cursor()
+try:
+    cursor.execute(\"SELECT 1 FROM authentication_user LIMIT 1\")
+    print('✅ authentication_user table exists')
+except Exception as e:
+    print(f'❌ authentication_user table missing: {e}')
+    print('🔧 Attempting to create tables...')
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(['manage.py', 'migrate', '--run-syncdb'])
+"
 
 # Create superuser if it doesn't exist
 echo "👨‍💼 Creating superuser account..."
