@@ -56,6 +56,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://frontend-pb51fis0f-moracios-projects.vercel.app",
     "https://frontend-bizqjg3ra-moracios-projects.vercel.app",
     "https://frontend-crp6grf3g-moracios-projects.vercel.app",
+    "https://frontend-2ad0mno4q-moracios-projects.vercel.app",
 ]
 
 # Add environment-based CORS origins
