@@ -85,10 +85,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data.setdefault('is_verified', False)
 
         # Create user using Django ORM
-        user = User.objects.create_user(
-            password=password,
+        user = User.objects.create(
             **validated_data
         )
+        user.set_password(password)
+        user.save()
 
         return user
 
