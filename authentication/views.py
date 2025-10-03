@@ -38,39 +38,21 @@ class UserRegistrationView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Create new user and return success message"""
-        import logging
-        logger = logging.getLogger(__name__)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
-        try:
-            logger.info(f"Registration attempt for data: {request.data}")
-            serializer = self.get_serializer(data=request.data)
-            logger.info("Serializer created successfully")
+        # Generate tokens for immediate login after registration
+        refresh = RefreshToken.for_user(user)
 
-            serializer.is_valid(raise_exception=True)
-            logger.info("Serializer validation passed")
-
-            user = serializer.save()
-            logger.info(f"User created successfully: {user.username}")
-
-            # Generate tokens for immediate login after registration
-            refresh = RefreshToken.for_user(user)
-            logger.info("Tokens generated successfully")
-
-            return Response({
-                'message': _('Registration successful! Welcome to Youth Green Jobs Hub.'),
-                'user': UserProfileSerializer(user).data,
-                'tokens': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                }
-            }, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            logger.error(f"Registration error: {str(e)}")
-            logger.error(f"Error type: {type(e)}")
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            raise
+        return Response({
+            'message': _('Registration successful! Welcome to Youth Green Jobs Hub.'),
+            'user': UserProfileSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_201_CREATED)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

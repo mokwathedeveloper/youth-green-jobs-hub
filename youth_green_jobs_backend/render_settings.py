@@ -7,8 +7,7 @@ import dj_database_url
 from .settings import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Temporarily enable debug to see the actual error
-DEBUG = True
+DEBUG = False
 
 # Get the secret key from environment or generate one
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
