@@ -74,8 +74,8 @@ if VERCEL_URL:
 # Remove duplicates
 CORS_ALLOWED_ORIGINS = list(set(CORS_ALLOWED_ORIGINS))
 
-# Temporary: Allow all origins for debugging CORS issues
-CORS_ALLOW_ALL_ORIGINS = True
+# Use specific allowed origins for security (not all origins)
+CORS_ALLOW_ALL_ORIGINS = False
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS.copy()
