@@ -26,14 +26,7 @@ export interface User {
   receive_sms_notifications?: boolean;
   receive_email_notifications?: boolean;
   is_youth?: boolean;
-  is_staff?: boolean;
-  is_superuser?: boolean;
-
-  // Role-based properties for wallet system
-  user_type?: 'youth' | 'sme' | 'admin';
-  is_youth_user?: boolean;
-  is_sme_user?: boolean;
-  is_admin_user?: boolean;
+  user_type?: 'youth';
   profile_completion_percentage?: number;
   date_joined?: string;
   last_activity?: string;
@@ -64,8 +57,6 @@ export interface RegisterData {
   education_level?: 'primary' | 'secondary' | 'tertiary' | 'university' | 'vocational' | 'other';
   employment_status?: 'employed' | 'unemployed' | 'seeking_work' | 'student' | 'self_employed';
   preferred_language?: 'en' | 'sw';
-  is_staff?: boolean;
-  is_superuser?: boolean;
 }
 
 export interface ChangePasswordData {

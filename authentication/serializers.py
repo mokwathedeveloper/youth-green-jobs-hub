@@ -25,7 +25,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     )
     password_confirm = serializers.CharField(write_only=True, required=True)
     user_type = serializers.ChoiceField(
-        choices=[('youth', 'Youth'), ('sme', 'SME'), ('admin', 'Admin')],
+        choices=[('youth', 'Youth')],
         default='youth',
         required=False
     )
@@ -115,15 +115,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'verification_document': validated_data.get('verification_document', ''),
         }
 
-        # Insert user with all required fields including user_type
+        # Insert user with all required fields including user_type and credits
         cursor.execute("""
             INSERT INTO authentication_user
             (password, username, first_name, last_name, email, is_active, is_staff, is_superuser,
              date_joined, last_activity, phone_number, date_of_birth, gender, county, sub_county,
              address, education_level, skills, interests, employment_status, profile_picture, bio,
              is_verified, verification_document, preferred_language, receive_sms_notifications,
-             receive_email_notifications, profile_completed_at, user_type)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+             receive_email_notifications, profile_completed_at, user_type, credits)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         """, [
             hashed_password, defaults['username'], defaults['first_name'], defaults['last_name'],
@@ -134,7 +134,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             defaults['employment_status'], defaults['profile_picture'], defaults['bio'],
             False, defaults['verification_document'], defaults['preferred_language'],
             defaults['receive_sms_notifications'], defaults['receive_email_notifications'],
-            defaults['profile_completed_at'], user_type
+            defaults['profile_completed_at'], user_type, 0.00
         ])
 
         user_id = cursor.fetchone()[0]

@@ -9,7 +9,7 @@ export * from './routing';
 export * from './waste';
 export * from './products';
 export * from './analytics';
-export * from './admin';
+
 
 // Direct exports for commonly used components
 export { Button } from './ui/button';

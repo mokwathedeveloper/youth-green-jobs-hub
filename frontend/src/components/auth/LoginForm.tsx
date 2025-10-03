@@ -22,7 +22,6 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [isAdminLogin, setIsAdminLogin] = useState<boolean>(false);
   
   const {
     register,
@@ -44,10 +43,7 @@ const LoginForm: React.FC = () => {
     if (state?.username) {
       setValue('username', state.username);
     }
-    // Set admin login if coming from admin registration
-    if (state?.isAdmin) {
-      setIsAdminLogin(true);
-    }
+
     // Clear location state to prevent showing message on refresh
     if (state) {
       navigate(location.pathname, { replace: true });
@@ -57,12 +53,7 @@ const LoginForm: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Redirect based on user type
-      if (user.is_superuser || user.is_staff) {
-        navigate('/admin-dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -143,20 +134,6 @@ const LoginForm: React.FC = () => {
               autoComplete="current-password"
             />
 
-            {/* Admin Login Toggle */}
-            <div className="flex items-center">
-              <input
-                id="admin-login"
-                type="checkbox"
-                checked={isAdminLogin}
-                onChange={(e) => setIsAdminLogin(e.target.checked)}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label htmlFor="admin-login" className="ml-2 block text-sm text-gray-900">
-                Login as Administrator
-              </label>
-            </div>
-
             {/* Submit Button */}
             <Button
               type="submit"
@@ -165,7 +142,7 @@ const LoginForm: React.FC = () => {
               disabled={isLoading}
             >
               <LogIn className="w-4 h-4 mr-2" />
-              {isAdminLogin ? 'Sign In as Admin' : 'Sign In'}
+              Sign In
             </Button>
           </div>
 

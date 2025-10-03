@@ -75,12 +75,6 @@ export const registerSchema = z.object({
   preferred_language: z
     .enum(['en', 'sw'])
     .optional(),
-  is_staff: z
-    .boolean()
-    .optional(),
-  is_superuser: z
-    .boolean()
-    .optional(),
 }).refine((data) => data.password === data.password_confirm, {
   message: "Passwords don't match",
   path: ["password_confirm"],

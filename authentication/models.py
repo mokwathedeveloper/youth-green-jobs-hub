@@ -175,8 +175,6 @@ class User(AbstractUser):
         max_length=20,
         choices=[
             ('youth', _('Youth')),
-            ('sme', _('SME')),
-            ('admin', _('Admin')),
         ],
         default='youth',
         help_text=_("User type")

@@ -10,7 +10,6 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import GuestGuard from './components/routing/GuestGuard';
 import AuthGuard from './components/routing/AuthGuard';
-import AdminGuard from './components/routing/AdminGuard';
 
 // Auth Components
 import LoginForm from './components/auth/LoginForm';
@@ -43,11 +42,7 @@ import { CreditTransactionsPage } from './pages/CreditTransactionsPage';
 // Product Pages
 import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products';
 
-// Admin Pages
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import UserManagementPage from './pages/admin/UserManagementPage';
-import WasteManagementPage from './pages/admin/WasteManagementPage';
-import ProductManagementPage from './pages/admin/ProductManagementPage';
+
 
 const App: FC = () => {
   return (
@@ -77,27 +72,7 @@ const App: FC = () => {
               </GuestGuard>
             } />
 
-            {/* Admin Dashboard Routes */}
-            <Route path="/admin-dashboard" element={
-              <AdminGuard>
-                <AdminDashboardPage />
-              </AdminGuard>
-            } />
-            <Route path="/admin/users" element={
-              <AdminGuard>
-                <UserManagementPage />
-              </AdminGuard>
-            } />
-            <Route path="/admin/waste" element={
-              <AdminGuard>
-                <WasteManagementPage />
-              </AdminGuard>
-            } />
-            <Route path="/admin/products" element={
-              <AdminGuard>
-                <ProductManagementPage />
-              </AdminGuard>
-            } />
+
 
             {/* Protected Routes (require authentication) */}
             <Route path="/dashboard" element={
