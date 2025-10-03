@@ -78,7 +78,7 @@ def health_check(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def force_migrate(request):
-    """Force run migrations - Available for debugging production issues"""
+    """Force run migrations - Available for debugging production issues (v2)"""
     try:
         from django.core.management import execute_from_command_line
         import sys
