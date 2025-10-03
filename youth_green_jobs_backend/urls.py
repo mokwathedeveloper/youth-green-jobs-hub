@@ -75,6 +75,40 @@ def health_check(request):
     })
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def force_migrate(request):
+    """Force run migrations - ONLY for debugging production issues"""
+    if not settings.DEBUG:
+        return Response({'error': 'Not available in production'}, status=403)
+
+    try:
+        from django.core.management import execute_from_command_line
+        import sys
+        from io import StringIO
+
+        # Capture output
+        old_stdout = sys.stdout
+        sys.stdout = captured_output = StringIO()
+
+        try:
+            # Run migrations
+            execute_from_command_line(['manage.py', 'migrate', '--verbosity=2'])
+            output = captured_output.getvalue()
+        finally:
+            sys.stdout = old_stdout
+
+        return Response({
+            'status': 'success',
+            'output': output
+        })
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'error': str(e)
+        }, status=500)
+
+
 urlpatterns = [
     # Admin interface
     path('admin/', admin.site.urls),
@@ -84,6 +118,9 @@ urlpatterns = [
 
     # Health check
     path('health/', health_check, name='health_check'),
+
+    # Force migration (DEBUG only)
+    path('force-migrate/', force_migrate, name='force_migrate'),
 
     # API root
     path('api/v1/', api_root, name='api_root'),
