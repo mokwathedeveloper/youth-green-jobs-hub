@@ -47,7 +47,7 @@ const PublicLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-sm">
-              © 2024 Youth Green Jobs Hub. Empowering youth in Kisumu through green opportunities.
+              © 2025 Youth Green Jobs Hub. Empowering youth in Kisumu through green opportunities.
             </p>
           </div>
         </div>
