@@ -224,14 +224,19 @@ REST_FRAMEWORK = {
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='',
-    cast=lambda v: [s.strip() for s in v.split(',')]
+    default='https://frontend-1aygxoocr-moracios-projects.vercel.app,https://frontend-jjlupadi3-moracios-projects.vercel.app,https://frontend-three-ashy-66.vercel.app,http://localhost:3000,http://localhost:5173',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
 
 CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=True, cast=bool)
 
 # Additional CORS settings for development
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+
+# Ensure CORS is properly configured
+if not CORS_ALLOWED_ORIGINS and not CORS_ALLOW_ALL_ORIGINS:
+    # Fallback to allow all origins in development
+    CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_HEADERS = [
     'accept',
     'accept-encoding',
@@ -243,6 +248,19 @@ CORS_ALLOWED_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Additional CORS settings
+CORS_ALLOWED_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Allow preflight requests
+CORS_PREFLIGHT_MAX_AGE = 86400
 
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.User'
