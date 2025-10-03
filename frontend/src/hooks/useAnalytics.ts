@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
+import { API_CONFIG } from '../config';
 
 // Real API endpoint - NO MOCK DATA
-const REAL_API_BASE = 'http://localhost:8000';
+const REAL_API_BASE = API_CONFIG.BASE_URL;
 
 export interface RealAnalyticsData {
   waste_collection_trends: Array<{
