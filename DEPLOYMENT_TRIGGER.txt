@@ -1,0 +1,18 @@
+# Deployment Trigger - Force Database Population
+# Timestamp: 2025-10-04 15:30:00
+# Purpose: Trigger Render deployment to populate production database
+
+This file is created to force a new deployment on Render.
+The build script should automatically run the populate_products command
+and create sample data in the production database.
+
+Expected results after deployment:
+- 6 products created
+- 5 categories created  
+- 5 vendors created
+- Django admin superuser: admin/YouthGreenJobs2024!
+
+Verification URLs:
+- API: https://youth-green-jobs-hub.onrender.com/api/v1/products/products/
+- Frontend: https://frontend-three-ashy-66.vercel.app/dashboard/products
+- Admin: https://youth-green-jobs-hub.onrender.com/admin/
