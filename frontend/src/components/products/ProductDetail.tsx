@@ -37,12 +37,21 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specifications' | 'reviews'>('description');
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | string) => {
+    // Convert to number if it's a string
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+
+    // Check if the conversion resulted in a valid number
+    if (isNaN(numericPrice)) {
+      console.warn('Invalid price value:', price);
+      return 'KSh 0';
+    }
+
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(numericPrice);
   };
 
   const handleAddToCart = () => {
