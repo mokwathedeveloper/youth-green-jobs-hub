@@ -278,10 +278,15 @@ def add_to_cart(request):
     """
     Add a product to shopping cart
     """
+    # Debug logging
+    print(f"🛒 Add to cart request from user: {request.user}")
+    print(f"🛒 Request data: {request.data}")
+
     product_id = request.data.get('product_id')
     quantity = request.data.get('quantity', 1)
 
     if not product_id:
+        print("❌ No product_id provided")
         return Response(
             {'error': 'Product ID is required'},
             status=status.HTTP_400_BAD_REQUEST
@@ -329,6 +334,7 @@ def add_to_cart(request):
         cart_item.save()
 
     serializer = CartItemSerializer(cart_item)
+    print(f"✅ Successfully added to cart: {cart_item}")
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

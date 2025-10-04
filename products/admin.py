@@ -241,6 +241,59 @@ def populate_all_sections(modeladmin, request, queryset):
 populate_all_sections.short_description = "🚀 Populate ALL sections with sample data"
 
 
+def test_cart_functionality(modeladmin, request, queryset):
+    """Admin action to test cart functionality"""
+    try:
+        from django.contrib.auth import get_user_model
+        from products.models import Product, ShoppingCart, CartItem
+
+        User = get_user_model()
+
+        # Get or create test user
+        user, created = User.objects.get_or_create(
+            username='cart_test_user',
+            defaults={
+                'email': 'carttest@example.com',
+                'first_name': 'Cart',
+                'last_name': 'Test',
+                'user_type': 'youth'
+            }
+        )
+
+        if created:
+            user.set_password('testpass123')
+            user.save()
+
+        # Get a product
+        product = Product.objects.filter(is_active=True).first()
+        if not product:
+            messages.error(request, "❌ No active products found")
+            return
+
+        # Create cart and add item
+        cart, cart_created = ShoppingCart.objects.get_or_create(customer=user)
+        cart_item, item_created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': 1}
+        )
+
+        if not item_created:
+            cart_item.quantity += 1
+            cart_item.save()
+
+        messages.success(request, f"✅ Cart test successful!")
+        messages.info(request, f"User: {user.username}")
+        messages.info(request, f"Product: {product.name}")
+        messages.info(request, f"Cart Items: {cart.total_items}")
+        messages.info(request, f"Cart Total: ${cart.total_amount}")
+
+    except Exception as e:
+        messages.error(request, f"❌ Cart test failed: {str(e)}")
+
+test_cart_functionality.short_description = "🧪 Test cart functionality"
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -323,7 +376,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('sort_order', 'name')
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality]
 
     fieldsets = (
         ('Basic Information', {
@@ -366,7 +419,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at', 'updated_at'
     )
     inlines = [ProductImageInline]
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality]
 
     fieldsets = (
         ('Basic Information', {
