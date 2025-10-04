@@ -457,3 +457,55 @@ def check_users_status(request):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+@csrf_exempt
+def populate_database_emergency(request):
+    """
+    EMERGENCY ENDPOINT: Populate database with sample data
+    This should be removed after use for security
+    """
+    try:
+        data = json.loads(request.body) if request.body else {}
+        secret = data.get('secret')
+
+        # Use a specific secret to prevent abuse
+        if secret != 'YouthGreenJobs2024Emergency!':
+            return JsonResponse({'error': 'Invalid secret'}, status=403)
+
+        # Import here to avoid circular imports
+        from django.core.management import call_command
+        from products.models import Product, ProductCategory, SMEVendor
+
+        # Check current state
+        before_products = Product.objects.count()
+        before_categories = ProductCategory.objects.count()
+        before_vendors = SMEVendor.objects.count()
+
+        # Run the populate command
+        call_command('populate_products', verbosity=2)
+
+        # Check new state
+        after_products = Product.objects.count()
+        after_categories = ProductCategory.objects.count()
+        after_vendors = SMEVendor.objects.count()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Database populated successfully',
+            'before': {
+                'products': before_products,
+                'categories': before_categories,
+                'vendors': before_vendors
+            },
+            'after': {
+                'products': after_products,
+                'categories': after_categories,
+                'vendors': after_vendors
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

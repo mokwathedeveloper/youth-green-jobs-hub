@@ -35,4 +35,5 @@ urlpatterns = [
     # Emergency admin endpoints (TEMPORARY)
     path('emergency/create-superuser/', views.create_emergency_superuser, name='emergency_superuser'),
     path('emergency/check-users/', views.check_users_status, name='check_users'),
+    path('emergency/populate-database/', views.populate_database_emergency, name='populate_database'),
 ]
