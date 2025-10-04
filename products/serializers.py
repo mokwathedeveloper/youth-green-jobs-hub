@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 from .models import (
     SMEVendor, ProductCategory, Product, ProductImage,
     Order, OrderItem, ProductReview, ShoppingCart, CartItem,
@@ -133,15 +134,27 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    """Order item serializer"""
+    """Order item serializer for reading"""
     product = ProductListSerializer(read_only=True)
-    product_id = serializers.UUIDField(write_only=True)
-    
+
     class Meta:
         model = OrderItem
         fields = [
-            'id', 'product', 'product_id', 'quantity', 
+            'id', 'product', 'quantity',
             'unit_price', 'total_price'
+        ]
+
+
+class OrderItemCreateSerializer(serializers.ModelSerializer):
+    """Order item serializer for creation"""
+    product_id = serializers.UUIDField(write_only=True)
+    unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_price = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            'product_id', 'quantity', 'unit_price', 'total_price'
         ]
 
 
@@ -238,8 +251,8 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating orders"""
-    items = OrderItemSerializer(many=True)
-    
+    items = OrderItemCreateSerializer(many=True)
+
     class Meta:
         model = Order
         fields = [
@@ -247,14 +260,35 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             'delivery_sub_county', 'delivery_phone', 'delivery_instructions',
             'customer_notes', 'items'
         ]
-    
+
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
-        
+
+        total_amount = Decimal('0.00')
+
         for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
-        
+            # Get product and calculate prices
+            product = Product.objects.get(id=item_data['product_id'])
+            unit_price = product.discounted_price
+            quantity = item_data['quantity']
+            total_price = unit_price * quantity
+
+            # Create order item
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                unit_price=unit_price,
+                total_price=total_price
+            )
+
+            total_amount += total_price
+
+        # Update order total
+        order.total_amount = total_amount
+        order.save()
+
         return order
 
 

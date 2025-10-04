@@ -598,6 +598,7 @@ class Order(models.Model):
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
+        default=Decimal('0.00'),
         help_text=_("Total order amount in KSh")
     )
 

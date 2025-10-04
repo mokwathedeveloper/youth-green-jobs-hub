@@ -294,6 +294,68 @@ def test_cart_functionality(modeladmin, request, queryset):
 test_cart_functionality.short_description = "🧪 Test cart functionality"
 
 
+def test_order_creation(modeladmin, request, queryset):
+    """Admin action to test order creation functionality"""
+    try:
+        from django.contrib.auth import get_user_model
+        from products.models import Product, Order, OrderItem
+        from products.serializers import OrderCreateSerializer
+
+        User = get_user_model()
+
+        # Get or create test user
+        user, created = User.objects.get_or_create(
+            username='order_test_user',
+            defaults={
+                'email': 'ordertest@example.com',
+                'first_name': 'Order',
+                'last_name': 'Test',
+                'user_type': 'youth'
+            }
+        )
+
+        if created:
+            user.set_password('testpass123')
+            user.save()
+
+        # Get products
+        products = Product.objects.filter(is_active=True)[:2]
+        if not products:
+            messages.error(request, "❌ No active products found")
+            return
+
+        # Create order data
+        order_data = {
+            'payment_method': 'credits',
+            'delivery_address': '123 Admin Test Street, Nairobi',
+            'delivery_county': 'Nairobi',
+            'delivery_phone': '+254712345678',
+            'items': [
+                {
+                    'product_id': str(products[0].id),
+                    'quantity': 1
+                }
+            ]
+        }
+
+        # Test serializer
+        serializer = OrderCreateSerializer(data=order_data)
+        if serializer.is_valid():
+            order = serializer.save(customer=user)
+
+            messages.success(request, f"✅ Order test successful!")
+            messages.info(request, f"Order: {order.order_number}")
+            messages.info(request, f"Total: ${order.total_amount}")
+            messages.info(request, f"Items: {order.items.count()}")
+        else:
+            messages.error(request, f"❌ Order validation failed: {serializer.errors}")
+
+    except Exception as e:
+        messages.error(request, f"❌ Order test failed: {str(e)}")
+
+test_order_creation.short_description = "📦 Test order creation"
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -376,7 +438,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('sort_order', 'name')
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality, test_order_creation]
 
     fieldsets = (
         ('Basic Information', {
@@ -419,7 +481,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at', 'updated_at'
     )
     inlines = [ProductImageInline]
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections, test_cart_functionality, test_order_creation]
 
     fieldsets = (
         ('Basic Information', {

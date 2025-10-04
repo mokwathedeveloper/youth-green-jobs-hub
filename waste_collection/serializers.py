@@ -130,9 +130,9 @@ class WasteReportCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteReport
         fields = [
-            'title', 'description', 'category_id', 'estimated_weight_kg',
-            'location_description', 'county', 'sub_county', 'latitude',
-            'longitude', 'photo', 'priority', 'collection_point_id'
+            'description', 'category_id', 'estimated_weight',
+            'location_description', 'latitude',
+            'longitude', 'photo', 'collection_point_id'
         ]
     
     def validate_category_id(self, value):

@@ -220,6 +220,19 @@ class OrderCreateView(generics.CreateAPIView):
     serializer_class = OrderCreateSerializer
     permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        print(f"📦 Order creation request from user: {request.user}")
+        print(f"📦 Request data: {request.data}")
+
+        response = super().create(request, *args, **kwargs)
+
+        if response.status_code == 201:
+            print(f"✅ Order created successfully")
+        else:
+            print(f"❌ Order creation failed: {response.status_code}")
+
+        return response
+
     def perform_create(self, serializer):
         # Calculate totals and validate inventory
         items_data = serializer.validated_data['items']
