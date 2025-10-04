@@ -82,8 +82,25 @@ python manage.py collectstatic --no-input --clear
 
 # Populate sample data
 echo "🌱 Populating sample products data..."
-python manage.py populate_products || {
-    echo "⚠️ Sample data population failed (might already exist)"
+echo "🔍 Checking current database state..."
+python manage.py shell -c "
+from products.models import Product, ProductCategory, SMEVendor
+from authentication.models import User
+print(f'Before population - Users: {User.objects.count()}, Products: {Product.objects.count()}, Categories: {ProductCategory.objects.count()}, Vendors: {SMEVendor.objects.count()}')
+"
+
+echo "🌱 Running populate_products command..."
+python manage.py populate_products --verbosity=2 || {
+    echo "⚠️ Sample data population failed, trying to clear and repopulate..."
+    python manage.py shell -c "
+from products.models import Product, ProductCategory, SMEVendor
+print('🧹 Clearing existing product data...')
+Product.objects.all().delete()
+ProductCategory.objects.all().delete()
+SMEVendor.objects.all().delete()
+print('✅ Product data cleared')
+"
+    python manage.py populate_products --verbosity=2
 }
 
 # Verify database setup
