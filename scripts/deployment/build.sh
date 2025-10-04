@@ -116,3 +116,4 @@ print(f'✅ Vendors: {SMEVendor.objects.count()}')
 
 echo "🎉 Build completed successfully!"
 echo "📊 Final verification - $(date)"
+echo "🔗 API Endpoint: https://youth-green-jobs-hub.onrender.com/api/v1/products/products/"
