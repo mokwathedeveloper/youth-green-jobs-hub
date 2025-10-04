@@ -90,6 +90,60 @@ def check_database_status(modeladmin, request, queryset):
 check_database_status.short_description = "📊 Check database status"
 
 
+def fix_product_images(modeladmin, request, queryset):
+    """Admin action to fix product images with placeholder URLs"""
+    try:
+        from products.models import Product
+        from django.core.files.base import ContentFile
+        import requests
+        from io import BytesIO
+
+        # Simple placeholder images using a reliable service
+        placeholder_urls = [
+            "https://via.placeholder.com/400x300/3498db/ffffff?text=Solar+Product",
+            "https://via.placeholder.com/400x300/2ecc71/ffffff?text=Eco+Product",
+            "https://via.placeholder.com/400x300/e74c3c/ffffff?text=Green+Product",
+            "https://via.placeholder.com/400x300/f39c12/ffffff?text=Sustainable",
+            "https://via.placeholder.com/400x300/9b59b6/ffffff?text=Recycled",
+            "https://via.placeholder.com/400x300/1abc9c/ffffff?text=Organic"
+        ]
+
+        products = Product.objects.filter(featured_image__isnull=True) or Product.objects.filter(featured_image='')
+        updated_count = 0
+
+        for i, product in enumerate(products[:6]):  # Limit to 6 products
+            try:
+                # Download placeholder image
+                url = placeholder_urls[i % len(placeholder_urls)]
+                response = requests.get(url, timeout=10)
+
+                if response.status_code == 200:
+                    # Create filename
+                    filename = f"{product.slug or 'product'}_{i+1}.png"
+
+                    # Save image to product
+                    product.featured_image.save(
+                        filename,
+                        ContentFile(response.content),
+                        save=True
+                    )
+                    updated_count += 1
+
+            except Exception as img_error:
+                # If image download fails, just continue
+                continue
+
+        if updated_count > 0:
+            messages.success(request, f"✅ Fixed images for {updated_count} products")
+        else:
+            messages.warning(request, "⚠️ No products needed image fixes or download failed")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error fixing images: {str(e)}")
+
+fix_product_images.short_description = "🖼️ Fix product images with placeholders"
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -172,7 +226,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('sort_order', 'name')
-    actions = [populate_sample_data, clear_product_data, check_database_status]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images]
 
     fieldsets = (
         ('Basic Information', {
@@ -215,7 +269,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at', 'updated_at'
     )
     inlines = [ProductImageInline]
-    actions = [populate_sample_data, clear_product_data, check_database_status]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images]
 
     fieldsets = (
         ('Basic Information', {
