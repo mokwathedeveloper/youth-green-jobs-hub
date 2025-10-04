@@ -14,6 +14,10 @@ const OrdersPage: React.FC = () => {
     loadOrders();
   }, []);
 
+
+
+
+
   // Debug logging in development
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -25,7 +29,7 @@ const OrdersPage: React.FC = () => {
         selectedStatus
       });
     }
-  }, [orders, ordersLoading, ordersError, filteredOrders, selectedStatus]);
+  }, [orders, ordersLoading, ordersError, selectedStatus]);
 
   const formatPrice = (price: number | string) => {
     // Convert to number if it's a string

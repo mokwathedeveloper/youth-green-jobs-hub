@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   CreditCard, 
   Phone, 
@@ -11,14 +11,9 @@ import {
   Loader2
 } from 'lucide-react';
 import { productsApi } from '../../services/api';
-import { Order } from '../../types/products';
+import type { Order } from '../../types/products';
 
-interface PaymentProvider {
-  name: string;
-  display_name: string;
-  min_amount: number;
-  max_amount: number;
-}
+
 
 interface PaymentResult {
   success: boolean;
@@ -31,10 +26,10 @@ interface PaymentResult {
 export const PaymentPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
+
   
   const [order, setOrder] = useState<Order | null>(null);
-  const [providers, setProviders] = useState<PaymentProvider[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'processing' | 'success' | 'failed'>('pending');
@@ -69,8 +64,8 @@ export const PaymentPage: React.FC = () => {
       });
       
       if (providersResponse.ok) {
-        const data = await providersResponse.json();
-        setProviders(data.providers || []);
+        await providersResponse.json();
+        // Payment providers loaded successfully
       }
       
     } catch (err: any) {
@@ -102,7 +97,7 @@ export const PaymentPage: React.FC = () => {
             order_id: order.id,
             provider: 'credits',
             customer_phone: customerPhone,
-            customer_email: order.customer_email || ''
+            customer_email: order.customer.email || ''
           })
         });
         
@@ -141,7 +136,7 @@ export const PaymentPage: React.FC = () => {
             order_id: order.id,
             provider: 'mpesa',
             customer_phone: customerPhone,
-            customer_email: order.customer_email || ''
+            customer_email: order.customer.email || ''
           })
         });
         
