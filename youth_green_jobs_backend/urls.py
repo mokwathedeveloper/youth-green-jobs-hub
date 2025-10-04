@@ -145,7 +145,11 @@ urlpatterns = [
     path('api/v1/partnerships/', include('partnerships.urls')),
 ]
 
-# Serve media files in development
+# Serve media files in development and production
+# Note: In production, this should ideally be handled by a web server like Nginx
+# But for Render deployment, we'll serve them via Django
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Serve static files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
