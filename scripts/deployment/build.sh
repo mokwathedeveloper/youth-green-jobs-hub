@@ -53,9 +53,17 @@ echo "👨‍💼 Creating superuser account..."
 python manage.py shell -c "
 from authentication.models import User
 import os
-if not User.objects.filter(username='admin').exists():
+print(f'🔍 Checking for existing admin user...')
+admin_user = User.objects.filter(username='admin').first()
+if admin_user:
+    print(f'✅ Admin user exists: {admin_user.username} ({admin_user.email})')
+    print(f'   Is staff: {admin_user.is_staff}')
+    print(f'   Is superuser: {admin_user.is_superuser}')
+    print(f'   Is active: {admin_user.is_active}')
+else:
+    print('🔧 Creating new admin user...')
     try:
-        User.objects.create_superuser(
+        admin_user = User.objects.create_superuser(
             username='admin',
             email='moffatmokwa12@gmail.com',
             password='YouthGreenJobs2024!',
@@ -65,12 +73,19 @@ if not User.objects.filter(username='admin').exists():
             county='Nairobi',
             user_type='youth'
         )
-        print('✅ Superuser created successfully')
+        print(f'✅ Superuser created successfully: {admin_user.username}')
+        print(f'   Email: {admin_user.email}')
+        print(f'   Is staff: {admin_user.is_staff}')
+        print(f'   Is superuser: {admin_user.is_superuser}')
     except Exception as e:
-        print(f'⚠️ Superuser creation error: {e}')
-else:
-    print('✅ Superuser already exists')
+        print(f'❌ Superuser creation error: {e}')
+        import traceback
+        traceback.print_exc()
 "
+
+# Also try creating via management command as backup
+echo "🔄 Backup superuser creation method..."
+echo \"from authentication.models import User; User.objects.filter(username='admin').exists() and print('Admin exists') or User.objects.create_superuser('admin', 'moffatmokwa12@gmail.com', 'YouthGreenJobs2024!', first_name='Admin', last_name='User', phone_number='+254700000000', county='Nairobi', user_type='youth')\" | python manage.py shell || echo "Backup method failed"
 
 # Create staticfiles directory if it doesn't exist
 echo "📁 Preparing static files directory..."
