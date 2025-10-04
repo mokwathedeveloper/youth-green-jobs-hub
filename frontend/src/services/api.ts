@@ -856,6 +856,32 @@ export const productsApi = {
     const response = await apiClient.post('/products/checkout/', checkoutData);
     return response.data;
   },
+
+  // Payment Methods
+  getPaymentProviders: async (): Promise<any> => {
+    const response = await apiClient.get('/products/payments/providers/');
+    return response.data;
+  },
+
+  initiatePayment: async (paymentData: {
+    order_id: string;
+    provider: string;
+    customer_phone: string;
+    customer_email?: string;
+  }): Promise<any> => {
+    const response = await apiClient.post('/products/payments/initiate/', paymentData);
+    return response.data;
+  },
+
+  verifyPayment: async (transactionId: string): Promise<any> => {
+    const response = await apiClient.get(`/products/payments/verify/${transactionId}/`);
+    return response.data;
+  },
+
+  getPaymentHistory: async (params?: any): Promise<any> => {
+    const response = await apiClient.get('/products/payments/history/', { params });
+    return response.data;
+  },
 };
 
 // Analytics API Service

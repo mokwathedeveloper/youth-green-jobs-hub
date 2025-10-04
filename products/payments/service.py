@@ -10,14 +10,16 @@ from ..models import PaymentProvider, PaymentTransaction, Order
 from .base import BasePaymentProvider, PaymentResult
 from .mpesa import MpesaProvider
 from .paystack import PaystackProvider
+from .credits import CreditsProvider
 
 
 class PaymentService:
     """Central payment service manager"""
-    
+
     PROVIDERS = {
         'mpesa': MpesaProvider,
         'paystack': PaystackProvider,
+        'credits': CreditsProvider,
     }
     
     @classmethod

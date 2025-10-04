@@ -40,7 +40,7 @@ import { CollectionEventsPage } from './pages/CollectionEventsPage';
 import { CreditTransactionsPage } from './pages/CreditTransactionsPage';
 
 // Product Pages
-import { ProductsPage, ProductDetailPage, CheckoutPage } from './pages/products';
+import { ProductsPage, ProductDetailPage, CheckoutPage, PaymentPage } from './pages/products';
 
 
 
@@ -86,6 +86,7 @@ const App: FC = () => {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="checkout" element={<CheckoutPage />} />
+              <Route path="payment/:orderId" element={<PaymentPage />} />
               <Route path="orders" element={<OrdersPage />} />
               <Route path="orders/:id" element={<OrderDetailPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />

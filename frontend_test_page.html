@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend API Test - Youth Green Jobs Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #218838; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Frontend API Test - Youth Green Jobs Hub</h1>
+    <p>Use this page to test the frontend-backend integration for cart and order functionality.</p>
+
+    <div class="grid">
+        <!-- Authentication Section -->
+        <div class="container">
+            <h2>🔑 Authentication</h2>
+            <div>
+                <input type="text" id="username" placeholder="Username" value="admin">
+                <input type="password" id="password" placeholder="Password" value="YouthGreenJobs2024!">
+                <button onclick="login()">Login</button>
+                <button onclick="logout()">Logout</button>
+            </div>
+            <div id="auth-status" class="status info">Not logged in</div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="container">
+            <h2>📦 Products</h2>
+            <button onclick="loadProducts()">Load Products</button>
+            <div id="products-status" class="status info">Click to load products</div>
+            <select id="product-select">
+                <option value="">Select a product...</option>
+            </select>
+        </div>
+
+        <!-- Cart Section -->
+        <div class="container">
+            <h2>🛒 Shopping Cart</h2>
+            <div>
+                <input type="number" id="quantity" value="1" min="1" max="10">
+                <button onclick="addToCart()">Add to Cart</button>
+                <button onclick="viewCart()">View Cart</button>
+                <button onclick="clearCart()">Clear Cart</button>
+            </div>
+            <div id="cart-status" class="status info">Cart actions will appear here</div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="container">
+            <h2>📋 Orders</h2>
+            <div>
+                <input type="text" id="delivery-address" placeholder="Delivery Address" value="123 Test Street, Nairobi">
+                <input type="text" id="delivery-phone" placeholder="Phone" value="+254712345678">
+                <select id="payment-method">
+                    <option value="credits">Credits</option>
+                    <option value="cash">Cash</option>
+                    <option value="mobile_money">Mobile Money</option>
+                </select>
+                <button onclick="createOrder()">Place Order</button>
+            </div>
+            <div id="order-status" class="status info">Order actions will appear here</div>
+        </div>
+    </div>
+
+    <!-- Debug Log -->
+    <div class="container">
+        <h2>🐛 Debug Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="debug-log" class="log">Debug information will appear here...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://youth-green-jobs-hub.onrender.com/api/v1';
+        let authToken = null;
+        let products = [];
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debug-log');
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showStatus('auth-status', '❌ Please enter username and password', 'error');
+                return;
+            }
+
+            log(`Attempting login for user: ${username}`);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username_or_email: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                log(`Login response: ${JSON.stringify(data)}`);
+
+                if (response.ok && data.access) {
+                    authToken = data.access;
+                    showStatus('auth-status', `✅ Logged in as ${data.user?.username || username}`, 'success');
+                    log(`Login successful. Token: ${authToken.substring(0, 20)}...`);
+                } else {
+                    showStatus('auth-status', `❌ Login failed: ${data.detail || 'Unknown error'}`, 'error');
+                    log(`Login failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('auth-status', `❌ Login error: ${error.message}`, 'error');
+                log(`Login error: ${error.message}`);
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            showStatus('auth-status', 'Logged out', 'info');
+            log('User logged out');
+        }
+
+        async function loadProducts() {
+            log('Loading products...');
+
+            try {
+                const response = await fetch(`${API_BASE}/products/products/`, {
+                    headers: authToken ? {
+                        'Authorization': `Bearer ${authToken}`
+                    } : {}
+                });
+
+                const data = await response.json();
+                log(`Products response: ${JSON.stringify(data)}`);
+
+                if (response.ok) {
+                    products = data.results || [];
+                    showStatus('products-status', `✅ Loaded ${products.length} products`, 'success');
+                    
+                    // Populate product select
+                    const select = document.getElementById('product-select');
+                    select.innerHTML = '<option value="">Select a product...</option>';
+                    products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = `${product.name} - $${product.discounted_price || product.price}`;
+                        select.appendChild(option);
+                    });
+                    
+                    log(`Products loaded successfully: ${products.length} items`);
+                } else {
+                    showStatus('products-status', `❌ Failed to load products: ${data.detail || 'Unknown error'}`, 'error');
+                    log(`Products loading failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('products-status', `❌ Products error: ${error.message}`, 'error');
+                log(`Products error: ${error.message}`);
+            }
+        }
+
+        async function addToCart() {
+            const productId = document.getElementById('product-select').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            if (!authToken) {
+                showStatus('cart-status', '❌ Please login first', 'error');
+                return;
+            }
+
+            if (!productId) {
+                showStatus('cart-status', '❌ Please select a product', 'error');
+                return;
+            }
+
+            log(`Adding to cart: product=${productId}, quantity=${quantity}`);
+
+            try {
+                const response = await fetch(`${API_BASE}/products/cart/add/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity
+                    })
+                });
+
+                const data = await response.json();
+                log(`Add to cart response: ${JSON.stringify(data)}`);
+
+                if (response.ok) {
+                    showStatus('cart-status', '✅ Product added to cart successfully!', 'success');
+                    log('Product added to cart successfully');
+                } else {
+                    showStatus('cart-status', `❌ Add to cart failed: ${data.detail || data.error || 'Unknown error'}`, 'error');
+                    log(`Add to cart failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('cart-status', `❌ Add to cart error: ${error.message}`, 'error');
+                log(`Add to cart error: ${error.message}`);
+            }
+        }
+
+        async function viewCart() {
+            if (!authToken) {
+                showStatus('cart-status', '❌ Please login first', 'error');
+                return;
+            }
+
+            log('Viewing cart...');
+
+            try {
+                const response = await fetch(`${API_BASE}/products/cart/`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                log(`Cart response: ${JSON.stringify(data)}`);
+
+                if (response.ok) {
+                    const itemCount = data.items ? data.items.length : 0;
+                    const total = data.total_amount || 0;
+                    showStatus('cart-status', `✅ Cart: ${itemCount} items, Total: $${total}`, 'success');
+                    log(`Cart viewed successfully: ${itemCount} items`);
+                } else {
+                    showStatus('cart-status', `❌ View cart failed: ${data.detail || 'Unknown error'}`, 'error');
+                    log(`View cart failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('cart-status', `❌ View cart error: ${error.message}`, 'error');
+                log(`View cart error: ${error.message}`);
+            }
+        }
+
+        async function clearCart() {
+            if (!authToken) {
+                showStatus('cart-status', '❌ Please login first', 'error');
+                return;
+            }
+
+            log('Clearing cart...');
+
+            try {
+                const response = await fetch(`${API_BASE}/products/cart/clear/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    showStatus('cart-status', '✅ Cart cleared successfully!', 'success');
+                    log('Cart cleared successfully');
+                } else {
+                    const data = await response.json();
+                    showStatus('cart-status', `❌ Clear cart failed: ${data.detail || 'Unknown error'}`, 'error');
+                    log(`Clear cart failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('cart-status', `❌ Clear cart error: ${error.message}`, 'error');
+                log(`Clear cart error: ${error.message}`);
+            }
+        }
+
+        async function createOrder() {
+            if (!authToken) {
+                showStatus('order-status', '❌ Please login first', 'error');
+                return;
+            }
+
+            const address = document.getElementById('delivery-address').value;
+            const phone = document.getElementById('delivery-phone').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+
+            if (!address || !phone) {
+                showStatus('order-status', '❌ Please fill in delivery details', 'error');
+                return;
+            }
+
+            log('Creating order...');
+
+            try {
+                // First get cart items
+                const cartResponse = await fetch(`${API_BASE}/products/cart/`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const cartData = await cartResponse.json();
+                log(`Cart data for order: ${JSON.stringify(cartData)}`);
+
+                if (!cartResponse.ok || !cartData.items || cartData.items.length === 0) {
+                    showStatus('order-status', '❌ Cart is empty. Add items first.', 'error');
+                    return;
+                }
+
+                // Create order
+                const orderData = {
+                    payment_method: paymentMethod,
+                    delivery_address: address,
+                    delivery_county: 'Nairobi',
+                    delivery_phone: phone,
+                    items: cartData.items.map(item => ({
+                        product_id: item.product.id,
+                        quantity: item.quantity
+                    }))
+                };
+
+                log(`Order data: ${JSON.stringify(orderData)}`);
+
+                const response = await fetch(`${API_BASE}/products/orders/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await response.json();
+                log(`Order response: ${JSON.stringify(data)}`);
+
+                if (response.ok) {
+                    showStatus('order-status', `✅ Order created: ${data.order_number || data.id}`, 'success');
+                    log(`Order created successfully: ${data.order_number || data.id}`);
+                } else {
+                    showStatus('order-status', `❌ Order failed: ${data.detail || JSON.stringify(data)}`, 'error');
+                    log(`Order creation failed: ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                showStatus('order-status', `❌ Order error: ${error.message}`, 'error');
+                log(`Order error: ${error.message}`);
+            }
+        }
+
+        // Initialize
+        log('Frontend API Test Page loaded');
+        log(`API Base URL: ${API_BASE}`);
+    </script>
+</body>
+</html>

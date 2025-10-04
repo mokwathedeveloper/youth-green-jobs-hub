@@ -79,9 +79,9 @@ export const CheckoutPage: React.FC = () => {
 
       // Clear cart after successful order
       await productsApi.clearCart();
-      
-      // Redirect to order confirmation
-      navigate(`/dashboard/orders/${order.id}`, {
+
+      // Redirect to payment page for payment processing
+      navigate(`/dashboard/payment/${order.id}`, {
         state: { orderCreated: true }
       });
     } catch (err: any) {
