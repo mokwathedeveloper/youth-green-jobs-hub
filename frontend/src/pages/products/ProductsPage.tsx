@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ShoppingBag, Leaf, Award, TrendingUp } from 'lucide-react';
 import { ProductList } from '../../components/products';
 import { productsApi } from '../../services/api';
+import { useCart } from '../../hooks/useCart';
 import type { ProductListItem, ProductSearchParams, ProductCategory } from '../../types/products';
 
 export const ProductsPage: React.FC = () => {
@@ -16,6 +17,9 @@ export const ProductsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [favoriteProducts, setFavoriteProducts] = useState<string[]>([]);
+
+  // Cart hook for managing cart state
+  const { addToCart, addToCartLoading } = useCart();
 
   // Convert URL search params to API params
   const getFiltersFromURL = (): ProductSearchParams => {
@@ -114,12 +118,17 @@ export const ProductsPage: React.FC = () => {
   // Handle add to cart
   const handleAddToCart = async (productId: string) => {
     try {
-      await productsApi.addToCart({ product_id: productId, quantity: 1 });
-      // You might want to show a success message here
-      console.log('Product added to cart successfully');
+      const success = await addToCart(productId, 1);
+      if (success) {
+        console.log('Product added to cart successfully');
+        // You might want to show a success toast here
+      } else {
+        console.error('Failed to add product to cart');
+        // You might want to show an error toast here
+      }
     } catch (err) {
       console.error('Error adding to cart:', err);
-      // You might want to show an error message here
+      // You might want to show an error toast here
     }
   };
 
@@ -233,6 +242,7 @@ export const ProductsPage: React.FC = () => {
             onAddToCart={handleAddToCart}
             onToggleFavorite={handleToggleFavorite}
             favoriteProducts={favoriteProducts}
+            addToCartLoading={addToCartLoading}
             showFilters={true}
           />
         </div>

@@ -14,6 +14,19 @@ const OrdersPage: React.FC = () => {
     loadOrders();
   }, []);
 
+  // Debug logging in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Orders Debug:', {
+        orders,
+        ordersLoading,
+        ordersError,
+        filteredOrders,
+        selectedStatus
+      });
+    }
+  }, [orders, ordersLoading, ordersError, filteredOrders, selectedStatus]);
+
   const formatPrice = (price: number | string) => {
     // Convert to number if it's a string
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -122,11 +135,30 @@ const OrdersPage: React.FC = () => {
   if (ordersError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load orders</h2>
-          <p className="text-gray-600 mb-4">There was an error loading your orders.</p>
-          <Button onClick={() => loadOrders()}>Try Again</Button>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Orders</h2>
+          <p className="text-gray-600 mb-4">
+            We're having trouble fetching your orders. This could be due to a network issue or server maintenance.
+          </p>
+          <div className="space-y-3">
+            <Button onClick={() => loadOrders()} className="w-full">
+              Try Again
+            </Button>
+            <Link to="/dashboard/products">
+              <Button variant="outline" className="w-full">
+                Continue Shopping
+              </Button>
+            </Link>
+          </div>
+          {process.env.NODE_ENV === 'development' && (
+            <details className="mt-4 text-left">
+              <summary className="text-sm text-gray-500 cursor-pointer">Error Details</summary>
+              <pre className="text-xs text-red-600 mt-2 p-2 bg-red-50 rounded overflow-auto">
+                {JSON.stringify(ordersError, null, 2)}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     );
@@ -172,23 +204,40 @@ const OrdersPage: React.FC = () => {
         </div>
 
         {/* Orders List */}
-        {filteredOrders.length === 0 ? (
+        {!ordersLoading && filteredOrders.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              {selectedStatus === 'all' ? 'No orders yet' : `No ${selectedStatus} orders`}
+              {selectedStatus === 'all' ? 'No Orders Found' : `No ${selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)} Orders`}
             </h2>
             <p className="text-gray-600 mb-6">
-              {selectedStatus === 'all' 
-                ? 'Start shopping to see your orders here.'
-                : `You don't have any ${selectedStatus} orders at the moment.`
+              {selectedStatus === 'all'
+                ? 'You haven\'t placed any orders yet. Start shopping for eco-friendly products to see your orders here.'
+                : `You don't have any ${selectedStatus} orders at the moment. Try selecting a different status or place a new order.`
               }
             </p>
-            <Link to="/dashboard/products">
-              <Button className="bg-green-600 hover:bg-green-700">
-                Browse Products
-              </Button>
-            </Link>
+            <div className="space-y-3">
+              <Link to="/dashboard/products">
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <Package className="w-4 h-4 mr-2" />
+                  Browse Products
+                </Button>
+              </Link>
+              {selectedStatus !== 'all' && (
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedStatus('all')}
+                  className="ml-3"
+                >
+                  View All Orders
+                </Button>
+              )}
+            </div>
+            {orders && orders.length > 0 && selectedStatus !== 'all' && (
+              <p className="text-sm text-gray-500 mt-4">
+                You have {orders.length} total order{orders.length !== 1 ? 's' : ''} in other statuses.
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

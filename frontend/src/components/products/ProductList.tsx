@@ -25,6 +25,7 @@ interface ProductListProps {
   showFiltersPanel?: boolean;
   className?: string;
   initialFilters?: ProductSearchParams;
+  addToCartLoading?: boolean;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -42,7 +43,8 @@ export const ProductList: React.FC<ProductListProps> = ({
   showFilters = true,
   showFiltersPanel: propShowFiltersPanel,
   className = '',
-  initialFilters = {}
+  initialFilters = {},
+  addToCartLoading = false
 }) => {
   const {
     products: hookProducts,
@@ -298,6 +300,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                 onAddToCart={onAddToCart}
                 onToggleFavorite={onToggleFavorite}
                 isFavorite={favoriteProducts.includes(product.id)}
+                isLoading={addToCartLoading}
                 className={viewMode === 'list' ? 'flex' : ''}
               />
             ))}
