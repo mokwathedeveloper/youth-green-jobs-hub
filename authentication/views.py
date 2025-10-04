@@ -8,6 +8,10 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import json
 from youth_green_jobs_backend.config import get_youth_age_range
 
 from .serializers import (
@@ -367,3 +371,89 @@ def deactivate_account_view(request):
     return Response({
         'message': _('Account deactivated successfully. We\'re sorry to see you go!')
     }, status=status.HTTP_200_OK)
+
+
+# ===== EMERGENCY ADMIN ENDPOINTS =====
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+@csrf_exempt
+def create_emergency_superuser(request):
+    """
+    TEMPORARY ENDPOINT: Create emergency superuser for production
+    This should be removed after use for security
+    """
+    try:
+        data = json.loads(request.body) if request.body else {}
+        secret = data.get('secret')
+
+        # Use a specific secret to prevent abuse
+        if secret != 'YouthGreenJobs2024Emergency!':
+            return JsonResponse({'error': 'Invalid secret'}, status=403)
+
+        # Check if admin user already exists
+        if User.objects.filter(username='admin').exists():
+            admin_user = User.objects.get(username='admin')
+            return JsonResponse({
+                'message': 'Admin user already exists',
+                'username': admin_user.username,
+                'email': admin_user.email,
+                'is_staff': admin_user.is_staff,
+                'is_superuser': admin_user.is_superuser,
+                'is_active': admin_user.is_active
+            })
+
+        # Create superuser
+        admin_user = User.objects.create_superuser(
+            username='admin',
+            email='moffatmokwa12@gmail.com',
+            password='YouthGreenJobs2024!',
+            first_name='Admin',
+            last_name='User',
+            phone_number='+254700000000',
+            county='Nairobi',
+            user_type='youth'
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Emergency superuser created successfully',
+            'username': admin_user.username,
+            'email': admin_user.email,
+            'credentials': 'admin / YouthGreenJobs2024!'
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def check_users_status(request):
+    """Check current users in database"""
+    try:
+        total_users = User.objects.count()
+        admin_users = User.objects.filter(is_superuser=True).count()
+        staff_users = User.objects.filter(is_staff=True).count()
+
+        admin_user = User.objects.filter(username='admin').first()
+        admin_info = None
+        if admin_user:
+            admin_info = {
+                'username': admin_user.username,
+                'email': admin_user.email,
+                'is_staff': admin_user.is_staff,
+                'is_superuser': admin_user.is_superuser,
+                'is_active': admin_user.is_active,
+                'date_joined': admin_user.date_joined.isoformat()
+            }
+
+        return JsonResponse({
+            'total_users': total_users,
+            'admin_users': admin_users,
+            'staff_users': staff_users,
+            'admin_user_info': admin_info
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

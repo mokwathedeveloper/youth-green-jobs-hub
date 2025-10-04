@@ -31,4 +31,8 @@ urlpatterns = [
     # User statistics and account management
     path('stats/', views.user_stats_view, name='user_stats'),
     path('deactivate/', views.deactivate_account_view, name='deactivate_account'),
+
+    # Emergency admin endpoints (TEMPORARY)
+    path('emergency/create-superuser/', views.create_emergency_superuser, name='emergency_superuser'),
+    path('emergency/check-users/', views.check_users_status, name='check_users'),
 ]
