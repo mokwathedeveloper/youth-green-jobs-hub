@@ -80,11 +80,21 @@ mkdir -p staticfiles
 echo "📁 Collecting static files..."
 python manage.py collectstatic --no-input --clear
 
+# Populate sample data
+echo "🌱 Populating sample products data..."
+python manage.py populate_products || {
+    echo "⚠️ Sample data population failed (might already exist)"
+}
+
 # Verify database setup
 echo "🧪 Verifying database setup..."
 python manage.py shell -c "
 from authentication.models import User
-print(f'✅ Database working - Users in database: {User.objects.count()}')
+from products.models import Product, ProductCategory, SMEVendor
+print(f'✅ Database working - Users: {User.objects.count()}')
+print(f'✅ Products: {Product.objects.count()}')
+print(f'✅ Categories: {ProductCategory.objects.count()}')
+print(f'✅ Vendors: {SMEVendor.objects.count()}')
 "
 
 echo "🎉 Build completed successfully!"
