@@ -144,6 +144,103 @@ def fix_product_images(modeladmin, request, queryset):
 fix_product_images.short_description = "🖼️ Fix product images with placeholders"
 
 
+def populate_all_sections(modeladmin, request, queryset):
+    """Admin action to populate ALL sections with sample data"""
+    try:
+        from django.core.management import call_command
+        from authentication.models import User
+        from products.models import Product, ProductCategory, SMEVendor, Order, OrderItem, ProductReview
+        from waste_collection.simple_models import WasteReport, CollectionEvent, CreditTransaction
+        from django.contrib.auth.models import Group
+        from decimal import Decimal
+        from datetime import datetime, timedelta
+        import random
+
+        # Get current counts
+        before_counts = {
+            'users': User.objects.count(),
+            'products': Product.objects.count(),
+            'orders': Order.objects.count(),
+            'reviews': ProductReview.objects.count(),
+            'waste_reports': WasteReport.objects.count(),
+            'collection_events': CollectionEvent.objects.count(),
+            'credit_transactions': CreditTransaction.objects.count()
+        }
+
+        # 1. Populate products first
+        call_command('populate_products', verbosity=1)
+
+        # 2. Create sample orders
+        users = User.objects.all()[:3]
+        products = Product.objects.all()[:3]
+
+        if users and products:
+            for i, user in enumerate(users):
+                order = Order.objects.create(
+                    user=user,
+                    total_amount=Decimal('50.00') + (i * 10),
+                    status='completed',
+                    shipping_address=f"Address {i+1}, Nairobi"
+                )
+
+                # Add order items
+                for j, product in enumerate(products[:2]):
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        quantity=j + 1,
+                        price=product.price
+                    )
+
+        # 3. Create sample reviews
+        if users and products:
+            for user in users:
+                for product in products[:2]:
+                    ProductReview.objects.get_or_create(
+                        user=user,
+                        product=product,
+                        defaults={
+                            'rating': random.randint(4, 5),
+                            'comment': f"Great product! Very satisfied with {product.name}.",
+                            'is_verified_purchase': True
+                        }
+                    )
+
+        # 4. Create sample waste reports
+        if users:
+            for i, user in enumerate(users):
+                WasteReport.objects.get_or_create(
+                    reporter=user,
+                    defaults={
+                        'title': f'Waste Report {i+1}',
+                        'description': f'Found waste at location {i+1}',
+                        'location_description': f'Near market area {i+1}',
+                        'estimated_quantity': Decimal('5.5') + i,
+                        'status': 'reported'
+                    }
+                )
+
+        # Get final counts
+        after_counts = {
+            'users': User.objects.count(),
+            'products': Product.objects.count(),
+            'orders': Order.objects.count(),
+            'reviews': ProductReview.objects.count(),
+            'waste_reports': WasteReport.objects.count(),
+            'collection_events': CollectionEvent.objects.count(),
+            'credit_transactions': CreditTransaction.objects.count()
+        }
+
+        messages.success(request, "🎉 ALL SECTIONS POPULATED SUCCESSFULLY!")
+        messages.info(request, f"Before: {before_counts}")
+        messages.info(request, f"After: {after_counts}")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error populating all sections: {str(e)}")
+
+populate_all_sections.short_description = "🚀 Populate ALL sections with sample data"
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -226,7 +323,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('sort_order', 'name')
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections]
 
     fieldsets = (
         ('Basic Information', {
@@ -269,7 +366,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at', 'updated_at'
     )
     inlines = [ProductImageInline]
-    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images]
+    actions = [populate_sample_data, clear_product_data, check_database_status, fix_product_images, populate_all_sections]
 
     fieldsets = (
         ('Basic Information', {
