@@ -2,10 +2,92 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.contrib import messages
+from django.core.management import call_command
+from django.http import HttpResponseRedirect
 from .models import (
     SMEVendor, ProductCategory, Product, ProductImage,
     Order, OrderItem, ProductReview, ShoppingCart, CartItem
 )
+
+
+# ===== ADMIN ACTIONS FOR DATABASE INITIALIZATION =====
+
+def populate_sample_data(modeladmin, request, queryset):
+    """Admin action to populate the database with sample data"""
+    try:
+        # Import here to avoid circular imports
+        from django.core.management import call_command
+        from authentication.models import User
+
+        # Check current state
+        user_count = User.objects.count()
+        product_count = Product.objects.count()
+        category_count = ProductCategory.objects.count()
+        vendor_count = SMEVendor.objects.count()
+
+        messages.info(request, f"Before population: {user_count} users, {product_count} products, {category_count} categories, {vendor_count} vendors")
+
+        # Run the populate command
+        call_command('populate_products', verbosity=2)
+
+        # Check new state
+        new_user_count = User.objects.count()
+        new_product_count = Product.objects.count()
+        new_category_count = ProductCategory.objects.count()
+        new_vendor_count = SMEVendor.objects.count()
+
+        messages.success(request, f"✅ Database populated successfully!")
+        messages.info(request, f"After population: {new_user_count} users, {new_product_count} products, {new_category_count} categories, {new_vendor_count} vendors")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error populating database: {str(e)}")
+
+populate_sample_data.short_description = "🌱 Populate database with sample data"
+
+def clear_product_data(modeladmin, request, queryset):
+    """Admin action to clear all product-related data"""
+    try:
+        # Clear in correct order to avoid foreign key constraints
+        Product.objects.all().delete()
+        SMEVendor.objects.all().delete()
+        ProductCategory.objects.all().delete()
+
+        messages.success(request, "✅ All product data cleared successfully!")
+        messages.info(request, "You can now run 'Populate database with sample data' to add fresh data")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error clearing data: {str(e)}")
+
+clear_product_data.short_description = "🧹 Clear all product data"
+
+def check_database_status(modeladmin, request, queryset):
+    """Admin action to check current database status"""
+    try:
+        from authentication.models import User
+
+        user_count = User.objects.count()
+        product_count = Product.objects.count()
+        category_count = ProductCategory.objects.count()
+        vendor_count = SMEVendor.objects.count()
+        order_count = Order.objects.count()
+
+        messages.info(request, f"📊 Database Status:")
+        messages.info(request, f"Users: {user_count}")
+        messages.info(request, f"Products: {product_count}")
+        messages.info(request, f"Categories: {category_count}")
+        messages.info(request, f"Vendors: {vendor_count}")
+        messages.info(request, f"Orders: {order_count}")
+
+        if product_count == 0:
+            messages.warning(request, "⚠️ No products found. Consider running 'Populate database with sample data'")
+        else:
+            messages.success(request, "✅ Database has data")
+
+    except Exception as e:
+        messages.error(request, f"❌ Error checking database: {str(e)}")
+
+check_database_status.short_description = "📊 Check database status"
 
 
 class ProductImageInline(admin.TabularInline):
@@ -90,6 +172,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('sort_order', 'name')
+    actions = [populate_sample_data, clear_product_data, check_database_status]
 
     fieldsets = (
         ('Basic Information', {
@@ -132,6 +215,7 @@ class ProductAdmin(admin.ModelAdmin):
         'created_at', 'updated_at'
     )
     inlines = [ProductImageInline]
+    actions = [populate_sample_data, clear_product_data, check_database_status]
 
     fieldsets = (
         ('Basic Information', {
